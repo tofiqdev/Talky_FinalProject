@@ -1,18 +1,25 @@
 import { useState } from 'react';
 import { useChatStore } from '../../store/chatStore';
-import { signalrService } from '../../services/signalrService';
 import MessageList from './MessageList';
 
 export default function ChatWindow() {
-  const { selectedUser } = useChatStore();
+  const { selectedUser, sendMessage } = useChatStore();
   const [message, setMessage] = useState('');
+  const [isSending, setIsSending] = useState(false);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!message.trim() || !selectedUser) return;
+    if (!message.trim() || !selectedUser || isSending) return;
 
-    await signalrService.sendMessage(selectedUser.id, message);
-    setMessage('');
+    setIsSending(true);
+    try {
+      await sendMessage(selectedUser.id, message);
+      setMessage('');
+    } catch (error) {
+      console.error('Failed to send message:', error);
+    } finally {
+      setIsSending(false);
+    }
   };
 
   if (!selectedUser) return null;
@@ -23,14 +30,18 @@ export default function ChatWindow() {
       <div className="bg-white px-6 py-4 flex items-center justify-between border-b border-gray-100">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <div className="w-10 h-10 rounded-full bg-gray-300"></div>
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white font-semibold">
+              {selectedUser.username.charAt(0).toUpperCase()}
+            </div>
             {selectedUser.isOnline && (
               <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
             )}
           </div>
           <div>
             <h3 className="font-semibold text-gray-900">{selectedUser.username}</h3>
-            <p className="text-xs text-green-500">Online</p>
+            <p className={`text-xs ${selectedUser.isOnline ? 'text-green-500' : 'text-gray-500'}`}>
+              {selectedUser.isOnline ? 'Online' : 'Offline'}
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -67,7 +78,8 @@ export default function ChatWindow() {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Message..."
-            className="flex-1 px-4 py-2.5 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm"
+            disabled={isSending}
+            className="flex-1 px-4 py-2.5 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm disabled:opacity-50"
           />
           <button type="button" className="text-gray-400 hover:text-gray-600">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -81,7 +93,8 @@ export default function ChatWindow() {
           </button>
           <button
             type="submit"
-            className="w-10 h-10 rounded-full bg-cyan-500 hover:bg-cyan-600 flex items-center justify-center text-white transition"
+            disabled={isSending || !message.trim()}
+            className="w-10 h-10 rounded-full bg-cyan-500 hover:bg-cyan-600 flex items-center justify-center text-white transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />

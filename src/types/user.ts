@@ -1,9 +1,12 @@
 export interface User {
-  id: string;
+  id: number;
   username: string;
   email: string;
+  avatar?: string | null;
+  bio?: string | null;
   isOnline: boolean;
-  lastSeen?: Date;
+  lastSeen?: string | null;
+  createdAt: string;
 }
 
 export interface LoginDto {
@@ -21,3 +24,4 @@ export interface AuthResponse {
   token: string;
   user: User;
 }
+

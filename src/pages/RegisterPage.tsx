@@ -1,17 +1,23 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../store/authStore';
 
 export default function RegisterPage() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const { register, isLoading, error } = useAuthStore();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Backend bağlantısı kurulunca burası güncellenecek
-    console.log('Register:', { username, email, password });
-    navigate('/');
+    try {
+      await register(username, email, password);
+      navigate('/chat');
+    } catch (error) {
+      // Error is handled in the store
+      console.error('Register error:', error);
+    }
   };
 
   return (
@@ -21,6 +27,12 @@ export default function RegisterPage() {
           <h1 className="text-4xl font-bold text-gray-800 mb-2">Talky</h1>
           <p className="text-gray-600">Kayıt Ol</p>
         </div>
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleRegister} className="space-y-6">
           <div>
@@ -34,6 +46,8 @@ export default function RegisterPage() {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
               placeholder="kullaniciadi"
               required
+              minLength={3}
+              disabled={isLoading}
             />
           </div>
 
@@ -48,6 +62,7 @@ export default function RegisterPage() {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
               placeholder="email@example.com"
               required
+              disabled={isLoading}
             />
           </div>
 
@@ -62,14 +77,17 @@ export default function RegisterPage() {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
               placeholder="••••••••"
               required
+              minLength={6}
+              disabled={isLoading}
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-purple-500 to-pink-600 text-white py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-700 transition-all shadow-lg"
+            disabled={isLoading}
+            className="w-full bg-gradient-to-r from-purple-500 to-pink-600 text-white py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Kayıt Ol
+            {isLoading ? 'Kayıt yapılıyor...' : 'Kayıt Ol'}
           </button>
         </form>
 

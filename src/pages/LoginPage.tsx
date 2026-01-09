@@ -6,21 +6,17 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
-  const setAuth = useAuthStore((state) => state.setAuth);
+  const { login, isLoading, error } = useAuthStore();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Backend bağlantısı kurulunca burası güncellenecek
-    // Şimdilik mock data
-    const mockUser = {
-      id: '1',
-      username: 'Test User',
-      email,
-      isOnline: true,
-    };
-    const mockToken = 'mock-jwt-token';
-    setAuth(mockUser, mockToken);
-    navigate('/chat');
+    try {
+      await login(email, password);
+      navigate('/chat');
+    } catch (error) {
+      // Error is handled in the store
+      console.error('Login error:', error);
+    }
   };
 
   return (
@@ -30,6 +26,12 @@ export default function LoginPage() {
           <h1 className="text-4xl font-bold text-gray-800 mb-2">Talky</h1>
           <p className="text-gray-600">Giriş Yap</p>
         </div>
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
@@ -43,6 +45,7 @@ export default function LoginPage() {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition"
               placeholder="email@example.com"
               required
+              disabled={isLoading}
             />
           </div>
 
@@ -57,14 +60,17 @@ export default function LoginPage() {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition"
               placeholder="••••••••"
               required
+              minLength={6}
+              disabled={isLoading}
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-3 rounded-lg font-semibold hover:from-cyan-600 hover:to-blue-700 transition-all shadow-lg"
+            disabled={isLoading}
+            className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-3 rounded-lg font-semibold hover:from-cyan-600 hover:to-blue-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Giriş Yap
+            {isLoading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
           </button>
         </form>
 

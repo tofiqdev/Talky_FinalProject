@@ -1,58 +1,47 @@
 import { useChatStore } from '../../store/chatStore';
-import type { User } from '../../types/user';
 
 export default function ChatsTab() {
   const { users, selectedUser, setSelectedUser } = useChatStore();
 
-  // Mock users
-  const mockUsers: User[] = [
-    { id: '2', username: 'Jordan Smith', email: 'jordan@test.com', isOnline: true },
-    { id: '3', username: 'Alex Rivier', email: 'alex@test.com', isOnline: true },
-    { id: '4', username: 'Chris Evans', email: 'chris@test.com', isOnline: false },
-    { id: '5', username: 'Taylor Reed', email: 'taylor@test.com', isOnline: false },
-    { id: '6', username: 'Maria Garcia', email: 'maria@test.com', isOnline: false },
-  ];
+  const getLastSeenText = (lastSeen: string | null | undefined, isOnline: boolean) => {
+    if (isOnline) return 'NOW';
+    if (!lastSeen) return 'OFFLINE';
+    
+    const date = new Date(lastSeen);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
 
-  const displayUsers = users.length > 0 ? users : mockUsers;
-
-  // Story users
-  const storyUsers = [
-    { id: 's1', name: 'Your Story', hasStory: true },
-    { id: 's2', name: 'Alex', hasStory: false },
-    { id: 's3', name: 'Jordan', hasStory: false },
-    { id: 's4', name: 'Sarah', hasStory: false },
-  ];
+    if (diffMins < 60) return `${diffMins}M`;
+    if (diffHours < 24) return `${diffHours}H`;
+    if (diffDays === 1) return 'YESTERDAY';
+    return `${diffDays}D`;
+  };
 
   return (
     <>
-      {/* Stories */}
+      {/* Stories - Placeholder for now */}
       <div className="px-5 py-4 flex gap-4 overflow-x-auto border-b border-gray-100">
-        {storyUsers.map((story) => (
-          <div key={story.id} className="flex flex-col items-center gap-1 min-w-[60px]">
-            <div className={`w-14 h-14 rounded-full flex items-center justify-center ${story.hasStory ? 'bg-gradient-to-br from-cyan-400 to-blue-500 p-0.5' : 'bg-gray-200'}`}>
-              <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
-                <div className="w-12 h-12 rounded-full bg-gray-300"></div>
-              </div>
+        <div className="flex flex-col items-center gap-1 min-w-[60px]">
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 p-0.5">
+            <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full bg-gray-300"></div>
             </div>
-            <span className="text-xs text-gray-700">{story.name}</span>
           </div>
-        ))}
+          <span className="text-xs text-gray-700">Your Story</span>
+        </div>
       </div>
 
       {/* Chat List */}
       <div className="flex-1 overflow-y-auto">
-        {displayUsers.map((user, index) => {
-          const messages = [
-            'Are you coming to the party...',
-            'Sounds good! See you then. ✅',
-            "I've sent the document via email.",
-            'Typing...',
-            'Happy Birthday! Hope you hav...'
-          ];
-          const times = ['NOW', '2H', '4H', '6d', 'YESTERDAY'];
-          const unreadCounts = [1, 0, 0, 0, 0];
-          
-          return (
+        {users.length === 0 ? (
+          <div className="px-5 py-8 text-center text-gray-500">
+            No conversations yet. Start chatting with someone!
+          </div>
+        ) : (
+          users.map((user) => (
             <div
               key={user.id}
               onClick={() => setSelectedUser(user)}
@@ -61,7 +50,9 @@ export default function ChatsTab() {
               }`}
             >
               <div className="relative flex-shrink-0">
-                <div className="w-12 h-12 rounded-full bg-gray-300"></div>
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white font-semibold">
+                  {user.username.charAt(0).toUpperCase()}
+                </div>
                 {user.isOnline && (
                   <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
                 )}
@@ -69,23 +60,19 @@ export default function ChatsTab() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-1">
                   <h3 className="font-semibold text-gray-900 text-sm">{user.username}</h3>
-                  <span className="text-xs text-gray-500">{times[index]}</span>
+                  <span className="text-xs text-gray-500">
+                    {getLastSeenText(user.lastSeen, user.isOnline)}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <p className={`text-sm truncate ${index === 3 ? 'text-cyan-500' : 'text-gray-600'}`}>
-                    {index === 1 && <span className="mr-1">✓</span>}
-                    {messages[index]}
+                  <p className="text-sm truncate text-gray-600">
+                    {user.isOnline ? 'Online' : 'Offline'}
                   </p>
-                  {unreadCounts[index] > 0 && (
-                    <span className="ml-2 w-5 h-5 rounded-full bg-cyan-500 text-white text-xs flex items-center justify-center flex-shrink-0">
-                      {unreadCounts[index]}
-                    </span>
-                  )}
                 </div>
               </div>
             </div>
-          );
-        })}
+          ))
+        )}
       </div>
     </>
   );

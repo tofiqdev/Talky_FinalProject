@@ -1,41 +1,23 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useChatStore } from '../store/chatStore';
-import { useAuthStore } from '../store/authStore';
-import { signalrService } from '../services/signalrService';
 import Sidebar from '../components/sidebar/Sidebar';
 import ChatWindow from '../components/chat/ChatWindow';
 
 export default function ChatPage() {
-  const { token } = useAuthStore();
-  const { selectedUser, addMessage, updateUserStatus } = useChatStore();
-  const [isConnected, setIsConnected] = useState(false);
+  const { selectedUser, loadUsers, initializeSignalR, cleanup } = useChatStore();
 
   useEffect(() => {
-    if (token) {
-      signalrService.connect(token).then(() => {
-        setIsConnected(true);
+    // Load users from backend
+    loadUsers();
 
-        signalrService.onReceiveMessage((message) => {
-          addMessage(message);
-        });
+    // Initialize SignalR listeners
+    initializeSignalR();
 
-        signalrService.onUserOnline((userId) => {
-          updateUserStatus(userId, true);
-        });
-
-        signalrService.onUserOffline((userId) => {
-          updateUserStatus(userId, false);
-        });
-      }).catch(() => {
-        // SignalR bağlantısı başarısız - backend olmadan çalışıyor
-        console.log('SignalR connection failed - running in demo mode');
-      });
-    }
-
+    // Cleanup on unmount
     return () => {
-      signalrService.disconnect();
+      cleanup();
     };
-  }, [token]);
+  }, [loadUsers, initializeSignalR, cleanup]);
 
   return (
     <div className="h-screen flex bg-white">

@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useAuthStore } from './store/authStore';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -10,6 +11,13 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const initAuth = useAuthStore((state) => state.initAuth);
+
+  useEffect(() => {
+    // Initialize auth on app load
+    initAuth();
+  }, [initAuth]);
+
   return (
     <BrowserRouter>
       <Routes>

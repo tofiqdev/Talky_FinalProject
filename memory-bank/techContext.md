@@ -11,14 +11,15 @@
 - **React Router**: ^7.x - Sayfa yönlendirme
 - **Zustand**: ^5.x - State management
 
-### Backend (Henüz Kurulmadı)
+### Backend ✅ (Başladı)
 - **.NET 8**: C# Web API framework
 - **ASP.NET Core**: Web API
-- **SignalR**: WebSocket/gerçek zamanlı iletişim
-- **Entity Framework Core**: ORM
-- **SQL Server / PostgreSQL**: Database
-- **JWT Bearer**: Authentication
-- **BCrypt.Net**: Password hashing
+- **SignalR**: WebSocket/gerçek zamanlı iletişim (kurulu, henüz kullanılmıyor)
+- **Entity Framework Core**: 8.0.0 - ORM
+- **SQL Server LocalDB**: (localdb)\MSSQLLocalDB - Database
+- **JWT Bearer**: 8.0.0 - Authentication (kurulu, henüz yapılandırılmadı)
+- **BCrypt.Net-Next**: 4.0.3 - Password hashing
+- **Swagger**: 6.6.2 - API documentation
 
 ### Development Tools
 - **ESLint**: Frontend code linting
@@ -35,12 +36,26 @@ npm run build      # Production build
 npm run preview    # Preview production build
 ```
 
-### Backend (İleride)
+### Backend Kurulum ve Çalıştırma
 ```bash
-cd backend
+cd back/TalkyAPI
+
+# Paketleri yükle
 dotnet restore
-dotnet run         # Port 5000/5001
+
+# Database migration (ilk kez)
+dotnet ef migrations add InitialCreate
+dotnet ef database update
+
+# Uygulamayı çalıştır
+dotnet run
+# veya
+dotnet watch run  # Hot reload ile
 ```
+
+**API URL**: https://localhost:7183
+**Swagger UI**: https://localhost:7183/swagger
+**Database**: TalkyDB @ (localdb)\MSSQLLocalDB
 
 ## Proje Yapısı
 

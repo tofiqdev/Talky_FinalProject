@@ -1,13 +1,17 @@
 export interface Message {
-  id: string;
-  senderId: string;
-  receiverId: string;
+  id: number;
+  senderId: number;
+  receiverId: number;
+  senderUsername: string;
+  receiverUsername: string;
   content: string;
-  sentAt: Date;
+  sentAt: string;
   isRead: boolean;
+  readAt?: string | null;
 }
 
 export interface SendMessageDto {
-  receiverId: string;
+  receiverId: number;
   content: string;
 }
+
