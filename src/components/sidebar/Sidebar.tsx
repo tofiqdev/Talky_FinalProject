@@ -1,0 +1,91 @@
+import { useState } from 'react';
+import ChatsTab from './ChatsTab';
+import CallsTab from './CallsTab';
+import PeopleTab from './PeopleTab';
+import SettingsTab from './SettingsTab';
+
+type TabType = 'chats' | 'calls' | 'people' | 'settings';
+
+export default function Sidebar() {
+  const [activeTab, setActiveTab] = useState<TabType>('chats');
+
+  return (
+    <div className="w-[370px] bg-white flex flex-col h-screen">
+      {/* Header */}
+      <div className="px-5 py-4 flex items-center justify-between border-b border-gray-100">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-cyan-500 flex items-center justify-center">
+            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {activeTab === 'chats' && 'Messages'}
+            {activeTab === 'calls' && 'Calls'}
+            {activeTab === 'people' && 'People'}
+            {activeTab === 'settings' && 'Settings'}
+          </h1>
+        </div>
+        <div className="flex items-center gap-2">
+          <button className="w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center">
+            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </button>
+          <button className="w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center">
+            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'chats' && <ChatsTab />}
+      {activeTab === 'calls' && <CallsTab />}
+      {activeTab === 'people' && <PeopleTab />}
+      {activeTab === 'settings' && <SettingsTab />}
+
+      {/* Bottom Navigation */}
+      <div className="border-t border-gray-100 px-5 py-3 flex justify-around">
+        <button
+          onClick={() => setActiveTab('chats')}
+          className={`flex flex-col items-center gap-1 ${activeTab === 'chats' ? 'text-cyan-500' : 'text-gray-400'}`}
+        >
+          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+          </svg>
+          <span className="text-xs font-medium">CHATS</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('calls')}
+          className={`flex flex-col items-center gap-1 ${activeTab === 'calls' ? 'text-cyan-500' : 'text-gray-400'}`}
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+          </svg>
+          <span className="text-xs">CALLS</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('people')}
+          className={`flex flex-col items-center gap-1 ${activeTab === 'people' ? 'text-cyan-500' : 'text-gray-400'}`}
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          <span className="text-xs">PEOPLE</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('settings')}
+          className={`flex flex-col items-center gap-1 ${activeTab === 'settings' ? 'text-cyan-500' : 'text-gray-400'}`}
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <span className="text-xs">SETTINGS</span>
+        </button>
+      </div>
+    </div>
+  );
+}
