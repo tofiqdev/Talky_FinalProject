@@ -22,13 +22,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   error: null,
 
   setAuth: (user, token) => {
+    console.log('AuthStore: Setting auth', { user: user.username, hasToken: !!token });
     localStorage.setItem('token', token);
     set({ user, token, error: null });
 
     // Connect to SignalR
-    signalrService.connect(token).catch((error) => {
-      console.error('Failed to connect to SignalR:', error);
-    });
+    console.log('AuthStore: Connecting to SignalR...');
+    signalrService.connect(token)
+      .then(() => {
+        console.log('AuthStore: SignalR connected successfully');
+      })
+      .catch((error) => {
+        console.error('AuthStore: Failed to connect to SignalR:', error);
+      });
   },
 
   login: async (email, password) => {
@@ -67,15 +73,26 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   initAuth: async () => {
     const token = localStorage.getItem('token');
-    if (!token) return;
+    console.log('AuthStore: initAuth called', { hasToken: !!token });
+    
+    if (!token) {
+      console.log('AuthStore: No token found, skipping init');
+      return;
+    }
 
     set({ isLoading: true });
     try {
+      console.log('AuthStore: Getting current user...');
       const user = await authApi.getCurrentUser();
+      console.log('AuthStore: Current user retrieved', user.username);
+      
       set({ user, token });
+      
+      console.log('AuthStore: Connecting to SignalR...');
       await signalrService.connect(token);
+      console.log('AuthStore: SignalR connected in initAuth');
     } catch (error) {
-      console.error('Failed to initialize auth:', error);
+      console.error('AuthStore: Failed to initialize auth:', error);
       localStorage.removeItem('token');
       set({ user: null, token: null });
     } finally {

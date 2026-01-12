@@ -59,10 +59,15 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   sendMessage: async (receiverId: number, content: string) => {
     try {
+      console.log('Sending message to:', receiverId, 'content:', content);
+      
       // Send via SignalR for real-time delivery
       if (signalrService.isConnected()) {
+        console.log('SignalR connected, sending via SignalR');
         await signalrService.sendMessage(receiverId, content);
+        // Note: Backend will send ReceiveMessage event back to both sender and receiver
       } else {
+        console.log('SignalR not connected, using REST API fallback');
         // Fallback to REST API if SignalR not connected
         const message = await messagesApi.sendMessage(receiverId, content);
         get().addMessage(message);
@@ -83,9 +88,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   addMessage: (message) => {
-    set((state) => ({
-      messages: [...state.messages, message],
-    }));
+    console.log('ChatStore: Adding message to state', message);
+    set((state) => {
+      const newMessages = [...state.messages, message];
+      console.log('ChatStore: New messages count:', newMessages.length);
+      return { messages: newMessages };
+    });
   },
 
   updateUserStatus: (userId, isOnline) => {
@@ -97,20 +105,41 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   initializeSignalR: () => {
+    console.log('ChatStore: Initializing SignalR listeners');
+    
+    // First, remove any existing listeners to prevent duplicates
+    signalrService.offReceiveMessage();
+    signalrService.offUserOnline();
+    signalrService.offUserOffline();
+    
     // Listen for incoming messages
     signalrService.onReceiveMessage((message) => {
-      get().addMessage(message);
+      console.log('SignalR: Received message', message);
+      const { selectedUser } = get();
+      
+      // Only add message if it's from/to the selected user
+      if (selectedUser && 
+          (message.senderId === selectedUser.id || message.receiverId === selectedUser.id)) {
+        console.log('SignalR: Adding message to state');
+        get().addMessage(message);
+      } else {
+        console.log('SignalR: Message not for selected user, ignoring');
+      }
     });
 
     // Listen for user online status
     signalrService.onUserOnline((userId) => {
+      console.log('SignalR: User online', userId);
       get().updateUserStatus(userId, true);
     });
 
     // Listen for user offline status
     signalrService.onUserOffline((userId) => {
+      console.log('SignalR: User offline', userId);
       get().updateUserStatus(userId, false);
     });
+    
+    console.log('ChatStore: SignalR listeners initialized');
   },
 
   cleanup: () => {

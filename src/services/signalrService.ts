@@ -12,9 +12,14 @@ class SignalRService {
       return;
     }
 
+    console.log('SignalR: Starting connection with token:', token ? 'Token exists' : 'No token');
+
     this.connection = new signalR.HubConnectionBuilder()
       .withUrl('http://localhost:5282/chatHub', {
-        accessTokenFactory: () => token,
+        accessTokenFactory: () => {
+          console.log('SignalR: Providing access token');
+          return token;
+        },
       })
       .withAutomaticReconnect({
         nextRetryDelayInMilliseconds: (retryContext) => {
@@ -44,7 +49,7 @@ class SignalRService {
 
     try {
       await this.connection.start();
-      console.log('SignalR Connected');
+      console.log('SignalR Connected successfully! Connection ID:', this.connection.connectionId);
     } catch (error) {
       console.error('SignalR Connection Error:', error);
       throw error;
@@ -86,10 +91,21 @@ class SignalRService {
 
   // Actions
   async sendMessage(receiverId: number, content: string) {
+    console.log('SignalR: sendMessage called', { receiverId, content, isConnected: this.isConnected() });
+    
     if (!this.isConnected()) {
+      console.error('SignalR: Cannot send message - not connected');
       throw new Error('SignalR not connected');
     }
-    await this.connection?.invoke('SendMessage', receiverId, content);
+    
+    try {
+      console.log('SignalR: Invoking SendMessage on hub...');
+      await this.connection?.invoke('SendMessage', receiverId, content);
+      console.log('SignalR: SendMessage invoked successfully');
+    } catch (error) {
+      console.error('SignalR: SendMessage failed', error);
+      throw error;
+    }
   }
 
   async sendTypingIndicator(receiverId: number, isTyping: boolean) {

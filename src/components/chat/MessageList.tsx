@@ -1,12 +1,25 @@
+import { useEffect, useRef } from 'react';
 import { useChatStore } from '../../store/chatStore';
 import { useAuthStore } from '../../store/authStore';
 
 export default function MessageList() {
   const { messages } = useChatStore();
   const { user } = useAuthStore();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+
+  // Auto scroll to bottom when new message arrives
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+  }, [messages]);
 
   return (
-    <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+    <div 
+      ref={messagesContainerRef}
+      className="flex-1 overflow-y-auto px-6 py-4 space-y-4 scroll-smooth"
+    >
       {/* Date Divider */}
       <div className="flex items-center justify-center">
         <span className="px-4 py-1 bg-gray-200 text-gray-600 text-xs rounded-full">TODAY</span>
@@ -17,10 +30,17 @@ export default function MessageList() {
           No messages yet. Start the conversation!
         </div>
       ) : (
-        messages.map((msg) => {
+        messages.map((msg, index) => {
           const isSent = msg.senderId === user?.id;
           return (
-            <div key={msg.id} className={`flex ${isSent ? 'justify-end' : 'justify-start'}`}>
+            <div 
+              key={msg.id} 
+              className={`flex ${isSent ? 'justify-end' : 'justify-start'} animate-fadeIn`}
+              style={{
+                animationDelay: `${index * 0.05}s`,
+                animationFillMode: 'both'
+              }}
+            >
               {!isSent && (
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 mr-2 flex-shrink-0 flex items-center justify-center text-white text-sm font-semibold">
                   {msg.senderUsername.charAt(0).toUpperCase()}
@@ -28,7 +48,7 @@ export default function MessageList() {
               )}
               <div className={`max-w-xl ${isSent ? 'ml-12' : 'mr-12'}`}>
                 <div
-                  className={`px-5 py-3 rounded-3xl ${
+                  className={`px-5 py-3 rounded-3xl transition-all duration-300 hover:scale-[1.02] ${
                     isSent
                       ? 'bg-cyan-500 text-white rounded-br-md'
                       : 'bg-gray-200 text-gray-900 rounded-bl-md'
@@ -54,6 +74,9 @@ export default function MessageList() {
           );
         })
       )}
+      
+      {/* Invisible element to scroll to */}
+      <div ref={messagesEndRef} />
     </div>
   );
 }
