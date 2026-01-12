@@ -1,9 +1,20 @@
 # Active Context
 
 ## Şu Anki Odak
-Proje tamamlandı! Backend ve frontend tamamen entegre, real-time mesajlaşma çalışıyor. Mesaj animasyonları eklendi.
+Proje tamamlandı! Backend ve frontend tamamen entegre, real-time mesajlaşma çalışıyor. Ses kayıt özelliği eklendi.
 
 ## Son Değişiklikler
+
+### Ses Kayıt Özelliği Eklendi ✅
+- ✅ Basılı tut & kaydet özelliği
+- ✅ Ses kaydı UI (kırmızı pulse animasyonu)
+- ✅ Süre göstergesi
+- ✅ İptal butonu
+- ✅ Ses mesajı player (play/pause, progress bar)
+- ✅ REST API ile gönderim (SignalR yerine - base64 çok büyük)
+- ✅ Düşük bitrate (16kbps) ve sample rate (16kHz)
+- ✅ Opus codec ile sıkıştırma
+- ✅ Mobil uyumlu (touch events)
 
 ### Mesaj Animasyonları Eklendi ✅
 - ✅ Mesajlar fade-in animasyonu ile geliyor
@@ -40,7 +51,7 @@ Proje tamamlandı! Backend ve frontend tamamen entegre, real-time mesajlaşma ç
 ## Sonraki Adımlar
 
 ### Test ve İyileştirmeler
-- ⏳ İki kullanıcı ile test et
+- ⏳ Ses mesajlarını test et
 - ⏳ CallsTab backend entegrasyonu (opsiyonel)
 - ⏳ Typing indicator (opsiyonel)
 - ⏳ Message read receipts (opsiyonel)
@@ -65,6 +76,8 @@ Proje tamamlandı! Backend ve frontend tamamen entegre, real-time mesajlaşma ç
 - **Authentication**: JWT Bearer token
 - **Password**: BCrypt hashing
 - **Animations**: CSS keyframes + Tailwind transitions
+- **Voice Messages**: REST API (base64 too large for SignalR)
+- **Audio Format**: WebM with Opus codec, 16kbps bitrate
 
 ## Component Hiyerarşisi
 ```
@@ -92,6 +105,9 @@ ChatPage
 - Mesaj animasyonları fade-in ve smooth scroll ile
 - Auto-scroll yeni mesajlarda
 - Loading states ve spinner animasyonları
+- Ses kayıt özelliği MediaRecorder API ile
+- Ses mesajları base64 formatında saklanıyor
+- REST API fallback ses mesajları için
 
 ### Backend
 - .NET 10 SDK kurulu ama proje .NET 8 kullanıyor
@@ -116,6 +132,19 @@ ChatPage
 - ReceiveMessage event'i hem gönderene hem alıcıya gidiyor
 - Console log'lar debugging için eklendi
 - Connection state kontrolleri yapılıyor
+- Ses mesajları SignalR yerine REST API ile (base64 çok büyük)
+
+### Voice Messages
+- MediaRecorder API kullanımı
+- WebM audio format with Opus codec
+- 16kbps bitrate (düşük dosya boyutu)
+- 16kHz sample rate
+- Base64 encoding
+- Format: [VOICE:15s]data:audio/webm;codecs=opus;base64,...
+- REST API ile gönderim (POST /api/messages)
+- Audio player component (play/pause, progress bar)
+- Touch events desteği (mobil)
+- Mikrofon izni kontrolü
 
 ### Frontend
 - Vite proxy kullanılıyor (/api → http://localhost:5282)
@@ -131,3 +160,4 @@ ChatPage
 - Mesaj animasyonları: fadeIn, smooth scroll, hover effects
 - Input animasyonları: focus, transition
 - Button animasyonları: hover scale, active scale, loading spinner
+- Voice recording: hold to record, release to send

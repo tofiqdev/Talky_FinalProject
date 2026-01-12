@@ -99,6 +99,10 @@
 ✅ Online/offline status
 ✅ Mesaj geçmişi
 ✅ Responsive tasarım
+✅ Ses kayıt özelliği (hold to record)
+✅ Ses mesajı player (play/pause, progress bar)
+✅ MediaRecorder API entegrasyonu
+✅ Opus codec ile sıkıştırma
 
 **Frontend URL**: http://localhost:5174
 
