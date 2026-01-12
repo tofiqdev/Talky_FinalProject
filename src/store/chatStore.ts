@@ -90,6 +90,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
   addMessage: (message) => {
     console.log('ChatStore: Adding message to state', message);
     set((state) => {
+      // Check if message already exists (prevent duplicates)
+      const messageExists = state.messages.some(m => m.id === message.id);
+      if (messageExists) {
+        console.log('ChatStore: Message already exists, skipping');
+        return state;
+      }
+      
       const newMessages = [...state.messages, message];
       console.log('ChatStore: New messages count:', newMessages.length);
       return { messages: newMessages };
@@ -116,14 +123,22 @@ export const useChatStore = create<ChatState>((set, get) => ({
     signalrService.onReceiveMessage((message) => {
       console.log('SignalR: Received message', message);
       const { selectedUser } = get();
+      const currentUserId = message.senderId; // This will be checked against auth user
       
-      // Only add message if it's from/to the selected user
-      if (selectedUser && 
-          (message.senderId === selectedUser.id || message.receiverId === selectedUser.id)) {
-        console.log('SignalR: Adding message to state');
-        get().addMessage(message);
-      } else {
-        console.log('SignalR: Message not for selected user, ignoring');
+      // Add message if:
+      // 1. We have a selected user AND
+      // 2. The message is between current user and selected user
+      if (selectedUser) {
+        const isMessageForSelectedChat = 
+          (message.senderId === selectedUser.id) || // Message from selected user
+          (message.receiverId === selectedUser.id); // Message to selected user
+        
+        if (isMessageForSelectedChat) {
+          console.log('SignalR: Adding message to state');
+          get().addMessage(message);
+        } else {
+          console.log('SignalR: Message not for selected user, ignoring');
+        }
       }
     });
 

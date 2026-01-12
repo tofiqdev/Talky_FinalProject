@@ -1,9 +1,17 @@
 # Active Context
 
 ## Şu Anki Odak
-Proje tamamlandı! Backend ve frontend tamamen entegre, real-time mesajlaşma çalışıyor. Ses kayıt özelliği eklendi.
+Proje tamamlandı! Backend ve frontend tamamen entegre, real-time mesajlaşma çalışıyor. Ses kayıt özelliği eklendi. Real-time mesaj görüntüleme sorunu düzeltildi.
 
 ## Son Değişiklikler
+
+### Real-time Mesaj Görüntüleme Düzeltildi ✅
+- ✅ Gönderilen mesajlar anlık görünüyor (sayfa yenileme gereksiz)
+- ✅ Gelen mesajlar anlık görünüyor
+- ✅ SignalR ReceiveMessage event handler düzeltildi
+- ✅ Mesaj filtreleme mantığı iyileştirildi (senderId ve receiverId kontrolü)
+- ✅ Duplicate mesaj kontrolü eklendi (aynı mesaj iki kez eklenmiyor)
+- ✅ Backend'den gelen mesajlar doğru şekilde state'e ekleniyor
 
 ### Ses Kayıt Özelliği Eklendi ✅
 - ✅ Basılı tut & kaydet özelliği
@@ -27,10 +35,12 @@ Proje tamamlandı! Backend ve frontend tamamen entegre, real-time mesajlaşma ç
 
 ### Real-time Mesajlaşma Düzeltildi ✅
 - ✅ SignalR event listener'ları düzgün çalışıyor
-- ✅ Gelen mesajlar anlık görünüyor
-- ✅ Gönderilen mesajlar anlık görünüyor
+- ✅ Gelen mesajlar anlık görünüyor (sayfa yenileme gereksiz)
+- ✅ Gönderilen mesajlar anlık görünüyor (sayfa yenileme gereksiz)
 - ✅ Console log'lar eklendi (debugging için)
 - ✅ Duplicate listener'lar önleniyor
+- ✅ Duplicate mesajlar önleniyor (ID kontrolü ile)
+- ✅ Mesaj filtreleme mantığı: senderId VEYA receiverId selectedUser'a eşit olmalı
 
 ### Contact Sistemi Kaldırıldı ✅
 - ✅ Contact tablosu database'den kaldırıldı
@@ -133,6 +143,9 @@ ChatPage
 - Console log'lar debugging için eklendi
 - Connection state kontrolleri yapılıyor
 - Ses mesajları SignalR yerine REST API ile (base64 çok büyük)
+- Mesaj filtreleme: (senderId === selectedUser.id) VEYA (receiverId === selectedUser.id)
+- Duplicate mesaj kontrolü: message.id ile kontrol ediliyor
+- Mesajlar anlık görünüyor, sayfa yenileme gereksiz
 
 ### Voice Messages
 - MediaRecorder API kullanımı
