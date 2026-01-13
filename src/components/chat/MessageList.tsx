@@ -3,7 +3,7 @@ import { useChatStore } from '../../store/chatStore';
 import { useAuthStore } from '../../store/authStore';
 
 export default function MessageList() {
-  const { messages } = useChatStore();
+  const { messages, selectedGroup } = useChatStore();
   const { user } = useAuthStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -28,6 +28,61 @@ export default function MessageList() {
       };
     }
     return null;
+  };
+
+  // Parse and highlight mentions in message content
+  const renderMessageContent = (content: string, isSent: boolean) => {
+    // Match @username patterns
+    const mentionRegex = /@(\w+)/g;
+    const parts = [];
+    let lastIndex = 0;
+    let match;
+
+    while ((match = mentionRegex.exec(content)) !== null) {
+      // Add text before mention
+      if (match.index > lastIndex) {
+        parts.push(
+          <span key={`text-${lastIndex}`}>
+            {content.substring(lastIndex, match.index)}
+          </span>
+        );
+      }
+
+      // Check if this mention is the current user
+      const mentionedUsername = match[1];
+      const isCurrentUserMentioned = mentionedUsername.toLowerCase() === user?.username.toLowerCase();
+
+      // Add mention with styling
+      parts.push(
+        <span
+          key={`mention-${match.index}`}
+          className={`font-semibold ${
+            isCurrentUserMentioned
+              ? isSent
+                ? 'text-yellow-200 bg-yellow-500/20 px-1 rounded'
+                : 'text-cyan-600 bg-cyan-100 px-1 rounded'
+              : isSent
+              ? 'text-white/90'
+              : 'text-cyan-600'
+          }`}
+        >
+          @{mentionedUsername}
+        </span>
+      );
+
+      lastIndex = match.index + match[0].length;
+    }
+
+    // Add remaining text
+    if (lastIndex < content.length) {
+      parts.push(
+        <span key={`text-${lastIndex}`}>
+          {content.substring(lastIndex)}
+        </span>
+      );
+    }
+
+    return parts.length > 0 ? parts : content;
   };
 
   const VoiceMessagePlayer = ({ content, isSent }: { content: string; isSent: boolean }) => {
@@ -135,7 +190,14 @@ export default function MessageList() {
                         : 'bg-gray-200 text-gray-900 rounded-bl-md'
                     }`}
                   >
-                    <p className="text-sm leading-relaxed">{msg.content}</p>
+                    {!isSent && selectedGroup && (
+                      <p className="text-xs font-semibold mb-1 text-gray-600">
+                        {msg.senderUsername}
+                      </p>
+                    )}
+                    <p className="text-sm leading-relaxed">
+                      {renderMessageContent(msg.content, isSent)}
+                    </p>
                   </div>
                 )}
                 <div className={`flex items-center gap-1 mt-1 px-2 ${isSent ? 'justify-end' : 'justify-start'}`}>

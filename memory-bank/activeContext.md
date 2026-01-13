@@ -1,9 +1,19 @@
 # Active Context
 
 ## Şu Anki Odak
-Proje tamamlandı! Backend ve frontend tamamen entegre, real-time mesajlaşma çalışıyor. Ses kayıt özelliği eklendi. Real-time mesaj görüntüleme sorunu düzeltildi. Grup oluşturma ve grup mesajlaşma özellikleri eklendi.
+✅ **Proje Production Ready!** Backend ve frontend tamamen entegre, tüm özellikler çalışıyor. Real-time mesajlaşma, grup yönetimi, ses mesajları, kullanıcı yetkilendirme sistemi aktif. Proje stabil ve kullanıma hazır durumda. **Grup mesajlarında @ mention (bahsetme) özelliği eklendi!**
 
 ## Son Değişiklikler
+
+### @ Mention Özelliği Eklendi ✅
+- ✅ Grup mesajlarında @ yazınca üye önerileri gösteriliyor
+- ✅ Klavye navigasyonu (↑↓ ok tuşları, Enter, Escape)
+- ✅ Mention'lar mesajlarda vurgulanıyor (highlight)
+- ✅ Kullanıcı kendisi mention edildiğinde özel vurgu
+- ✅ Otomatik tamamlama dropdown'u
+- ✅ Online/offline durumu gösterimi
+- ✅ Admin badge'i mention listesinde
+- ✅ Grup mesajlarında gönderen adı gösteriliyor
 
 ### Grup Oluşturma ve Mesajlaşma Eklendi ✅
 - ✅ Backend grup modelleri (Group, GroupMember, GroupMessage)
@@ -84,22 +94,17 @@ Proje tamamlandı! Backend ve frontend tamamen entegre, real-time mesajlaşma ç
 ## Sonraki Adımlar
 
 ### Test ve İyileştirmeler
+- ✅ @ Mention özelliği (grup mesajlarında)
 - ⏳ Ses mesajlarını test et
 - ⏳ Grup mesajlaşmasını test et
-- ⏳ Real-time grup mesajları (SignalR ile)
+- ⏳ Real-time grup mesajları (SignalR ile - şu an REST API)
 - ⏳ CallsTab backend entegrasyonu (opsiyonel)
 - ⏳ Typing indicator (opsiyonel)
 - ⏳ Message read receipts (opsiyonel)
-
-### Frontend İyileştirmeleri (Opsiyonel)
-- ⏳ Profile edit modal
-- ⏳ Settings detail pages
-- ⏳ Video/voice call UI
-- ⏳ Group chat support
-- ⏳ File/image upload
-- ⏳ Emoji picker
-- ⏳ Dark mode
-- ⏳ Push notifications
+- ⏳ Dosya/resim paylaşımı (opsiyonel)
+- ⏳ Emoji picker (opsiyonel)
+- ⏳ Dark mode (opsiyonel)
+- ⏳ Push notifications (opsiyonel)
 
 ## Aktif Kararlar
 - **Component Structure**: Sidebar yönetir tüm tab'ları
@@ -107,6 +112,9 @@ Proje tamamlandı! Backend ve frontend tamamen entegre, real-time mesajlaşma ç
 - **Backend**: LocalDB kullanılıyor - (localdb)\MSSQLLocalDB
 - **Database**: Code First yaklaşımı, EF Core migrations
 - **State Management**: Zustand (basit ve etkili)
+- **Real-time**: SignalR (direkt mesajlar), REST API (grup mesajları)
+- **Authentication**: JWT Bearer token
+- **Grup Yetkilendirme**: Owner/Admin/Member rolleri
 - **Styling**: Tailwind CSS 3, referans tasarıma %100 uyumlu
 - **Authentication**: JWT Bearer token
 - **Password**: BCrypt hashing

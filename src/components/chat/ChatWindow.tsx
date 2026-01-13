@@ -10,12 +10,92 @@ export default function ChatWindow() {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [showGroupDetails, setShowGroupDetails] = useState(false);
+  const [showMentionSuggestions, setShowMentionSuggestions] = useState(false);
+  const [mentionSearch, setMentionSearch] = useState('');
+  const [mentionStartPos, setMentionStartPos] = useState(0);
+  const [selectedMentionIndex, setSelectedMentionIndex] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
-  const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const recordingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const isGroup = !!selectedGroup;
   const chatTarget = selectedUser || selectedGroup;
+
+  // Get filtered members for mention suggestions
+  const getMentionSuggestions = () => {
+    if (!selectedGroup) return [];
+    
+    const search = mentionSearch.toLowerCase();
+    return selectedGroup.members
+      .filter(member => member.username.toLowerCase().includes(search))
+      .slice(0, 5); // Show max 5 suggestions
+  };
+
+  const mentionSuggestions = getMentionSuggestions();
+
+  // Handle input change with mention detection
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const cursorPos = e.target.selectionStart || 0;
+    
+    setMessage(value);
+
+    // Check if user is typing @ mention
+    if (isGroup && value.includes('@')) {
+      const textBeforeCursor = value.substring(0, cursorPos);
+      const lastAtIndex = textBeforeCursor.lastIndexOf('@');
+      
+      if (lastAtIndex !== -1) {
+        const textAfterAt = textBeforeCursor.substring(lastAtIndex + 1);
+        
+        // Check if there's a space after @ (which would end the mention)
+        if (!textAfterAt.includes(' ')) {
+          setMentionSearch(textAfterAt);
+          setMentionStartPos(lastAtIndex);
+          setShowMentionSuggestions(true);
+          setSelectedMentionIndex(0);
+          return;
+        }
+      }
+    }
+    
+    setShowMentionSuggestions(false);
+  };
+
+  // Handle mention selection
+  const selectMention = (username: string) => {
+    const beforeMention = message.substring(0, mentionStartPos);
+    const afterMention = message.substring(mentionStartPos + mentionSearch.length + 1);
+    const newMessage = `${beforeMention}@${username} ${afterMention}`;
+    
+    setMessage(newMessage);
+    setShowMentionSuggestions(false);
+    setMentionSearch('');
+    
+    // Focus back on input
+    inputRef.current?.focus();
+  };
+
+  // Handle keyboard navigation for mentions
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showMentionSuggestions) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedMentionIndex(prev => 
+        prev < mentionSuggestions.length - 1 ? prev + 1 : prev
+      );
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedMentionIndex(prev => prev > 0 ? prev - 1 : 0);
+    } else if (e.key === 'Enter' && mentionSuggestions.length > 0) {
+      e.preventDefault();
+      selectMention(mentionSuggestions[selectedMentionIndex].username);
+    } else if (e.key === 'Escape') {
+      setShowMentionSuggestions(false);
+    }
+  };
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -195,7 +275,10 @@ export default function ChatWindow() {
         <div className="flex items-center gap-3">
           <div className="relative">
             <div className={`w-10 h-10 rounded-full ${isGroup ? 'bg-gradient-to-br from-purple-400 to-pink-500' : 'bg-gradient-to-br from-cyan-400 to-blue-500'} flex items-center justify-center text-white font-semibold`}>
-              {chatTarget.name ? chatTarget.name.charAt(0).toUpperCase() : (chatTarget as any).username.charAt(0).toUpperCase()}
+              {isGroup 
+                ? selectedGroup?.name.charAt(0).toUpperCase() 
+                : selectedUser?.username.charAt(0).toUpperCase()
+              }
             </div>
             {!isGroup && selectedUser?.isOnline && (
               <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
@@ -271,7 +354,37 @@ export default function ChatWindow() {
       )}
 
       {/* Input */}
-      <div className="bg-white px-6 py-4 border-t border-gray-100">
+      <div className="bg-white px-6 py-4 border-t border-gray-100 relative">
+        {/* Mention Suggestions Dropdown */}
+        {showMentionSuggestions && mentionSuggestions.length > 0 && (
+          <div className="absolute bottom-full left-6 right-6 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-y-auto">
+            {mentionSuggestions.map((member, index) => (
+              <button
+                key={member.userId}
+                onClick={() => selectMention(member.username)}
+                className={`w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-50 transition ${
+                  index === selectedMentionIndex ? 'bg-cyan-50' : ''
+                }`}
+              >
+                <div className="relative flex-shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white text-sm font-semibold">
+                    {member.username.charAt(0).toUpperCase()}
+                  </div>
+                  {member.isOnline && (
+                    <div className="absolute bottom-0 right-0 w-2 h-2 bg-green-500 border border-white rounded-full"></div>
+                  )}
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-medium text-gray-900">@{member.username}</p>
+                  {member.isAdmin && (
+                    <p className="text-xs text-cyan-600">Admin</p>
+                  )}
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+
         {isRecording ? (
           // Recording UI
           <div className="flex items-center gap-3">
@@ -308,10 +421,12 @@ export default function ChatWindow() {
               </svg>
             </button>
             <input
+              ref={inputRef}
               type="text"
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Message..."
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              placeholder={isGroup ? "Message... (Type @ to mention)" : "Message..."}
               disabled={isSending}
               className="flex-1 px-4 py-2.5 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm disabled:opacity-50 transition-all duration-200 focus:bg-white"
             />
