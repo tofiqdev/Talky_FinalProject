@@ -1,9 +1,21 @@
 # Active Context
 
 ## Şu Anki Odak
-Proje tamamlandı! Backend ve frontend tamamen entegre, real-time mesajlaşma çalışıyor. Ses kayıt özelliği eklendi. Real-time mesaj görüntüleme sorunu düzeltildi.
+Proje tamamlandı! Backend ve frontend tamamen entegre, real-time mesajlaşma çalışıyor. Ses kayıt özelliği eklendi. Real-time mesaj görüntüleme sorunu düzeltildi. Grup oluşturma ve grup mesajlaşma özellikleri eklendi.
 
 ## Son Değişiklikler
+
+### Grup Oluşturma ve Mesajlaşma Eklendi ✅
+- ✅ Backend grup modelleri (Group, GroupMember, GroupMessage)
+- ✅ Database migration uygulandı (AddGroupFeature)
+- ✅ GroupsController API endpoint'leri
+- ✅ Frontend grup type tanımları
+- ✅ CreateGroupModal component'i
+- ✅ Grup listesi ChatsTab'da görünüyor
+- ✅ Grup mesajlaşma ChatWindow'da çalışıyor
+- ✅ Grup ve direkt mesaj ayrımı (mor/pembe vs mavi gradient)
+- ✅ Grup üye sayısı badge'i
+- ✅ Grup mesajları yükleme ve gönderme
 
 ### Real-time Mesaj Görüntüleme Düzeltildi ✅
 - ✅ Gönderilen mesajlar anlık görünüyor (sayfa yenileme gereksiz)
@@ -62,6 +74,8 @@ Proje tamamlandı! Backend ve frontend tamamen entegre, real-time mesajlaşma ç
 
 ### Test ve İyileştirmeler
 - ⏳ Ses mesajlarını test et
+- ⏳ Grup mesajlaşmasını test et
+- ⏳ Real-time grup mesajları (SignalR ile)
 - ⏳ CallsTab backend entegrasyonu (opsiyonel)
 - ⏳ Typing indicator (opsiyonel)
 - ⏳ Message read receipts (opsiyonel)
@@ -134,6 +148,8 @@ ChatPage
 - Contact tablosu kaldırıldı - Username ile direkt arama
 - Search API: GET /api/users/search?q=term (min 2 karakter)
 - Backend publish edildi (back/publish/)
+- Grup tabloları eklendi: Groups, GroupMembers, GroupMessages
+- Grup API endpoint'leri: POST /api/groups, GET /api/groups, GET /api/groups/{id}/messages, POST /api/groups/{id}/messages
 
 ### SignalR Real-time
 - SignalR bağlantısı login'de kuruluyor
@@ -174,3 +190,7 @@ ChatPage
 - Input animasyonları: focus, transition
 - Button animasyonları: hover scale, active scale, loading spinner
 - Voice recording: hold to record, release to send
+- Grup yönetimi: groups state, selectedGroup, loadGroups, setSelectedGroup
+- Grup mesajlaşma: loadGroupMessages, sendGroupMessage
+- ChatWindow hem direkt hem grup mesajları destekliyor
+- ChatPage hem selectedUser hem selectedGroup kontrolü yapıyor

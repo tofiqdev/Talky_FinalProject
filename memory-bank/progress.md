@@ -17,12 +17,13 @@
 ✅ RegisterPage - Kullanıcı kayıt formu
 ✅ ChatPage - Ana mesajlaşma sayfası
 ✅ Sidebar - Tab-based navigation
-✅ ChatsTab - Stories, chat listesi
+✅ ChatsTab - Stories, chat listesi, grup listesi
 ✅ CallsTab - Arama geçmişi (incoming/outgoing/missed)
 ✅ PeopleTab - Kişiler listesi (online/offline)
 ✅ SettingsTab - Ayarlar (profil, hesap, bildirimler, çıkış)
-✅ ChatWindow - Header, mesaj alanı, input
+✅ ChatWindow - Header, mesaj alanı, input (direkt + grup)
 ✅ MessageList - Pill-shaped bubbles, TODAY divider
+✅ CreateGroupModal - Grup oluşturma modal'ı
 
 ### Navigation ✅
 ✅ Bottom navigation (CHATS, CALLS, PEOPLE, SETTINGS)
@@ -31,7 +32,7 @@
 
 ### State Management ✅
 ✅ authStore - Kullanıcı ve token yönetimi
-✅ chatStore - Mesajlar, kullanıcılar, seçili kullanıcı
+✅ chatStore - Mesajlar, kullanıcılar, gruplar, seçili kullanıcı/grup
 ✅ localStorage persistence
 
 ### Services ✅
@@ -39,7 +40,8 @@
 
 ### Styling ✅
 ✅ Referans tasarıma %100 uyumlu
-✅ Cyan (#06B6D4) ana renk
+✅ Cyan (#06B6D4) ana renk (direkt mesajlar)
+✅ Purple/Pink gradient (gruplar)
 ✅ Pill-shaped message bubbles
 ✅ Responsive tasarım
 ✅ Hover efektleri
@@ -79,6 +81,10 @@
 - ✅ Online/offline durumu
 - ✅ Mesaj geçmişi
 - ✅ Responsive tasarım
+- ✅ Ses kayıt ve oynatma
+- ✅ Grup oluşturma
+- ✅ Grup mesajlaşma
+- ✅ Grup üye yönetimi
 
 ## Yapılacaklar
 
@@ -105,17 +111,24 @@
 ✅ Opus codec ile sıkıştırma
 ✅ Duplicate mesaj önleme
 ✅ Mesaj filtreleme mantığı düzeltildi
+✅ Grup oluşturma modal'ı
+✅ Grup listesi (Groups + Direct Messages)
+✅ Grup mesajlaşma
+✅ Grup ve direkt mesaj ayrımı (renk kodları)
 
 **Frontend URL**: http://localhost:5174
 
 ### Backend (Tamamlandı - Production Ready) ✅
 ✅ SignalR hub (ChatHub) - Real-time messaging
 ✅ CallsController - Arama geçmişi API
+✅ GroupsController - Grup yönetimi API
 ✅ CORS düzeltmeleri
 ✅ Vite proxy desteği
 ✅ Production build (back/publish/)
 ✅ JWT Authentication
 ✅ User search API
+✅ Grup oluşturma ve mesajlaşma
+✅ Database migration (AddGroupFeature)
 
 **Backend URL**: http://localhost:5282
 **Swagger UI**: http://localhost:5282/swagger

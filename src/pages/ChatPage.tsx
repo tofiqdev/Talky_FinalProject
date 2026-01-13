@@ -4,7 +4,7 @@ import Sidebar from '../components/sidebar/Sidebar';
 import ChatWindow from '../components/chat/ChatWindow';
 
 export default function ChatPage() {
-  const { selectedUser, loadUsers, initializeSignalR, cleanup } = useChatStore();
+  const { selectedUser, selectedGroup, loadUsers, initializeSignalR, cleanup } = useChatStore();
 
   useEffect(() => {
     // Load users from backend
@@ -19,10 +19,12 @@ export default function ChatPage() {
     };
   }, [loadUsers, initializeSignalR, cleanup]);
 
+  const hasActiveChat = selectedUser || selectedGroup;
+
   return (
     <div className="h-screen flex bg-white">
       <Sidebar />
-      {selectedUser ? (
+      {hasActiveChat ? (
         <ChatWindow />
       ) : (
         <div className="flex-1 flex items-center justify-center bg-gray-50">
@@ -33,7 +35,7 @@ export default function ChatPage() {
               </svg>
             </div>
             <h2 className="text-3xl font-bold text-gray-800 mb-2">Talky</h2>
-            <p className="text-gray-600">Select a conversation to start messaging</p>
+            <p className="text-gray-600">Select a conversation or group to start messaging</p>
           </div>
         </div>
       )}
