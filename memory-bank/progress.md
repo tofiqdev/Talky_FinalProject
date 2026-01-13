@@ -87,6 +87,8 @@
 - ✅ Grup üye yönetimi
 - ✅ Grup yetkilendirme (Owner/Admin/Member)
 - ✅ Grup silme ve gruptan ayrılma
+- ✅ Mute/Unmute sistemi (UI + Komut)
+- ✅ Sistem mesajları
 
 ## Yapılacaklar
 
@@ -124,13 +126,16 @@
 ✅ SignalR hub (ChatHub) - Real-time messaging
 ✅ CallsController - Arama geçmişi API
 ✅ GroupsController - Grup yönetimi API
+✅ Mute/Unmute API endpoints
+✅ Komut sistemi backend desteği
+✅ Sistem mesajları (IsSystemMessage flag)
 ✅ CORS düzeltmeleri
 ✅ Vite proxy desteği
 ✅ Production build (back/publish/)
 ✅ JWT Authentication
 ✅ User search API
 ✅ Grup oluşturma ve mesajlaşma
-✅ Database migration (AddGroupFeature)
+✅ Database migration (AddGroupFeature, AddMuteFeature)
 
 **Backend URL**: http://localhost:5282
 **Swagger UI**: http://localhost:5282/swagger
@@ -191,6 +196,8 @@ Backend API tamamen çalışıyor! Tüm endpoint'ler hazır ve test edildi.
 - DELETE /api/groups/{id}/members/{memberId} (JWT required)
 - POST /api/groups/{id}/members/{memberId}/promote (JWT required)
 - POST /api/groups/{id}/members/{memberId}/demote (JWT required)
+- POST /api/groups/{id}/members/{memberId}/mute (JWT required)
+- POST /api/groups/{id}/members/{memberId}/unmute (JWT required)
 - DELETE /api/groups/{id} (JWT required)
 - POST /api/groups/{id}/leave (JWT required)
 

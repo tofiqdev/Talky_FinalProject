@@ -6,11 +6,13 @@ A modern, production-ready real-time messaging web application built with React 
 
 - ✅ **Real-time Messaging**: Instant message delivery with SignalR WebSocket
 - ✅ **Group Chats**: Create groups, manage members, role-based permissions (Owner/Admin/Member)
+- ✅ **Mute/Unmute System**: Moderators can mute members via UI or chat commands (`@username /mute`)
 - ✅ **Voice Messages**: Hold-to-record feature with Opus codec compression
 - ✅ **User Management**: Registration, login, JWT authentication
 - ✅ **Online Status**: Real-time online/offline indicators
 - ✅ **User Search**: Find and connect with users by username
 - ✅ **Message History**: Persistent message storage and retrieval
+- ✅ **System Messages**: Special notifications for group actions (mute, unmute, etc.)
 - ✅ **Multiple Tabs**: 
   - 💬 Chats - Direct messages and group conversations
   - 📞 Calls - Call history (incoming/outgoing/missed)
@@ -162,11 +164,33 @@ Talky/
 - `DELETE /api/groups/{id}/members/{memberId}` - Remove member (JWT required)
 - `POST /api/groups/{id}/members/{memberId}/promote` - Promote to admin (JWT required)
 - `POST /api/groups/{id}/members/{memberId}/demote` - Demote from admin (JWT required)
+- `POST /api/groups/{id}/members/{memberId}/mute` - Mute member (JWT required)
+- `POST /api/groups/{id}/members/{memberId}/unmute` - Unmute member (JWT required)
 - `DELETE /api/groups/{id}` - Delete group (JWT required)
 - `POST /api/groups/{id}/leave` - Leave group (JWT required)
 
 ### SignalR Hub
 - `/chatHub` - WebSocket endpoint for real-time messaging
+
+## 🎮 Chat Commands
+
+### Group Moderation Commands
+Moderators (Owner and Admins) can use these commands in group chats:
+
+- `@username /mute` - Mute a member (prevents them from sending messages)
+- `@username /unmute` - Unmute a member
+
+**Example:**
+```
+@john /mute
+```
+System will respond with: "Şşşt @john Encapsulation By @admin"
+
+**Notes:**
+- Only Owner and Admins can use moderation commands
+- Group owner cannot be muted
+- Muted members see a warning and cannot send messages
+- Commands are case-insensitive
 
 ## 🔜 Optional Enhancements
 

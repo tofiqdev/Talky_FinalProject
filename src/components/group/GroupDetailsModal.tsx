@@ -101,6 +101,54 @@ export default function GroupDetailsModal({ group, isOpen, onClose, onUpdate, on
     }
   };
 
+  const handleMute = async (memberId: number) => {
+    if (!canManage) return;
+    
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/groups/${group.id}/members/${memberId}/mute`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) throw new Error('Failed to mute member');
+      
+      onUpdate();
+    } catch (error) {
+      console.error('Failed to mute member:', error);
+      alert('Failed to mute member');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUnmute = async (memberId: number) => {
+    if (!canManage) return;
+    
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/groups/${group.id}/members/${memberId}/unmute`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) throw new Error('Failed to unmute member');
+      
+      onUpdate();
+    } catch (error) {
+      console.error('Failed to unmute member:', error);
+      alert('Failed to unmute member');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleAddMember = async () => {
     if (!canManage || !selectedUserId) return;
     
@@ -303,6 +351,8 @@ export default function GroupDetailsModal({ group, isOpen, onClose, onUpdate, on
                           <span className="text-purple-600 font-semibold">Owner</span>
                         ) : member.isAdmin ? (
                           <span className="text-cyan-600 font-semibold">Admin</span>
+                        ) : member.isMuted ? (
+                          <span className="text-red-600 font-semibold">Muted</span>
                         ) : (
                           'Member'
                         )}
@@ -312,6 +362,25 @@ export default function GroupDetailsModal({ group, isOpen, onClose, onUpdate, on
 
                   {canManageMember && (
                     <div className="flex gap-1">
+                      {!member.isMuted ? (
+                        <button
+                          onClick={() => handleMute(member.userId)}
+                          disabled={isLoading}
+                          className="px-2 py-1 text-xs bg-orange-100 text-orange-700 rounded hover:bg-orange-200 disabled:opacity-50"
+                          title="Mute Member"
+                        >
+                          Mute
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleUnmute(member.userId)}
+                          disabled={isLoading}
+                          className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 disabled:opacity-50"
+                          title="Unmute Member"
+                        >
+                          Unmute
+                        </button>
+                      )}
                       {!member.isAdmin && isOwner && (
                         <button
                           onClick={() => handlePromote(member.userId)}

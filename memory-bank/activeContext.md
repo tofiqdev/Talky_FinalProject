@@ -1,7 +1,21 @@
 # Active Context
 
 ## Şu Anki Odak
-✅ **Proje Production Ready!** Backend ve frontend tamamen entegre, tüm özellikler çalışıyor. Real-time mesajlaşma, grup yönetimi, ses mesajları, kullanıcı yetkilendirme sistemi aktif. Proje stabil ve kullanıma hazır durumda. **Grup mesajlarında @ mention (bahsetme) özelliği eklendi!**
+✅ **Proje Production Ready!** Backend ve frontend tamamen entegre, tüm özellikler çalışıyor. Real-time mesajlaşma, grup yönetimi, ses mesajları, kullanıcı yetkilendirme sistemi, **mute/unmute komut sistemi** aktif. Proje stabil ve kullanıma hazır durumda.
+
+## Son Değişiklikler
+
+### Mute/Unmute Komut Sistemi Eklendi ✅
+- ✅ Chat'te komut ile susturma: `@username /mute`
+- ✅ Chat'te komut ile susturmayı kaldırma: `@username /unmute`
+- ✅ Sadece Owner ve Admin'ler komut kullanabilir
+- ✅ Owner susturulamaz
+- ✅ Sistem mesajı otomatik oluşturuluyor: "Şşşt @user Encapsulation By @admin"
+- ✅ Unmute mesajı: "@user artık konuşabilir. Unmuted by @admin"
+- ✅ Muted kullanıcılar mesaj gönderemez (input devre dışı)
+- ✅ Muted uyarısı: "🔇 You are muted in this group"
+- ✅ Sistem mesajları sarı arka plan ile ortalanmış gösteriliyor
+- ✅ UI butonları ile de mute/unmute yapılabiliyor (GroupDetailsModal) **Grup mesajlarında @ mention (bahsetme) özelliği eklendi!**
 
 ## Son Değişiklikler
 
@@ -105,6 +119,8 @@
 - ⏳ Emoji picker (opsiyonel)
 - ⏳ Dark mode (opsiyonel)
 - ⏳ Push notifications (opsiyonel)
+- ⏳ Kick komutu: `@username /kick` (opsiyonel)
+- ⏳ Ban komutu: `@username /ban` (opsiyonel)
 
 ## Aktif Kararlar
 - **Component Structure**: Sidebar yönetir tüm tab'ları
@@ -115,6 +131,8 @@
 - **Real-time**: SignalR (direkt mesajlar), REST API (grup mesajları)
 - **Authentication**: JWT Bearer token
 - **Grup Yetkilendirme**: Owner/Admin/Member rolleri
+- **Komut Sistemi**: Chat'te `@username /command` formatı
+- **Sistem Mesajları**: IsSystemMessage flag ile özel gösterim
 - **Styling**: Tailwind CSS 3, referans tasarıma %100 uyumlu
 - **Authentication**: JWT Bearer token
 - **Password**: BCrypt hashing
@@ -224,3 +242,6 @@ ChatPage
 - Grup mesajlaşma: loadGroupMessages, sendGroupMessage
 - ChatWindow hem direkt hem grup mesajları destekliyor
 - ChatPage hem selectedUser hem selectedGroup kontrolü yapıyor
+- **Komut sistemi**: `@username /mute` ve `@username /unmute` komutları
+- **Sistem mesajları**: Sarı arka plan, ortalanmış, özel stil
+- **Muted UI**: Input devre dışı, uyarı mesajı, butonlar disabled

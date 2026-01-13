@@ -59,6 +59,7 @@ namespace TalkyAPI.Controllers
                     Username = m.User.Username,
                     Avatar = m.User.Avatar,
                     IsAdmin = m.IsAdmin,
+                    IsMuted = m.IsMuted,
                     IsOnline = m.User.IsOnline,
                     JoinedAt = m.JoinedAt
                 }).ToList()
@@ -103,6 +104,7 @@ namespace TalkyAPI.Controllers
                     Username = m.User.Username,
                     Avatar = m.User.Avatar,
                     IsAdmin = m.IsAdmin,
+                    IsMuted = m.IsMuted,
                     IsOnline = m.User.IsOnline,
                     JoinedAt = m.JoinedAt
                 }).ToList()
@@ -187,6 +189,7 @@ namespace TalkyAPI.Controllers
                     Username = m.User.Username,
                     Avatar = m.User.Avatar,
                     IsAdmin = m.IsAdmin,
+                    IsMuted = m.IsMuted,
                     IsOnline = m.User.IsOnline,
                     JoinedAt = m.JoinedAt
                 }).ToList()
@@ -220,6 +223,7 @@ namespace TalkyAPI.Controllers
                     SenderUsername = gm.Sender.Username,
                     SenderAvatar = gm.Sender.Avatar,
                     Content = gm.Content,
+                    IsSystemMessage = gm.IsSystemMessage,
                     SentAt = gm.SentAt
                 })
                 .ToListAsync();
@@ -234,17 +238,22 @@ namespace TalkyAPI.Controllers
             var userId = GetUserId();
 
             // Check if user is a member
-            var isMember = await _context.GroupMembers
-                .AnyAsync(gm => gm.GroupId == id && gm.UserId == userId);
+            var member = await _context.GroupMembers
+                .FirstOrDefaultAsync(gm => gm.GroupId == id && gm.UserId == userId);
 
-            if (!isMember)
+            if (member == null)
                 return Forbid();
+
+            // Check if user is muted
+            if (member.IsMuted)
+                return BadRequest("You are muted in this group and cannot send messages");
 
             var message = new GroupMessage
             {
                 GroupId = id,
                 SenderId = userId,
                 Content = content,
+                IsSystemMessage = false,
                 SentAt = DateTime.UtcNow
             };
 
@@ -261,6 +270,7 @@ namespace TalkyAPI.Controllers
                 SenderUsername = sender!.Username,
                 SenderAvatar = sender.Avatar,
                 Content = message.Content,
+                IsSystemMessage = false,
                 SentAt = message.SentAt
             };
 
@@ -481,6 +491,144 @@ namespace TalkyAPI.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(new { message = "Left group successfully" });
+        }
+
+        // POST: api/groups/{id}/members/{memberId}/mute
+        [HttpPost("{id}/members/{memberId}/mute")]
+        public async Task<ActionResult> MuteMember(int id, int memberId)
+        {
+            var userId = GetUserId();
+
+            // Check if user is owner or admin
+            var currentMember = await _context.GroupMembers
+                .FirstOrDefaultAsync(gm => gm.GroupId == id && gm.UserId == userId);
+
+            if (currentMember == null)
+                return Forbid();
+
+            var group = await _context.Groups
+                .Include(g => g.CreatedBy)
+                .FirstOrDefaultAsync(g => g.Id == id);
+
+            if (group == null)
+                return NotFound("Group not found");
+
+            // Only owner or admin can mute
+            if (group.CreatedById != userId && !currentMember.IsAdmin)
+                return Forbid();
+
+            var targetMember = await _context.GroupMembers
+                .Include(gm => gm.User)
+                .FirstOrDefaultAsync(gm => gm.GroupId == id && gm.UserId == memberId);
+
+            if (targetMember == null)
+                return NotFound("Member not found");
+
+            // Cannot mute owner
+            if (memberId == group.CreatedById)
+                return BadRequest("Cannot mute group owner");
+
+            // Already muted
+            if (targetMember.IsMuted)
+                return BadRequest("Member is already muted");
+
+            targetMember.IsMuted = true;
+            await _context.SaveChangesAsync();
+
+            // Create system message
+            var currentUser = await _context.Users.FindAsync(userId);
+            var systemMessage = new GroupMessage
+            {
+                GroupId = id,
+                SenderId = userId,
+                Content = $"Şşşt @{targetMember.User.Username} Encapsulation By @{currentUser!.Username}",
+                IsSystemMessage = true,
+                SentAt = DateTime.UtcNow
+            };
+
+            _context.GroupMessages.Add(systemMessage);
+            await _context.SaveChangesAsync();
+
+            var messageDto = new GroupMessageDto
+            {
+                Id = systemMessage.Id,
+                GroupId = systemMessage.GroupId,
+                SenderId = systemMessage.SenderId,
+                SenderUsername = currentUser.Username,
+                SenderAvatar = currentUser.Avatar,
+                Content = systemMessage.Content,
+                IsSystemMessage = true,
+                SentAt = systemMessage.SentAt
+            };
+
+            return Ok(new { message = "Member muted successfully", systemMessage = messageDto });
+        }
+
+        // POST: api/groups/{id}/members/{memberId}/unmute
+        [HttpPost("{id}/members/{memberId}/unmute")]
+        public async Task<ActionResult> UnmuteMember(int id, int memberId)
+        {
+            var userId = GetUserId();
+
+            // Check if user is owner or admin
+            var currentMember = await _context.GroupMembers
+                .FirstOrDefaultAsync(gm => gm.GroupId == id && gm.UserId == userId);
+
+            if (currentMember == null)
+                return Forbid();
+
+            var group = await _context.Groups
+                .Include(g => g.CreatedBy)
+                .FirstOrDefaultAsync(g => g.Id == id);
+
+            if (group == null)
+                return NotFound("Group not found");
+
+            // Only owner or admin can unmute
+            if (group.CreatedById != userId && !currentMember.IsAdmin)
+                return Forbid();
+
+            var targetMember = await _context.GroupMembers
+                .Include(gm => gm.User)
+                .FirstOrDefaultAsync(gm => gm.GroupId == id && gm.UserId == memberId);
+
+            if (targetMember == null)
+                return NotFound("Member not found");
+
+            // Not muted
+            if (!targetMember.IsMuted)
+                return BadRequest("Member is not muted");
+
+            targetMember.IsMuted = false;
+            await _context.SaveChangesAsync();
+
+            // Create system message
+            var currentUser = await _context.Users.FindAsync(userId);
+            var systemMessage = new GroupMessage
+            {
+                GroupId = id,
+                SenderId = userId,
+                Content = $"@{targetMember.User.Username} artık konuşabilir. Unmuted by @{currentUser!.Username}",
+                IsSystemMessage = true,
+                SentAt = DateTime.UtcNow
+            };
+
+            _context.GroupMessages.Add(systemMessage);
+            await _context.SaveChangesAsync();
+
+            var messageDto = new GroupMessageDto
+            {
+                Id = systemMessage.Id,
+                GroupId = systemMessage.GroupId,
+                SenderId = systemMessage.SenderId,
+                SenderUsername = currentUser.Username,
+                SenderAvatar = currentUser.Avatar,
+                Content = systemMessage.Content,
+                IsSystemMessage = true,
+                SentAt = systemMessage.SentAt
+            };
+
+            return Ok(new { message = "Member unmuted successfully", systemMessage = messageDto });
         }
     }
 }

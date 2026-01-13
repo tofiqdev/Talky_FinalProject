@@ -16,6 +16,8 @@ namespace TalkyAPI.Models
         [Required]
         public string Content { get; set; } = string.Empty;
 
+        public bool IsSystemMessage { get; set; } = false;
+
         public DateTime SentAt { get; set; } = DateTime.UtcNow;
 
         // Navigation properties

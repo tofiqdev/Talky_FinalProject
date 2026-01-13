@@ -20,6 +20,7 @@ namespace TalkyAPI.DTOs.Group
         public string Username { get; set; } = string.Empty;
         public string? Avatar { get; set; }
         public bool IsAdmin { get; set; }
+        public bool IsMuted { get; set; }
         public bool IsOnline { get; set; }
         public DateTime JoinedAt { get; set; }
     }

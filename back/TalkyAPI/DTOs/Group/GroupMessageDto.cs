@@ -8,6 +8,7 @@ namespace TalkyAPI.DTOs.Group
         public string SenderUsername { get; set; } = string.Empty;
         public string? SenderAvatar { get; set; }
         public string Content { get; set; } = string.Empty;
+        public bool IsSystemMessage { get; set; }
         public DateTime SentAt { get; set; }
     }
 }

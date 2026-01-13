@@ -1,10 +1,12 @@
 import { useState, useRef } from 'react';
 import { useChatStore } from '../../store/chatStore';
+import { useAuthStore } from '../../store/authStore';
 import MessageList from './MessageList';
 import GroupDetailsModal from '../group/GroupDetailsModal';
 
 export default function ChatWindow() {
-  const { selectedUser, selectedGroup, sendMessage, sendGroupMessage, loadGroups } = useChatStore();
+  const { selectedUser, selectedGroup, sendMessage, sendGroupMessage, loadGroups, loadGroupMessages } = useChatStore();
+  const { user } = useAuthStore();
   const [message, setMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -21,6 +23,10 @@ export default function ChatWindow() {
 
   const isGroup = !!selectedGroup;
   const chatTarget = selectedUser || selectedGroup;
+
+  // Check if current user is muted in group
+  const currentMember = selectedGroup?.members.find(m => m.userId === user?.id);
+  const isMuted = currentMember?.isMuted || false;
 
   // Get filtered members for mention suggestions
   const getMentionSuggestions = () => {
@@ -108,7 +114,78 @@ export default function ChatWindow() {
     setMessage('');
     
     try {
+      // Check for commands in group chat
       if (selectedGroup) {
+        // Command pattern: @username /mute or @username /unmute
+        const commandMatch = messageToSend.match(/^@(\w+)\s+\/(mute|unmute)$/i);
+        
+        if (commandMatch) {
+          const [, targetUsername, command] = commandMatch;
+          
+          // Check if user has permission (owner or admin)
+          const currentMember = selectedGroup.members.find(m => m.userId === user?.id);
+          const isOwner = user?.id === selectedGroup.createdById;
+          const isAdmin = currentMember?.isAdmin || false;
+          
+          if (!isOwner && !isAdmin) {
+            alert('Only group owner and admins can use this command');
+            setIsSending(false);
+            return;
+          }
+          
+          // Find target member
+          const targetMember = selectedGroup.members.find(
+            m => m.username.toLowerCase() === targetUsername.toLowerCase()
+          );
+          
+          if (!targetMember) {
+            alert(`User @${targetUsername} not found in this group`);
+            setIsSending(false);
+            return;
+          }
+          
+          // Cannot mute owner
+          if (targetMember.userId === selectedGroup.createdById) {
+            alert('Cannot mute the group owner');
+            setIsSending(false);
+            return;
+          }
+          
+          // Execute command
+          try {
+            const token = localStorage.getItem('token');
+            const endpoint = command.toLowerCase() === 'mute' ? 'mute' : 'unmute';
+            const response = await fetch(`/api/groups/${selectedGroup.id}/members/${targetMember.userId}/${endpoint}`, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            });
+            
+            if (!response.ok) {
+              const error = await response.text();
+              throw new Error(error);
+            }
+            
+            // Reload group to get updated member status and system message
+            await loadGroups();
+            
+            // Reload group messages to show system message
+            if (selectedGroup) {
+              await loadGroupMessages(selectedGroup.id);
+            }
+            
+            setIsSending(false);
+            return;
+          } catch (error) {
+            console.error(`Failed to ${command} user:`, error);
+            alert(`Failed to ${command} user: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            setIsSending(false);
+            return;
+          }
+        }
+        
+        // Regular message
         await sendGroupMessage(selectedGroup.id, messageToSend);
       } else if (selectedUser) {
         await sendMessage(selectedUser.id, messageToSend);
@@ -355,8 +432,17 @@ export default function ChatWindow() {
 
       {/* Input */}
       <div className="bg-white px-6 py-4 border-t border-gray-100 relative">
+        {/* Muted Warning */}
+        {isMuted && (
+          <div className="mb-3 px-4 py-2 bg-red-50 border border-red-200 rounded-lg text-center">
+            <p className="text-sm text-red-600 font-medium">
+              🔇 You are muted in this group and cannot send messages
+            </p>
+          </div>
+        )}
+
         {/* Mention Suggestions Dropdown */}
-        {showMentionSuggestions && mentionSuggestions.length > 0 && (
+        {showMentionSuggestions && mentionSuggestions.length > 0 && !isMuted && (
           <div className="absolute bottom-full left-6 right-6 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-y-auto">
             {mentionSuggestions.map((member, index) => (
               <button
@@ -426,11 +512,11 @@ export default function ChatWindow() {
               value={message}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
-              placeholder={isGroup ? "Message... (Type @ to mention)" : "Message..."}
-              disabled={isSending}
+              placeholder={isMuted ? "You are muted" : isGroup ? "Message... (Type @ to mention, @user /mute to mute)" : "Message..."}
+              disabled={isSending || isMuted}
               className="flex-1 px-4 py-2.5 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm disabled:opacity-50 transition-all duration-200 focus:bg-white"
             />
-            <button type="button" className="text-gray-400 hover:text-gray-600">
+            <button type="button" className="text-gray-400 hover:text-gray-600" disabled={isMuted}>
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -442,8 +528,9 @@ export default function ChatWindow() {
               onMouseLeave={cancelRecording}
               onTouchStart={startRecording}
               onTouchEnd={stopRecording}
-              className="text-gray-400 hover:text-cyan-500 transition active:scale-95"
-              title="Basılı tutarak ses kaydı yapın"
+              disabled={isMuted}
+              className="text-gray-400 hover:text-cyan-500 transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              title={isMuted ? "You are muted" : "Basılı tutarak ses kaydı yapın"}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
@@ -451,7 +538,7 @@ export default function ChatWindow() {
             </button>
             <button
               type="submit"
-              disabled={isSending || !message.trim()}
+              disabled={isSending || !message.trim() || isMuted}
               className="w-10 h-10 rounded-full bg-cyan-500 hover:bg-cyan-600 flex items-center justify-center text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-110 active:scale-95"
             >
               {isSending ? (

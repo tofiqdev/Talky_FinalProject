@@ -15,6 +15,8 @@ namespace TalkyAPI.Models
 
         public bool IsAdmin { get; set; } = false;
 
+        public bool IsMuted { get; set; } = false;
+
         public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation properties

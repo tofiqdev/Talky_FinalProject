@@ -8,6 +8,7 @@ export interface Message {
   sentAt: string;
   isRead: boolean;
   readAt?: string | null;
+  isSystemMessage?: boolean; // For group system messages
 }
 
 export interface SendMessageDto {

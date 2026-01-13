@@ -165,6 +165,35 @@ export default function MessageList() {
       ) : (
         messages.map((msg, index) => {
           const isSent = msg.senderId === user?.id;
+          const isSystemMessage = 'isSystemMessage' in msg && msg.isSystemMessage;
+
+          // System message (centered, special styling)
+          if (isSystemMessage) {
+            return (
+              <div 
+                key={msg.id} 
+                className="flex justify-center animate-fadeIn"
+                style={{
+                  animationDelay: `${index * 0.05}s`,
+                  animationFillMode: 'both'
+                }}
+              >
+                <div className="max-w-md px-4 py-2 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
+                  <p className="text-sm text-gray-700">
+                    {renderMessageContent(msg.content, false)}
+                  </p>
+                  <span className="text-xs text-gray-500 mt-1 block">
+                    {new Date(msg.sentAt).toLocaleTimeString('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </span>
+                </div>
+              </div>
+            );
+          }
+
+          // Regular message
           return (
             <div 
               key={msg.id} 

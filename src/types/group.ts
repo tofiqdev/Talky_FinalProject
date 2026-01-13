@@ -16,6 +16,7 @@ export interface GroupMember {
   username: string;
   avatar?: string;
   isAdmin: boolean;
+  isMuted: boolean;
   isOnline: boolean;
   joinedAt: string;
 }
@@ -27,5 +28,6 @@ export interface GroupMessage {
   senderUsername: string;
   senderAvatar?: string;
   content: string;
+  isSystemMessage: boolean;
   sentAt: string;
 }

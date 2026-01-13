@@ -103,7 +103,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       
       const groupMessages = await response.json();
       
-      // Convert group messages to Message format
+      // Convert group messages to Message format (with isSystemMessage support)
       const messages = groupMessages.map((gm: any) => ({
         id: gm.id,
         senderId: gm.senderId,
@@ -111,6 +111,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         senderUsername: gm.senderUsername,
         receiverUsername: '', // Not needed for groups
         content: gm.content,
+        isSystemMessage: gm.isSystemMessage || false, // Include system message flag
         isRead: true,
         sentAt: gm.sentAt,
         readAt: null
@@ -175,6 +176,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         senderUsername: groupMessage.senderUsername,
         receiverUsername: '',
         content: groupMessage.content,
+        isSystemMessage: groupMessage.isSystemMessage || false,
         isRead: true,
         sentAt: groupMessage.sentAt,
         readAt: null
