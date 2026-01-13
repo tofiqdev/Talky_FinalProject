@@ -1,13 +1,15 @@
 import { useState, useRef } from 'react';
 import { useChatStore } from '../../store/chatStore';
 import MessageList from './MessageList';
+import GroupDetailsModal from '../group/GroupDetailsModal';
 
 export default function ChatWindow() {
-  const { selectedUser, selectedGroup, sendMessage, sendGroupMessage } = useChatStore();
+  const { selectedUser, selectedGroup, sendMessage, sendGroupMessage, loadGroups } = useChatStore();
   const [message, setMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
+  const [showGroupDetails, setShowGroupDetails] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -228,6 +230,17 @@ export default function ChatWindow() {
               </button>
             </>
           )}
+          {isGroup && selectedGroup && (
+            <button 
+              onClick={() => setShowGroupDetails(true)}
+              className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center text-purple-500"
+              title="Group Details"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
+          )}
           <button className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-600">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
@@ -237,6 +250,25 @@ export default function ChatWindow() {
       </div>
 
       <MessageList />
+
+      {/* Group Details Modal */}
+      {isGroup && selectedGroup && (
+        <GroupDetailsModal
+          group={selectedGroup}
+          isOpen={showGroupDetails}
+          onClose={() => setShowGroupDetails(false)}
+          onUpdate={() => {
+            loadGroups();
+            setShowGroupDetails(false);
+          }}
+          onDelete={() => {
+            loadGroups();
+            setShowGroupDetails(false);
+            // Clear selection since group is deleted/left
+            window.location.reload();
+          }}
+        />
+      )}
 
       {/* Input */}
       <div className="bg-white px-6 py-4 border-t border-gray-100">

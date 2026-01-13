@@ -266,5 +266,221 @@ namespace TalkyAPI.Controllers
 
             return Ok(messageDto);
         }
+
+        // POST: api/groups/{id}/members/{memberId}/promote
+        [HttpPost("{id}/members/{memberId}/promote")]
+        public async Task<ActionResult> PromoteToAdmin(int id, int memberId)
+        {
+            var userId = GetUserId();
+
+            // Check if user is owner or admin
+            var currentMember = await _context.GroupMembers
+                .FirstOrDefaultAsync(gm => gm.GroupId == id && gm.UserId == userId);
+
+            if (currentMember == null)
+                return Forbid();
+
+            var group = await _context.Groups.FindAsync(id);
+            if (group == null)
+                return NotFound("Group not found");
+
+            // Only owner or admin can promote
+            if (group.CreatedById != userId && !currentMember.IsAdmin)
+                return Forbid();
+
+            var targetMember = await _context.GroupMembers
+                .FirstOrDefaultAsync(gm => gm.GroupId == id && gm.UserId == memberId);
+
+            if (targetMember == null)
+                return NotFound("Member not found");
+
+            targetMember.IsAdmin = true;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Member promoted to admin" });
+        }
+
+        // POST: api/groups/{id}/members/{memberId}/demote
+        [HttpPost("{id}/members/{memberId}/demote")]
+        public async Task<ActionResult> DemoteFromAdmin(int id, int memberId)
+        {
+            var userId = GetUserId();
+
+            var group = await _context.Groups.FindAsync(id);
+            if (group == null)
+                return NotFound("Group not found");
+
+            // Only owner can demote
+            if (group.CreatedById != userId)
+                return Forbid();
+
+            var targetMember = await _context.GroupMembers
+                .FirstOrDefaultAsync(gm => gm.GroupId == id && gm.UserId == memberId);
+
+            if (targetMember == null)
+                return NotFound("Member not found");
+
+            // Cannot demote owner
+            if (memberId == group.CreatedById)
+                return BadRequest("Cannot demote group owner");
+
+            targetMember.IsAdmin = false;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Admin privileges removed" });
+        }
+
+        // DELETE: api/groups/{id}/members/{memberId}
+        [HttpDelete("{id}/members/{memberId}")]
+        public async Task<ActionResult> RemoveMember(int id, int memberId)
+        {
+            var userId = GetUserId();
+
+            // Check if user is owner or admin
+            var currentMember = await _context.GroupMembers
+                .FirstOrDefaultAsync(gm => gm.GroupId == id && gm.UserId == userId);
+
+            if (currentMember == null)
+                return Forbid();
+
+            var group = await _context.Groups.FindAsync(id);
+            if (group == null)
+                return NotFound("Group not found");
+
+            // Only owner or admin can remove members
+            if (group.CreatedById != userId && !currentMember.IsAdmin)
+                return Forbid();
+
+            // Cannot remove owner
+            if (memberId == group.CreatedById)
+                return BadRequest("Cannot remove group owner");
+
+            var targetMember = await _context.GroupMembers
+                .FirstOrDefaultAsync(gm => gm.GroupId == id && gm.UserId == memberId);
+
+            if (targetMember == null)
+                return NotFound("Member not found");
+
+            _context.GroupMembers.Remove(targetMember);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Member removed from group" });
+        }
+
+        // POST: api/groups/{id}/members
+        [HttpPost("{id}/members")]
+        public async Task<ActionResult> AddMember(int id, [FromBody] int newMemberId)
+        {
+            var userId = GetUserId();
+
+            // Check if user is owner or admin
+            var currentMember = await _context.GroupMembers
+                .FirstOrDefaultAsync(gm => gm.GroupId == id && gm.UserId == userId);
+
+            if (currentMember == null)
+                return Forbid();
+
+            var group = await _context.Groups.FindAsync(id);
+            if (group == null)
+                return NotFound("Group not found");
+
+            // Only owner or admin can add members
+            if (group.CreatedById != userId && !currentMember.IsAdmin)
+                return Forbid();
+
+            // Check if user exists
+            var newUser = await _context.Users.FindAsync(newMemberId);
+            if (newUser == null)
+                return NotFound("User not found");
+
+            // Check if already a member
+            var existingMember = await _context.GroupMembers
+                .FirstOrDefaultAsync(gm => gm.GroupId == id && gm.UserId == newMemberId);
+
+            if (existingMember != null)
+                return BadRequest("User is already a member");
+
+            var newMember = new GroupMember
+            {
+                GroupId = id,
+                UserId = newMemberId,
+                IsAdmin = false,
+                JoinedAt = DateTime.UtcNow
+            };
+
+            _context.GroupMembers.Add(newMember);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Member added to group" });
+        }
+
+        // DELETE: api/groups/{id}
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteGroup(int id)
+        {
+            var userId = GetUserId();
+            Console.WriteLine($"Delete group request: GroupId={id}, UserId={userId}");
+
+            var group = await _context.Groups
+                .Include(g => g.Members)
+                .Include(g => g.Messages)
+                .FirstOrDefaultAsync(g => g.Id == id);
+
+            if (group == null)
+            {
+                Console.WriteLine($"Group not found: {id}");
+                return NotFound("Group not found");
+            }
+
+            Console.WriteLine($"Group found: {group.Name}, CreatedBy={group.CreatedById}");
+
+            // Only owner can delete group
+            if (group.CreatedById != userId)
+            {
+                Console.WriteLine($"Forbidden: User {userId} is not owner (owner is {group.CreatedById})");
+                return Forbid();
+            }
+
+            try
+            {
+                // Delete all related data (cascade will handle GroupMembers and GroupMessages)
+                _context.Groups.Remove(group);
+                await _context.SaveChangesAsync();
+                Console.WriteLine($"Group deleted successfully: {id}");
+
+                return Ok(new { message = "Group deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting group: {ex.Message}");
+                return StatusCode(500, new { message = $"Error deleting group: {ex.Message}" });
+            }
+        }
+
+        // POST: api/groups/{id}/leave
+        [HttpPost("{id}/leave")]
+        public async Task<ActionResult> LeaveGroup(int id)
+        {
+            var userId = GetUserId();
+
+            var group = await _context.Groups.FindAsync(id);
+            if (group == null)
+                return NotFound("Group not found");
+
+            // Owner cannot leave, must delete group or transfer ownership
+            if (group.CreatedById == userId)
+                return BadRequest("Group owner cannot leave. Delete the group instead.");
+
+            var member = await _context.GroupMembers
+                .FirstOrDefaultAsync(gm => gm.GroupId == id && gm.UserId == userId);
+
+            if (member == null)
+                return NotFound("You are not a member of this group");
+
+            _context.GroupMembers.Remove(member);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Left group successfully" });
+        }
     }
 }

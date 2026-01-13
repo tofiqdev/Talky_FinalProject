@@ -17,6 +17,17 @@ Proje tamamlandı! Backend ve frontend tamamen entegre, real-time mesajlaşma ç
 - ✅ Grup üye sayısı badge'i
 - ✅ Grup mesajları yükleme ve gönderme
 
+### Grup Yetkilendirme ve Yönetim Eklendi ✅
+- ✅ Owner/Admin/Member rolleri
+- ✅ GroupDetailsModal - Üye yönetimi
+- ✅ Admin atama/kaldırma (sadece owner)
+- ✅ Üye ekleme/çıkarma (owner ve admin)
+- ✅ Grup ayarları menüsü
+- ✅ Grup silme (sadece owner)
+- ✅ Gruptan ayrılma (normal üyeler)
+- ✅ Yetki etiketleri (Owner/Admin/Member)
+- ✅ Settings/Details view geçişi
+
 ### Real-time Mesaj Görüntüleme Düzeltildi ✅
 - ✅ Gönderilen mesajlar anlık görünüyor (sayfa yenileme gereksiz)
 - ✅ Gelen mesajlar anlık görünüyor
@@ -149,7 +160,18 @@ ChatPage
 - Search API: GET /api/users/search?q=term (min 2 karakter)
 - Backend publish edildi (back/publish/)
 - Grup tabloları eklendi: Groups, GroupMembers, GroupMessages
-- Grup API endpoint'leri: POST /api/groups, GET /api/groups, GET /api/groups/{id}/messages, POST /api/groups/{id}/messages
+- Grup API endpoint'leri: 
+  - POST /api/groups - Grup oluştur
+  - GET /api/groups - Kullanıcının grupları
+  - GET /api/groups/{id} - Grup detayı
+  - GET /api/groups/{id}/messages - Grup mesajları
+  - POST /api/groups/{id}/messages - Grup mesajı gönder
+  - POST /api/groups/{id}/members/{memberId}/promote - Admin yap
+  - POST /api/groups/{id}/members/{memberId}/demote - Admin kaldır
+  - DELETE /api/groups/{id}/members/{memberId} - Üye çıkar
+  - POST /api/groups/{id}/members - Üye ekle
+  - DELETE /api/groups/{id} - Grup sil
+  - POST /api/groups/{id}/leave - Gruptan ayrıl
 
 ### SignalR Real-time
 - SignalR bağlantısı login'de kuruluyor

@@ -85,6 +85,8 @@
 - ✅ Grup oluşturma
 - ✅ Grup mesajlaşma
 - ✅ Grup üye yönetimi
+- ✅ Grup yetkilendirme (Owner/Admin/Member)
+- ✅ Grup silme ve gruptan ayrılma
 
 ## Yapılacaklar
 
