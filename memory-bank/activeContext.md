@@ -39,6 +39,22 @@
   - ChatWindow (sohbet header'ı)
   - GroupDetailsModal (grup detayları)
 
+### Contact Sistemi Eklendi ✅
+- ✅ Contact model ve Contacts tablosu
+- ✅ Migration: AddContactSystem
+- ✅ ContactsController API endpoint'leri:
+  - GET /api/contacts - Kişi listesi
+  - POST /api/contacts/{userId} - Kişi ekle
+  - DELETE /api/contacts/{userId} - Kişi sil
+  - GET /api/contacts/check/{userId} - Kişi kontrolü
+- ✅ UserService - Sadece contact'ları döndürüyor
+- ✅ StoriesController - Sadece contact'ların story'lerini gösteriyor
+- ✅ ChatWindow - "Add to Contacts" banner'ı
+- ✅ Contact kontrolü ve ekleme butonu
+- ✅ Sarı uyarı banner'ı (contact değilse)
+- ✅ Engellenen kullanıcılar contact olarak eklenemez
+- ✅ Ölçeklenebilir yapı (milyonlarca kullanıcı için)
+
 ### Story'lerde Profil Resimleri Eklendi ✅
 - ✅ StoryDto - Avatar field'ı
 - ✅ StoryViewDto - Avatar field'ı
@@ -275,6 +291,8 @@
 - **State Management**: Zustand (basit ve etkili)
 - **Real-time**: SignalR (direkt mesajlar), REST API (grup mesajları)
 - **Authentication**: JWT Bearer token
+- **Contact System**: Sadece contact'lar görünüyor (ölçeklenebilir)
+- **Story Visibility**: Sadece contact'ların story'leri
 - **Grup Yetkilendirme**: Owner/Admin/Member rolleri
 - **Komut sistemi**: Chat'te `@username /command` ve `/command` formatı
 - **Mute All**: Tüm grubu susturma, sadece adminler konuşabilir
@@ -290,6 +308,7 @@
 - **Animations**: CSS keyframes + Tailwind transitions
 - **Voice Messages**: REST API (base64 too large for SignalR)
 - **Audio Format**: WebM with Opus codec, 16kbps bitrate
+- **Profile Pictures**: User and Group avatars, base64, nvarchar(max)
 
 ## Component Hiyerarşisi
 ```

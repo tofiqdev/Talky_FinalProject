@@ -22,8 +22,15 @@ namespace TalkyAPI.Services.Implementations
                 .Select(bu => bu.UserId == currentUserId ? bu.BlockedUserId : bu.UserId)
                 .ToListAsync();
 
+            // Get contact user IDs
+            var contactUserIds = await _context.Contacts
+                .Where(c => c.UserId == currentUserId)
+                .Select(c => c.ContactUserId)
+                .ToListAsync();
+
+            // Only return contacts (not blocked)
             var users = await _context.Users
-                .Where(u => u.Id != currentUserId && !blockedUserIds.Contains(u.Id))
+                .Where(u => contactUserIds.Contains(u.Id) && !blockedUserIds.Contains(u.Id))
                 .Select(u => new UserDto
                 {
                     Id = u.Id,

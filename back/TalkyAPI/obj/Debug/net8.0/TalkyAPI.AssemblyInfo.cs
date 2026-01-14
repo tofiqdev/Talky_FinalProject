@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TalkyAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+934235b094197eb51fafdd270689478a662d4016")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+59bdad843644b94f4183a675d05321f9cd08bb13")]
 [assembly: System.Reflection.AssemblyProductAttribute("TalkyAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TalkyAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

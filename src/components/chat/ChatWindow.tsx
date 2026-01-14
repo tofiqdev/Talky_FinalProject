@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useChatStore } from '../../store/chatStore';
 import { useAuthStore } from '../../store/authStore';
 import MessageList from './MessageList';
@@ -19,12 +19,67 @@ export default function ChatWindow() {
   const [mentionSearch, setMentionSearch] = useState('');
   const [mentionStartPos, setMentionStartPos] = useState(0);
   const [selectedMentionIndex, setSelectedMentionIndex] = useState(0);
+  const [isContact, setIsContact] = useState(true); // Assume contact initially
+  const [addingContact, setAddingContact] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Check if user is contact
+  useEffect(() => {
+    if (selectedUser && !selectedGroup) {
+      checkIsContact(selectedUser.id);
+    }
+  }, [selectedUser, selectedGroup]);
+
+  const checkIsContact = async (userId: number) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/contacts/check/${userId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        const isContactResult = await response.json();
+        setIsContact(isContactResult);
+      }
+    } catch (error) {
+      console.error('Failed to check contact status:', error);
+    }
+  };
+
+  const handleAddToContacts = async () => {
+    if (!selectedUser) return;
+    
+    setAddingContact(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/contacts/${selectedUser.id}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to add contact');
+      }
+
+      setIsContact(true);
+      alert('Contact added successfully!');
+    } catch (error) {
+      console.error('Failed to add contact:', error);
+      alert(error instanceof Error ? error.message : 'Failed to add contact');
+    } finally {
+      setAddingContact(false);
+    }
+  };
 
   // Initialize audio
   if (!audioRef.current) {
@@ -566,6 +621,27 @@ export default function ChatWindow() {
           </button>
         </div>
       </div>
+
+      {/* Add to Contacts Banner */}
+      {!isGroup && selectedUser && !isContact && (
+        <div className="bg-yellow-50 border-b border-yellow-200 px-6 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <svg className="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span className="text-sm text-yellow-800">
+              <strong>{selectedUser.username}</strong> is not in your contacts
+            </span>
+          </div>
+          <button
+            onClick={handleAddToContacts}
+            disabled={addingContact}
+            className="px-4 py-1.5 bg-cyan-500 text-white text-sm rounded-lg hover:bg-cyan-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {addingContact ? 'Adding...' : 'Add to Contacts'}
+          </button>
+        </div>
+      )}
 
       <MessageList />
 

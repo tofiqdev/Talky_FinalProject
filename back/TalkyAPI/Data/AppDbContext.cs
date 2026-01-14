@@ -18,6 +18,7 @@ namespace TalkyAPI.Data
         public DbSet<Story> Stories { get; set; }
         public DbSet<StoryView> StoryViews { get; set; }
         public DbSet<BlockedUser> BlockedUsers { get; set; }
+        public DbSet<Contact> Contacts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -156,6 +157,23 @@ namespace TalkyAPI.Data
                 entity.HasOne(bu => bu.BlockedUserNavigation)
                     .WithMany()
                     .HasForeignKey(bu => bu.BlockedUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Contact entity configuration
+            modelBuilder.Entity<Contact>(entity =>
+            {
+                entity.HasIndex(e => new { e.UserId, e.ContactUserId }).IsUnique();
+                entity.HasIndex(e => e.AddedAt);
+
+                entity.HasOne(c => c.User)
+                    .WithMany()
+                    .HasForeignKey(c => c.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(c => c.ContactUser)
+                    .WithMany()
+                    .HasForeignKey(c => c.ContactUserId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
         }

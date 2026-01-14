@@ -105,6 +105,10 @@
 - ✅ Profil resimleri tüm yerlerde (chat, story, settings)
 - ✅ Grup profil resmi yükleme (owner/admin)
 - ✅ Grup avatarları tüm yerlerde
+- ✅ Contact sistemi (ölçeklenebilir yapı)
+- ✅ Sadece contact'lar chat listesinde
+- ✅ Sadece contact'ların story'leri görünüyor
+- ✅ "Add to Contacts" uyarı banner'ı
 
 ## Yapılacaklar
 

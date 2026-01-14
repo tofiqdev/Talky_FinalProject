@@ -27,11 +27,17 @@ namespace TalkyAPI.Controllers
             var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
             var now = DateTime.UtcNow;
 
-            // Get active stories (not expired)
+            // Get contact user IDs
+            var contactUserIds = await _context.Contacts
+                .Where(c => c.UserId == currentUserId)
+                .Select(c => c.ContactUserId)
+                .ToListAsync();
+
+            // Get active stories (not expired) - only from contacts and self
             var stories = await _context.Stories
                 .Include(s => s.User)
                 .Include(s => s.Views)
-                .Where(s => s.ExpiresAt > now)
+                .Where(s => s.ExpiresAt > now && (contactUserIds.Contains(s.UserId) || s.UserId == currentUserId))
                 .OrderByDescending(s => s.CreatedAt)
                 .Select(s => new StoryDto
                 {
