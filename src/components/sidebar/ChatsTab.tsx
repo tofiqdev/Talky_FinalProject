@@ -209,9 +209,17 @@ export default function ChatsTab() {
                 }`}
               >
                 <div className="relative flex-shrink-0">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white font-semibold">
-                    {group.name.charAt(0).toUpperCase()}
-                  </div>
+                  {group.avatar ? (
+                    <img 
+                      src={group.avatar} 
+                      alt={group.name}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white font-semibold">
+                      {group.name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
                   <div className="absolute bottom-0 right-0 w-5 h-5 bg-gray-700 text-white text-xs rounded-full flex items-center justify-center border-2 border-white">
                     {group.memberCount}
                   </div>

@@ -103,6 +103,8 @@
 - ✅ Profil resmi yükleme (base64, max 5MB, sıkıştırma)
 - ✅ Username/Email güncelleme
 - ✅ Profil resimleri tüm yerlerde (chat, story, settings)
+- ✅ Grup profil resmi yükleme (owner/admin)
+- ✅ Grup avatarları tüm yerlerde
 
 ## Yapılacaklar
 

@@ -954,5 +954,67 @@ namespace TalkyAPI.Controllers
 
             return Ok(new { message = "Group unmuted for all members", systemMessage = messageDto });
         }
+
+        // PUT: api/groups/{id}/avatar
+        [HttpPut("{id}/avatar")]
+        public async Task<ActionResult<GroupDto>> UpdateGroupAvatar(int id, [FromBody] UpdateGroupAvatarDto dto)
+        {
+            var userId = GetUserId();
+
+            var group = await _context.Groups
+                .Include(g => g.CreatedBy)
+                .Include(g => g.Members)
+                    .ThenInclude(m => m.User)
+                .FirstOrDefaultAsync(g => g.Id == id);
+
+            if (group == null)
+                return NotFound("Group not found");
+
+            // Check if user is owner or admin
+            var currentMember = group.Members.FirstOrDefault(m => m.UserId == userId);
+            if (currentMember == null)
+                return Forbid();
+
+            bool isOwner = group.CreatedById == userId;
+            bool isAdmin = currentMember.IsAdmin;
+
+            if (!isOwner && !isAdmin)
+                return Forbid();
+
+            // Validate base64 format
+            if (!string.IsNullOrWhiteSpace(dto.Avatar) && !dto.Avatar.StartsWith("data:image/"))
+                return BadRequest(new { message = "Invalid image format. Must be base64 encoded image." });
+
+            group.Avatar = dto.Avatar;
+            group.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            var groupDto = new GroupDto
+            {
+                Id = group.Id,
+                Name = group.Name,
+                Description = group.Description,
+                Avatar = group.Avatar,
+                CreatedById = group.CreatedById,
+                CreatedByUsername = group.CreatedBy.Username,
+                CreatedAt = group.CreatedAt,
+                IsMutedForAll = group.IsMutedForAll,
+                MemberCount = group.Members.Count,
+                Members = group.Members.Select(m => new GroupMemberDto
+                {
+                    Id = m.Id,
+                    UserId = m.UserId,
+                    Username = m.User.Username,
+                    Avatar = m.User.Avatar,
+                    IsAdmin = m.IsAdmin,
+                    IsMuted = m.IsMuted,
+                    IsOnline = m.User.IsOnline,
+                    JoinedAt = m.JoinedAt
+                }).ToList()
+            };
+
+            return Ok(groupDto);
+        }
     }
 }

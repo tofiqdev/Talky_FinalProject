@@ -14,7 +14,7 @@ namespace TalkyAPI.Models
         [MaxLength(500)]
         public string? Description { get; set; }
 
-        [MaxLength(255)]
+        // Base64 encoded image - no max length
         public string? Avatar { get; set; }
 
         [Required]

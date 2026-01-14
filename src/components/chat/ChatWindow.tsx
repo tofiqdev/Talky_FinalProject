@@ -501,6 +501,12 @@ export default function ChatWindow() {
                 alt={selectedUser.username}
                 className="w-10 h-10 rounded-full object-cover"
               />
+            ) : isGroup && selectedGroup?.avatar ? (
+              <img 
+                src={selectedGroup.avatar} 
+                alt={selectedGroup.name}
+                className="w-10 h-10 rounded-full object-cover"
+              />
             ) : (
               <div className={`w-10 h-10 rounded-full ${isGroup ? 'bg-gradient-to-br from-purple-400 to-pink-500' : 'bg-gradient-to-br from-cyan-400 to-blue-500'} flex items-center justify-center text-white font-semibold`}>
                 {isGroup 

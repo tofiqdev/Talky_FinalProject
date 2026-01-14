@@ -18,6 +18,7 @@ export default function GroupDetailsModal({ group, isOpen, onClose, onUpdate, on
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   const isOwner = user?.id === group.createdById;
   const currentMember = group.members.find(m => m.userId === user?.id);
@@ -26,6 +27,98 @@ export default function GroupDetailsModal({ group, isOpen, onClose, onUpdate, on
 
   // Get users not in group
   const availableUsers = users.filter(u => !group.members.some(m => m.userId === u.id));
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image size must be less than 5MB');
+      return;
+    }
+
+    setUploadingAvatar(true);
+
+    try {
+      // Compress and convert to base64
+      const base64String = await compressImage(file);
+
+      // Upload to backend
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/groups/${group.id}/avatar`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ avatar: base64String })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload group avatar');
+      }
+
+      alert('Group avatar updated successfully!');
+      onUpdate();
+    } catch (error) {
+      console.error('Error uploading group avatar:', error);
+      alert('Failed to upload group avatar');
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          
+          // Max dimensions for group avatar
+          const maxWidth = 400;
+          const maxHeight = 400;
+          
+          // Calculate new dimensions
+          if (width > height) {
+            if (width > maxWidth) {
+              height = (height * maxWidth) / width;
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width = (width * maxHeight) / height;
+              height = maxHeight;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          // Convert to base64 with compression (0.8 quality)
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+          resolve(compressedBase64);
+        };
+        img.onerror = reject;
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
 
   const handlePromote = async (memberId: number) => {
     if (!canManage) return;
@@ -316,8 +409,41 @@ export default function GroupDetailsModal({ group, isOpen, onClose, onUpdate, on
             {/* Group Info */}
             <div className="mb-6">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white text-2xl font-bold">
-                  {group.name.charAt(0).toUpperCase()}
+                <div className="relative">
+                  {group.avatar ? (
+                    <img 
+                      src={group.avatar} 
+                      alt={group.name}
+                      className="w-16 h-16 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white text-2xl font-bold">
+                      {group.name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  {canManage && (
+                    <label 
+                      htmlFor="group-avatar-upload"
+                      className="absolute bottom-0 right-0 w-6 h-6 bg-cyan-500 rounded-full flex items-center justify-center cursor-pointer hover:bg-cyan-600 transition"
+                    >
+                      {uploadingAvatar ? (
+                        <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      ) : (
+                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      )}
+                    </label>
+                  )}
+                  <input
+                    id="group-avatar-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarUpload}
+                    className="hidden"
+                    disabled={uploadingAvatar || !canManage}
+                  />
                 </div>
                 <div>
                   <h4 className="font-bold text-lg">{group.name}</h4>

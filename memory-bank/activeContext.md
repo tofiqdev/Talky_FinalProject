@@ -25,6 +25,20 @@
   - Story görüntüleme (ViewStoryModal)
   - Story views paneli
 
+### Grup Profil Resmi Yükleme Eklendi ✅
+- ✅ Group model - Avatar MaxLength kaldırıldı (nvarchar(max))
+- ✅ Migration: UpdateGroupAvatarSize
+- ✅ UpdateGroupAvatarDto oluşturuldu
+- ✅ Backend: PUT /api/groups/{id}/avatar
+- ✅ Sadece owner ve adminler yükleyebilir
+- ✅ Base64 format validasyonu
+- ✅ Frontend: GroupDetailsModal - Avatar upload butonu
+- ✅ Resim sıkıştırma (400x400, JPEG 0.8)
+- ✅ Grup avatarları gösteriliyor:
+  - ChatsTab (grup listesi)
+  - ChatWindow (sohbet header'ı)
+  - GroupDetailsModal (grup detayları)
+
 ### Story'lerde Profil Resimleri Eklendi ✅
 - ✅ StoryDto - Avatar field'ı
 - ✅ StoryViewDto - Avatar field'ı
