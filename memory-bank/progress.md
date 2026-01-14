@@ -134,8 +134,9 @@
 ✅ CallsController - Arama geçmişi API
 ✅ GroupsController - Grup yönetimi API
 ✅ StoriesController - Story yönetimi API
-✅ Mute/Unmute API endpoints
-✅ Komut sistemi backend desteği
+✅ Mute/Unmute API endpoints (individual + all)
+✅ Chat komutları: /muteall, /unmuteall, @user /mute, @user /unmute
+✅ Komut sistemi backend desteği (regex pattern matching)
 ✅ Sistem mesajları (IsSystemMessage flag)
 ✅ Story view tracking
 ✅ 24 saat otomatik silme (ExpiresAt)
@@ -145,7 +146,7 @@
 ✅ JWT Authentication
 ✅ User search API
 ✅ Grup oluşturma ve mesajlaşma
-✅ Database migration (AddGroupFeature, AddMuteFeature, AddStoryFeature)
+✅ Database migration (AddGroupFeature, AddMuteFeature, AddStoryFeature, AddGroupMuteAll)
 
 **Backend URL**: http://localhost:5282
 **Swagger UI**: http://localhost:5282/swagger

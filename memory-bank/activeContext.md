@@ -169,10 +169,10 @@
 ### Test ve İyileştirmeler
 - ✅ @ Mention özelliği (grup mesajlarında)
 - ✅ Story özelliği (oluşturma, görüntüleme, gruplama)
+- ✅ Mute All özelliği (tüm grubu susturma)
+- ✅ Chat komutları (/muteall, /unmuteall)
 - ⏳ Story replies (story'lere cevap verme)
 - ⏳ Story reactions (emoji ile tepki)
-- ⏳ Ses mesajlarını test et
-- ⏳ Grup mesajlaşmasını test et
 - ⏳ Real-time grup mesajları (SignalR ile - şu an REST API)
 - ⏳ Typing indicator (opsiyonel)
 - ⏳ Message read receipts (opsiyonel)
@@ -181,8 +181,6 @@
 - ⏳ Dark mode backend entegrasyonu (UI hazır)
 - ⏳ Push notifications (opsiyonel)
 - ⏳ Video/Voice call functionality (UI hazır, backend gerekli)
-- ⏳ Kick komutu: `@username /kick` (opsiyonel)
-- ⏳ Ban komutu: `@username /ban` (opsiyonel)
 
 ## Aktif Kararlar
 - **Component Structure**: Sidebar yönetir tüm tab'ları
@@ -254,18 +252,32 @@ ChatPage
 - Search API: GET /api/users/search?q=term (min 2 karakter)
 - Backend publish edildi (back/publish/)
 - Grup tabloları eklendi: Groups, GroupMembers, GroupMessages
+- Story tabloları eklendi: Stories, StoryViews
+- Mute All özelliği: IsMutedForAll field (Group model)
+- Chat komutları backend'de işleniyor: /muteall, /unmuteall, @user /mute, @user /unmute
 - Grup API endpoint'leri: 
   - POST /api/groups - Grup oluştur
   - GET /api/groups - Kullanıcının grupları
   - GET /api/groups/{id} - Grup detayı
   - GET /api/groups/{id}/messages - Grup mesajları
-  - POST /api/groups/{id}/messages - Grup mesajı gönder
+  - POST /api/groups/{id}/messages - Grup mesajı gönder (komut kontrolü ile)
   - POST /api/groups/{id}/members/{memberId}/promote - Admin yap
   - POST /api/groups/{id}/members/{memberId}/demote - Admin kaldır
   - DELETE /api/groups/{id}/members/{memberId} - Üye çıkar
   - POST /api/groups/{id}/members - Üye ekle
+  - POST /api/groups/{id}/members/{memberId}/mute - Üye sustur
+  - POST /api/groups/{id}/members/{memberId}/unmute - Üye susturmasını kaldır
+  - POST /api/groups/{id}/mute-all - Tüm grubu sustur
+  - POST /api/groups/{id}/unmute-all - Tüm grubun susturmasını kaldır
   - DELETE /api/groups/{id} - Grup sil
   - POST /api/groups/{id}/leave - Gruptan ayrıl
+- Story API endpoint'leri:
+  - GET /api/stories - Tüm aktif story'ler
+  - GET /api/stories/{id} - Story detayı
+  - POST /api/stories - Story oluştur
+  - POST /api/stories/{id}/view - Story görüntüleme kaydı
+  - GET /api/stories/{id}/views - Story görüntüleyenler (owner only)
+  - DELETE /api/stories/{id} - Story sil (owner only)
 
 ### SignalR Real-time
 - SignalR bağlantısı login'de kuruluyor
@@ -313,7 +325,9 @@ ChatPage
 - **Komut sistemi**: `@username /mute` ve `@username /unmute` komutları
 - **Sistem mesajları**: Sarı arka plan, ortalanmış, özel stil
 - **Muted UI**: Input devre dışı, uyarı mesajı, butonlar disabled
+- **Mute All UI**: Grup muted ise sadece adminler mesaj gönderebilir
 - **Story sistemi**: CreateStoryModal (resim upload, caption), ViewStoryModal (otomatik geçiş, progress)
 - **Story gruplama**: Kullanıcıya göre gruplama, tek avatar, story count badge
 - **Story navigasyon**: Ok tuşları, otomatik geçiş (5 saniye), aynı kullanıcı story'leri
 - **Story UI**: Views panel, X buton çakışması düzeltildi
+- **Chat placeholder**: Tüm komutlar gösteriliyor (@user /mute, /muteall, /unmuteall)
