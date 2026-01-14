@@ -96,6 +96,8 @@
 - ✅ Story özelliği (oluşturma, görüntüleme, gruplama)
 - ✅ Story view tracking
 - ✅ 24 saat otomatik silme
+- ✅ Kullanıcı engelleme (block/unblock)
+- ✅ Mesaj gönderme sesi
 
 ## Yapılacaklar
 
@@ -134,19 +136,22 @@
 ✅ CallsController - Arama geçmişi API
 ✅ GroupsController - Grup yönetimi API
 ✅ StoriesController - Story yönetimi API
+✅ BlockedUsersController - Kullanıcı engelleme API
 ✅ Mute/Unmute API endpoints (individual + all)
 ✅ Chat komutları: /muteall, /unmuteall, @user /mute, @user /unmute
 ✅ Komut sistemi backend desteği (regex pattern matching)
 ✅ Sistem mesajları (IsSystemMessage flag)
 ✅ Story view tracking
 ✅ 24 saat otomatik silme (ExpiresAt)
+✅ Kullanıcı engelleme (BlockedUsers tablosu)
+✅ UserService: Engellenen kullanıcılar filtreleniyor
 ✅ CORS düzeltmeleri
 ✅ Vite proxy desteği
 ✅ Production build (back/publish/)
 ✅ JWT Authentication
 ✅ User search API
 ✅ Grup oluşturma ve mesajlaşma
-✅ Database migration (AddGroupFeature, AddMuteFeature, AddStoryFeature, AddGroupMuteAll)
+✅ Database migration (AddGroupFeature, AddMuteFeature, AddStoryFeature, AddGroupMuteAll, AddBlockedUsers)
 
 **Backend URL**: http://localhost:5282
 **Swagger UI**: http://localhost:5282/swagger

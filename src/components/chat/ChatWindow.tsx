@@ -3,6 +3,7 @@ import { useChatStore } from '../../store/chatStore';
 import { useAuthStore } from '../../store/authStore';
 import MessageList from './MessageList';
 import GroupDetailsModal from '../group/GroupDetailsModal';
+import messageSendSound from '../../assets/message_send_sound.mp3';
 
 export default function ChatWindow() {
   const { selectedUser, selectedGroup, sendMessage, sendGroupMessage, loadGroups, loadGroupMessages } = useChatStore();
@@ -20,6 +21,23 @@ export default function ChatWindow() {
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Initialize audio
+  if (!audioRef.current) {
+    audioRef.current = new Audio(messageSendSound);
+    audioRef.current.volume = 0.5; // 50% volume
+  }
+
+  const playMessageSound = () => {
+    try {
+      audioRef.current?.play().catch(err => {
+        console.log('Could not play sound:', err);
+      });
+    } catch (error) {
+      console.log('Sound play error:', error);
+    }
+  };
 
   const isGroup = !!selectedGroup;
   const chatTarget = selectedUser || selectedGroup;
@@ -202,8 +220,10 @@ export default function ChatWindow() {
         
         // Regular message
         await sendGroupMessage(selectedGroup.id, messageToSend);
+        playMessageSound(); // Play sound after sending
       } else if (selectedUser) {
         await sendMessage(selectedUser.id, messageToSend);
+        playMessageSound(); // Play sound after sending
       }
     } catch (error) {
       console.error('Failed to send message:', error);

@@ -872,7 +872,7 @@ namespace TalkyAPI.Controllers
             {
                 GroupId = id,
                 SenderId = userId,
-                Content = $"🔇 Grup susturuldu. Sadece yöneticiler mesaj gönderebilir. By @{currentUser!.Username}",
+                Content = $" 💤 Doktor bütün şəhərə narkoz vurdu... Hamı dərin yuxuya gedir. By @{currentUser!.Username}",
                 IsSystemMessage = true,
                 SentAt = DateTime.UtcNow
             };
@@ -932,7 +932,7 @@ namespace TalkyAPI.Controllers
             {
                 GroupId = id,
                 SenderId = userId,
-                Content = $"🔊 Grup susturması kaldırıldı. Herkes mesaj gönderebilir. By @{currentUser!.Username}",
+                Content = $" 💉 Narkozun təsiri keçdi! Gözünüzü açın və danışın, kim sağ qalıb? By @{currentUser!.Username}",
                 IsSystemMessage = true,
                 SentAt = DateTime.UtcNow
             };

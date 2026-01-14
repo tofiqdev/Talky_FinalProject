@@ -16,8 +16,14 @@ namespace TalkyAPI.Services.Implementations
 
         public async Task<List<UserDto>> GetAllUsers(int currentUserId)
         {
+            // Get blocked user IDs (users blocked by current user and users who blocked current user)
+            var blockedUserIds = await _context.BlockedUsers
+                .Where(bu => bu.UserId == currentUserId || bu.BlockedUserId == currentUserId)
+                .Select(bu => bu.UserId == currentUserId ? bu.BlockedUserId : bu.UserId)
+                .ToListAsync();
+
             var users = await _context.Users
-                .Where(u => u.Id != currentUserId)
+                .Where(u => u.Id != currentUserId && !blockedUserIds.Contains(u.Id))
                 .Select(u => new UserDto
                 {
                     Id = u.Id,
@@ -77,8 +83,15 @@ namespace TalkyAPI.Services.Implementations
 
         public async Task<List<UserDto>> SearchUsers(string searchTerm, int currentUserId)
         {
+            // Get blocked user IDs
+            var blockedUserIds = await _context.BlockedUsers
+                .Where(bu => bu.UserId == currentUserId || bu.BlockedUserId == currentUserId)
+                .Select(bu => bu.UserId == currentUserId ? bu.BlockedUserId : bu.UserId)
+                .ToListAsync();
+
             var users = await _context.Users
                 .Where(u => u.Id != currentUserId &&
+                           !blockedUserIds.Contains(u.Id) &&
                            (u.Username.ToLower().Contains(searchTerm.ToLower()) ||
                             u.Email.ToLower().Contains(searchTerm.ToLower())))
                 .Select(u => new UserDto

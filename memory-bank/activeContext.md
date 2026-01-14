@@ -1,9 +1,28 @@
 # Active Context
 
 ## Şu Anki Odak
-✅ **Proje Production Ready!** Backend ve frontend tamamen entegre, tüm özellikler çalışıyor. Real-time mesajlaşma, grup yönetimi, ses mesajları, kullanıcı yetkilendirme sistemi, **mute/unmute komut sistemi**, **mute all özelliği**, **story özelliği** aktif. Proje stabil ve kullanıma hazır durumda.
+✅ **Proje Production Ready!** Backend ve frontend tamamen entegre, tüm özellikler çalışıyor. Real-time mesajlaşma, grup yönetimi, ses mesajları, kullanıcı yetkilendirme sistemi, **mute/unmute komut sistemi**, **mute all özelliği**, **story özelliği**, **kullanıcı engelleme**, **mesaj gönderme sesi** aktif. Proje stabil ve kullanıma hazır durumda.
 
 ## Son Değişiklikler
+
+### Mesaj Gönderme Sesi Eklendi ✅
+- ✅ Mesaj gönderildiğinde ses efekti çalıyor
+- ✅ Ses dosyası: src/assets/message_send_sound.mp3
+- ✅ Volume: 50% (ayarlanabilir)
+- ✅ Hem direkt mesajlar hem grup mesajları için
+- ✅ Hata durumunda sessiz devam ediyor
+
+### Kullanıcı Engelleme Özelliği Eklendi ✅
+- ✅ Kullanıcıları engelleme/engeli kaldırma
+- ✅ PeopleTab'da Contacts / Blocked tab switcher
+- ✅ Block butonu (kırmızı X icon)
+- ✅ Blocked users listesi
+- ✅ Unblock butonu
+- ✅ Backend: BlockedUser model, BlockedUsersController
+- ✅ API endpoints: GET/POST/DELETE /api/blockedusers
+- ✅ UserService: Engellenen kullanıcılar filtreleniyor
+- ✅ Karşılıklı engelleme desteği
+- ✅ Migration: AddBlockedUsers uygulandı
 
 ### Mute All Özelliği Eklendi ✅
 - ✅ Grup sahibi ve adminler tüm grubu susturabilir
@@ -255,6 +274,8 @@ ChatPage
 - Story tabloları eklendi: Stories, StoryViews
 - Mute All özelliği: IsMutedForAll field (Group model)
 - Chat komutları backend'de işleniyor: /muteall, /unmuteall, @user /mute, @user /unmute
+- BlockedUsers tablosu eklendi: UserId, BlockedUserId, BlockedAt
+- UserService engellenen kullanıcıları filtreliyor (GetAllUsers, SearchUsers)
 - Grup API endpoint'leri: 
   - POST /api/groups - Grup oluştur
   - GET /api/groups - Kullanıcının grupları
@@ -278,6 +299,11 @@ ChatPage
   - POST /api/stories/{id}/view - Story görüntüleme kaydı
   - GET /api/stories/{id}/views - Story görüntüleyenler (owner only)
   - DELETE /api/stories/{id} - Story sil (owner only)
+- BlockedUsers API endpoint'leri:
+  - GET /api/blockedusers - Engellenen kullanıcılar listesi
+  - POST /api/blockedusers/{userId} - Kullanıcıyı engelle
+  - DELETE /api/blockedusers/{userId} - Engeli kaldır
+  - GET /api/blockedusers/check/{userId} - Engel durumu kontrol
 
 ### SignalR Real-time
 - SignalR bağlantısı login'de kuruluyor
@@ -331,3 +357,6 @@ ChatPage
 - **Story navigasyon**: Ok tuşları, otomatik geçiş (5 saniye), aynı kullanıcı story'leri
 - **Story UI**: Views panel, X buton çakışması düzeltildi
 - **Chat placeholder**: Tüm komutlar gösteriliyor (@user /mute, /muteall, /unmuteall)
+- **Kullanıcı engelleme**: PeopleTab'da Contacts/Blocked tab switcher
+- **Block UI**: Kırmızı X icon, Unblock butonu, gri avatar (blocked users)
+- **Mesaj sesi**: message_send_sound.mp3, 50% volume, hata toleranslı
