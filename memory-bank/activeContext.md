@@ -1,9 +1,21 @@
 # Active Context
 
 ## Şu Anki Odak
-✅ **Proje Production Ready!** Backend ve frontend tamamen entegre, tüm özellikler çalışıyor. Real-time mesajlaşma, grup yönetimi, ses mesajları, kullanıcı yetkilendirme sistemi, **mute/unmute komut sistemi**, **story özelliği** aktif. Proje stabil ve kullanıma hazır durumda.
+✅ **Proje Production Ready!** Backend ve frontend tamamen entegre, tüm özellikler çalışıyor. Real-time mesajlaşma, grup yönetimi, ses mesajları, kullanıcı yetkilendirme sistemi, **mute/unmute komut sistemi**, **mute all özelliği**, **story özelliği** aktif. Proje stabil ve kullanıma hazır durumda.
 
 ## Son Değişiklikler
+
+### Mute All Özelliği Eklendi ✅
+- ✅ Grup sahibi ve adminler tüm grubu susturabilir
+- ✅ Grup muted iken sadece owner ve adminler mesaj gönderebilir
+- ✅ Chat komutları: `/muteall` ve `/unmuteall`
+- ✅ UI butonu: Group Settings → Mute All Members
+- ✅ Backend: IsMutedForAll field (Group model)
+- ✅ API endpoints: POST /api/groups/{id}/mute-all, unmute-all
+- ✅ Sistem mesajları: Mute/unmute all için özel mesajlar
+- ✅ Frontend uyarıları: "Group is muted. Only admins can send messages"
+- ✅ Input, emoji, ses kaydı devre dışı (muted grup için)
+- ✅ Migration: AddGroupMuteAll uygulandı
 
 ### Story Özelliği Eklendi ✅
 - ✅ Story oluşturma (resim + caption)
@@ -181,7 +193,9 @@
 - **Real-time**: SignalR (direkt mesajlar), REST API (grup mesajları)
 - **Authentication**: JWT Bearer token
 - **Grup Yetkilendirme**: Owner/Admin/Member rolleri
-- **Komut sistemi**: Chat'te `@username /command` formatı
+- **Komut sistemi**: Chat'te `@username /command` ve `/command` formatı
+- **Mute All**: Tüm grubu susturma, sadece adminler konuşabilir
+- **Chat Commands**: /muteall, /unmuteall, @user /mute, @user /unmute
 - **Sistem Mesajları**: IsSystemMessage flag ile özel gösterim
 - **Settings UI**: Modal-based settings (6 kategori)
 - **Call History**: Backend entegrasyonu tamamlandı

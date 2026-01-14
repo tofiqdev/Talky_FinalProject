@@ -88,6 +88,8 @@
 - ✅ Grup yetkilendirme (Owner/Admin/Member)
 - ✅ Grup silme ve gruptan ayrılma
 - ✅ Mute/Unmute sistemi (UI + Komut)
+- ✅ Mute All özelliği (tüm grubu susturma)
+- ✅ Chat komutları (/muteall, /unmuteall, @user /mute, @user /unmute)
 - ✅ Sistem mesajları
 - ✅ Settings ekranı (tüm modal'lar)
 - ✅ Call history (backend entegrasyonu)
