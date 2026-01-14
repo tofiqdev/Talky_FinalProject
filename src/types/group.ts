@@ -6,6 +6,7 @@ export interface Group {
   createdById: number;
   createdByUsername: string;
   createdAt: string;
+  isMutedForAll: boolean;
   memberCount: number;
   members: GroupMember[];
 }

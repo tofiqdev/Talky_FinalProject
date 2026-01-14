@@ -51,6 +51,7 @@ namespace TalkyAPI.Controllers
                 CreatedById = g.CreatedById,
                 CreatedByUsername = g.CreatedBy.Username,
                 CreatedAt = g.CreatedAt,
+                IsMutedForAll = g.IsMutedForAll,
                 MemberCount = g.Members.Count,
                 Members = g.Members.Select(m => new GroupMemberDto
                 {
@@ -244,9 +245,212 @@ namespace TalkyAPI.Controllers
             if (member == null)
                 return Forbid();
 
+            var group = await _context.Groups
+                .Include(g => g.CreatedBy)
+                .FirstOrDefaultAsync(g => g.Id == id);
+                
+            if (group == null)
+                return NotFound("Group not found");
+
+            bool isOwner = group.CreatedById == userId;
+            bool isAdmin = member.IsAdmin;
+            bool canModerate = isOwner || isAdmin;
+
+            // Check for /muteall command
+            if (content.Trim().Equals("/muteall", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!canModerate)
+                    return BadRequest("Only admins can use this command");
+
+                if (group.IsMutedForAll)
+                    return BadRequest("Group is already muted for all members");
+
+                group.IsMutedForAll = true;
+                await _context.SaveChangesAsync();
+
+                // Create system message
+                var currentUser = await _context.Users.FindAsync(userId);
+                var systemMessage = new GroupMessage
+                {
+                    GroupId = id,
+                    SenderId = userId,
+                    Content = $"🔇 Grup susturuldu. Sadece yöneticiler mesaj gönderebilir. By @{currentUser!.Username}",
+                    IsSystemMessage = true,
+                    SentAt = DateTime.UtcNow
+                };
+
+                _context.GroupMessages.Add(systemMessage);
+                await _context.SaveChangesAsync();
+
+                return Ok(new GroupMessageDto
+                {
+                    Id = systemMessage.Id,
+                    GroupId = systemMessage.GroupId,
+                    SenderId = systemMessage.SenderId,
+                    SenderUsername = currentUser.Username,
+                    SenderAvatar = currentUser.Avatar,
+                    Content = systemMessage.Content,
+                    IsSystemMessage = true,
+                    SentAt = systemMessage.SentAt
+                });
+            }
+
+            // Check for /unmuteall command
+            if (content.Trim().Equals("/unmuteall", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!canModerate)
+                    return BadRequest("Only admins can use this command");
+
+                if (!group.IsMutedForAll)
+                    return BadRequest("Group is not muted for all members");
+
+                group.IsMutedForAll = false;
+                await _context.SaveChangesAsync();
+
+                // Create system message
+                var currentUser = await _context.Users.FindAsync(userId);
+                var systemMessage = new GroupMessage
+                {
+                    GroupId = id,
+                    SenderId = userId,
+                    Content = $"🔊 Grup susturması kaldırıldı. Herkes mesaj gönderebilir. By @{currentUser!.Username}",
+                    IsSystemMessage = true,
+                    SentAt = DateTime.UtcNow
+                };
+
+                _context.GroupMessages.Add(systemMessage);
+                await _context.SaveChangesAsync();
+
+                return Ok(new GroupMessageDto
+                {
+                    Id = systemMessage.Id,
+                    GroupId = systemMessage.GroupId,
+                    SenderId = systemMessage.SenderId,
+                    SenderUsername = currentUser.Username,
+                    SenderAvatar = currentUser.Avatar,
+                    Content = systemMessage.Content,
+                    IsSystemMessage = true,
+                    SentAt = systemMessage.SentAt
+                });
+            }
+
             // Check if user is muted
             if (member.IsMuted)
                 return BadRequest("You are muted in this group and cannot send messages");
+
+            // Check if group is muted for all (only owner and admins can send)
+            if (group.IsMutedForAll)
+            {
+                if (!isOwner && !isAdmin)
+                    return BadRequest("Group is muted. Only admins can send messages");
+            }
+
+            // Check for @username /mute command
+            var muteMatch = System.Text.RegularExpressions.Regex.Match(content, @"@(\w+)\s+/mute", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            if (muteMatch.Success)
+            {
+                if (!canModerate)
+                    return BadRequest("Only admins can mute members");
+
+                var targetUsername = muteMatch.Groups[1].Value;
+                var targetUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == targetUsername);
+                
+                if (targetUser == null)
+                    return BadRequest($"User @{targetUsername} not found");
+
+                var targetMember = await _context.GroupMembers
+                    .FirstOrDefaultAsync(gm => gm.GroupId == id && gm.UserId == targetUser.Id);
+
+                if (targetMember == null)
+                    return BadRequest($"@{targetUsername} is not a member of this group");
+
+                if (targetUser.Id == group.CreatedById)
+                    return BadRequest("Cannot mute group owner");
+
+                if (targetMember.IsMuted)
+                    return BadRequest($"@{targetUsername} is already muted");
+
+                targetMember.IsMuted = true;
+                await _context.SaveChangesAsync();
+
+                // Create system message
+                var currentUser = await _context.Users.FindAsync(userId);
+                var systemMessage = new GroupMessage
+                {
+                    GroupId = id,
+                    SenderId = userId,
+                    Content = $"Şəhər yatır, Mafiya oyaqdır. @{targetUsername} isə artıq danışmır. By @{currentUser!.Username}",
+                    IsSystemMessage = true,
+                    SentAt = DateTime.UtcNow
+                };
+
+                _context.GroupMessages.Add(systemMessage);
+                await _context.SaveChangesAsync();
+
+                return Ok(new GroupMessageDto
+                {
+                    Id = systemMessage.Id,
+                    GroupId = systemMessage.GroupId,
+                    SenderId = systemMessage.SenderId,
+                    SenderUsername = currentUser.Username,
+                    SenderAvatar = currentUser.Avatar,
+                    Content = systemMessage.Content,
+                    IsSystemMessage = true,
+                    SentAt = systemMessage.SentAt
+                });
+            }
+
+            // Check for @username /unmute command
+            var unmuteMatch = System.Text.RegularExpressions.Regex.Match(content, @"@(\w+)\s+/unmute", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            if (unmuteMatch.Success)
+            {
+                if (!canModerate)
+                    return BadRequest("Only admins can unmute members");
+
+                var targetUsername = unmuteMatch.Groups[1].Value;
+                var targetUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == targetUsername);
+                
+                if (targetUser == null)
+                    return BadRequest($"User @{targetUsername} not found");
+
+                var targetMember = await _context.GroupMembers
+                    .FirstOrDefaultAsync(gm => gm.GroupId == id && gm.UserId == targetUser.Id);
+
+                if (targetMember == null)
+                    return BadRequest($"@{targetUsername} is not a member of this group");
+
+                if (!targetMember.IsMuted)
+                    return BadRequest($"@{targetUsername} is not muted");
+
+                targetMember.IsMuted = false;
+                await _context.SaveChangesAsync();
+
+                // Create system message
+                var currentUser = await _context.Users.FindAsync(userId);
+                var systemMessage = new GroupMessage
+                {
+                    GroupId = id,
+                    SenderId = userId,
+                    Content = $"@{targetUsername} artık konuşabilir. Unmuted by @{currentUser!.Username}",
+                    IsSystemMessage = true,
+                    SentAt = DateTime.UtcNow
+                };
+
+                _context.GroupMessages.Add(systemMessage);
+                await _context.SaveChangesAsync();
+
+                return Ok(new GroupMessageDto
+                {
+                    Id = systemMessage.Id,
+                    GroupId = systemMessage.GroupId,
+                    SenderId = systemMessage.SenderId,
+                    SenderUsername = currentUser.Username,
+                    SenderAvatar = currentUser.Avatar,
+                    Content = systemMessage.Content,
+                    IsSystemMessage = true,
+                    SentAt = systemMessage.SentAt
+                });
+            }
 
             var message = new GroupMessage
             {
@@ -629,6 +833,126 @@ namespace TalkyAPI.Controllers
             };
 
             return Ok(new { message = "Member unmuted successfully", systemMessage = messageDto });
+        }
+
+        // POST: api/groups/{id}/mute-all
+        [HttpPost("{id}/mute-all")]
+        public async Task<ActionResult> MuteAll(int id)
+        {
+            var userId = GetUserId();
+
+            // Check if user is owner or admin
+            var currentMember = await _context.GroupMembers
+                .FirstOrDefaultAsync(gm => gm.GroupId == id && gm.UserId == userId);
+
+            if (currentMember == null)
+                return Forbid();
+
+            var group = await _context.Groups
+                .Include(g => g.CreatedBy)
+                .FirstOrDefaultAsync(g => g.Id == id);
+
+            if (group == null)
+                return NotFound("Group not found");
+
+            // Only owner or admin can mute all
+            if (group.CreatedById != userId && !currentMember.IsAdmin)
+                return Forbid();
+
+            // Already muted for all
+            if (group.IsMutedForAll)
+                return BadRequest("Group is already muted for all members");
+
+            group.IsMutedForAll = true;
+            await _context.SaveChangesAsync();
+
+            // Create system message
+            var currentUser = await _context.Users.FindAsync(userId);
+            var systemMessage = new GroupMessage
+            {
+                GroupId = id,
+                SenderId = userId,
+                Content = $"🔇 Grup susturuldu. Sadece yöneticiler mesaj gönderebilir. By @{currentUser!.Username}",
+                IsSystemMessage = true,
+                SentAt = DateTime.UtcNow
+            };
+
+            _context.GroupMessages.Add(systemMessage);
+            await _context.SaveChangesAsync();
+
+            var messageDto = new GroupMessageDto
+            {
+                Id = systemMessage.Id,
+                GroupId = systemMessage.GroupId,
+                SenderId = systemMessage.SenderId,
+                SenderUsername = currentUser.Username,
+                SenderAvatar = currentUser.Avatar,
+                Content = systemMessage.Content,
+                IsSystemMessage = true,
+                SentAt = systemMessage.SentAt
+            };
+
+            return Ok(new { message = "Group muted for all members", systemMessage = messageDto });
+        }
+
+        // POST: api/groups/{id}/unmute-all
+        [HttpPost("{id}/unmute-all")]
+        public async Task<ActionResult> UnmuteAll(int id)
+        {
+            var userId = GetUserId();
+
+            // Check if user is owner or admin
+            var currentMember = await _context.GroupMembers
+                .FirstOrDefaultAsync(gm => gm.GroupId == id && gm.UserId == userId);
+
+            if (currentMember == null)
+                return Forbid();
+
+            var group = await _context.Groups
+                .Include(g => g.CreatedBy)
+                .FirstOrDefaultAsync(g => g.Id == id);
+
+            if (group == null)
+                return NotFound("Group not found");
+
+            // Only owner or admin can unmute all
+            if (group.CreatedById != userId && !currentMember.IsAdmin)
+                return Forbid();
+
+            // Not muted for all
+            if (!group.IsMutedForAll)
+                return BadRequest("Group is not muted for all members");
+
+            group.IsMutedForAll = false;
+            await _context.SaveChangesAsync();
+
+            // Create system message
+            var currentUser = await _context.Users.FindAsync(userId);
+            var systemMessage = new GroupMessage
+            {
+                GroupId = id,
+                SenderId = userId,
+                Content = $"🔊 Grup susturması kaldırıldı. Herkes mesaj gönderebilir. By @{currentUser!.Username}",
+                IsSystemMessage = true,
+                SentAt = DateTime.UtcNow
+            };
+
+            _context.GroupMessages.Add(systemMessage);
+            await _context.SaveChangesAsync();
+
+            var messageDto = new GroupMessageDto
+            {
+                Id = systemMessage.Id,
+                GroupId = systemMessage.GroupId,
+                SenderId = systemMessage.SenderId,
+                SenderUsername = currentUser.Username,
+                SenderAvatar = currentUser.Avatar,
+                Content = systemMessage.Content,
+                IsSystemMessage = true,
+                SentAt = systemMessage.SentAt
+            };
+
+            return Ok(new { message = "Group unmuted for all members", systemMessage = messageDto });
         }
     }
 }

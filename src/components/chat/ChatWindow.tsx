@@ -27,6 +27,21 @@ export default function ChatWindow() {
   // Check if current user is muted in group
   const currentMember = selectedGroup?.members.find(m => m.userId === user?.id);
   const isMuted = currentMember?.isMuted || false;
+  
+  // Check if group is muted for all (only admins can speak)
+  const isOwner = selectedGroup?.createdById === user?.id;
+  const isAdmin = currentMember?.isAdmin || false;
+  const isMutedForAll = selectedGroup?.isMutedForAll || false;
+  const canSpeak = !isMuted && (!isMutedForAll || isOwner || isAdmin);
+  
+  // Get mute warning message
+  const getMuteWarning = () => {
+    if (isMuted) return "🔇 You are muted in this group";
+    if (isMutedForAll && !isOwner && !isAdmin) return "🔇 Group is muted. Only admins can send messages";
+    return "";
+  };
+  
+  const muteWarning = getMuteWarning();
 
   // Get filtered members for mention suggestions
   const getMentionSuggestions = () => {
@@ -512,11 +527,11 @@ export default function ChatWindow() {
               value={message}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
-              placeholder={isMuted ? "You are muted" : isGroup ? "Message... (Type @ to mention, @user /mute to mute)" : "Message..."}
-              disabled={isSending || isMuted}
+              placeholder={muteWarning || (isGroup ? "Message... (Type @ to mention, @user /mute, /muteall, /unmuteall)" : "Message...")}
+              disabled={isSending || !canSpeak}
               className="flex-1 px-4 py-2.5 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm disabled:opacity-50 transition-all duration-200 focus:bg-white"
             />
-            <button type="button" className="text-gray-400 hover:text-gray-600" disabled={isMuted}>
+            <button type="button" className="text-gray-400 hover:text-gray-600" disabled={!canSpeak}>
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -528,9 +543,9 @@ export default function ChatWindow() {
               onMouseLeave={cancelRecording}
               onTouchStart={startRecording}
               onTouchEnd={stopRecording}
-              disabled={isMuted}
+              disabled={!canSpeak}
               className="text-gray-400 hover:text-cyan-500 transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-              title={isMuted ? "You are muted" : "Basılı tutarak ses kaydı yapın"}
+              title={muteWarning || "Basılı tutarak ses kaydı yapın"}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
@@ -538,7 +553,7 @@ export default function ChatWindow() {
             </button>
             <button
               type="submit"
-              disabled={isSending || !message.trim() || isMuted}
+              disabled={isSending || !message.trim() || !canSpeak}
               className="w-10 h-10 rounded-full bg-cyan-500 hover:bg-cyan-600 flex items-center justify-center text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-110 active:scale-95"
             >
               {isSending ? (

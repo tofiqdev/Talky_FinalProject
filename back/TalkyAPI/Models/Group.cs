@@ -24,6 +24,9 @@ namespace TalkyAPI.Models
 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+        // Mute all members (only admins can speak)
+        public bool IsMutedForAll { get; set; } = false;
+
         // Navigation properties
         public User CreatedBy { get; set; } = null!;
         public ICollection<GroupMember> Members { get; set; } = new List<GroupMember>();

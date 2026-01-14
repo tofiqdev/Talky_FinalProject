@@ -186,19 +186,32 @@ Talky/
 ### Group Moderation Commands
 Moderators (Owner and Admins) can use these commands in group chats:
 
+**Member Mute/Unmute:**
 - `@username /mute` - Mute a member (prevents them from sending messages)
 - `@username /unmute` - Unmute a member
+
+**Group-wide Mute/Unmute:**
+- `/muteall` - Mute all members (only admins can send messages)
+- `/unmuteall` - Unmute all members (everyone can send messages)
 
 **Example:**
 ```
 @john /mute
+/muteall
+/unmuteall
 ```
-System will respond with: "Şşşt @john Encapsulation By @admin"
+
+**System Messages:**
+- Mute: "Şəhər yatır, Mafiya oyaqdır. @john isə artıq danışmır. By @admin"
+- Unmute: "@john artık konuşabilir. Unmuted by @admin"
+- Mute All: "🔇 Grup susturuldu. Sadece yöneticiler mesaj gönderebilir. By @admin"
+- Unmute All: "🔊 Grup susturması kaldırıldı. Herkes mesaj gönderebilir. By @admin"
 
 **Notes:**
 - Only Owner and Admins can use moderation commands
 - Group owner cannot be muted
 - Muted members see a warning and cannot send messages
+- When group is muted for all, only admins can send messages
 - Commands are case-insensitive
 
 ## 🔜 Optional Enhancements

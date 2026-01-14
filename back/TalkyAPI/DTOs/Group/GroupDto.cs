@@ -9,6 +9,7 @@ namespace TalkyAPI.DTOs.Group
         public int CreatedById { get; set; }
         public string CreatedByUsername { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
+        public bool IsMutedForAll { get; set; }
         public List<GroupMemberDto> Members { get; set; } = new List<GroupMemberDto>();
         public int MemberCount { get; set; }
     }
