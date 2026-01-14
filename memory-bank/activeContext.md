@@ -1,9 +1,23 @@
 # Active Context
 
 ## Şu Anki Odak
-✅ **Proje Production Ready!** Backend ve frontend tamamen entegre, tüm özellikler çalışıyor. Real-time mesajlaşma, grup yönetimi, ses mesajları, kullanıcı yetkilendirme sistemi, **profil resmi yükleme**, **username/email güncelleme**, **story'lerde profil resimleri**, mute/unmute komut sistemi, mute all özelliği, story özelliği, kullanıcı engelleme, mesaj gönderme sesi, emoji picker, dosya/resim gönderme aktif. SignalR real-time mesajlaşma optimize edildi. Proje stabil ve kullanıma hazır durumda.
+✅ **Proje Production Ready!** Backend ve frontend tamamen entegre, tüm özellikler çalışıyor. Real-time mesajlaşma, grup yönetimi, ses mesajları, kullanıcı yetkilendirme sistemi, **profil resmi yükleme**, **username/email güncelleme**, **story'lerde profil resimleri**, mute/unmute komut sistemi, mute all özelliği, story özelliği, kullanıcı engelleme, mesaj gönderme sesi, emoji picker, dosya/resim gönderme, **ChatsTab arama özelliği** aktif. SignalR real-time mesajlaşma optimize edildi. Proje stabil ve kullanıma hazır durumda.
 
 ## Son Değişiklikler
+
+### ChatsTab Arama Özelliği Eklendi ✅
+- ✅ Ana ekranda (ChatsTab) arama çubuğu eklendi
+- ✅ Kullanıcı arama (minimum 2 karakter)
+- ✅ Backend API entegrasyonu (GET /api/users/search?q=term)
+- ✅ Mevcut sohbetleri filtreleme (direkt mesajlar + gruplar)
+- ✅ Arama sonuçları ayrı bölümde gösteriliyor (cyan vurgu)
+- ✅ Kullanıcı adı ve email'e göre arama
+- ✅ Arama sonucuna tıklayınca direkt sohbet açılıyor
+- ✅ Loading spinner (arama sırasında)
+- ✅ "No results found" mesajı
+- ✅ Smooth transitions ve hover efektleri
+- ✅ Header'daki gereksiz arama ikonu ve menü kaldırıldı
+- ✅ Sidebar header sadeleştirildi (logo + başlık)
 
 ### Profil Yönetimi Özellikleri Eklendi ✅
 - ✅ Profil resmi yükleme (base64, max 5MB)
@@ -452,6 +466,6 @@ ChatPage
 - **File upload**: Hidden input, ataş butonu, base64 encoding, 10MB limit
 - **Media rendering**: ImageMessage (thumbnail), FileMessage (download), VoiceMessage (player)
 - **Dependencies**: emoji-picker-react npm package
-- **Emoji picker**: emoji-picker-react, popup picker, emoji ekleme
-- **File upload**: Hidden input, ataş butonu, base64 encoding, 10MB limit
-- **Media rendering**: ImageMessage (thumbnail), FileMessage (download), VoiceMessage (player)
+- **ChatsTab Search**: Real-time arama, filtreleme, yeni kullanıcı bulma
+- **Search UX**: Minimum 2 karakter, loading spinner, no results message
+- **Header Cleanup**: Gereksiz arama ikonu ve menü kaldırıldı, sadeleştirildi

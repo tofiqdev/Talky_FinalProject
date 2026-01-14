@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useChatStore } from '../../store/chatStore';
 import { useAuthStore } from '../../store/authStore';
+import { usersApi } from '../../services/apiService';
 import CreateGroupModal from '../group/CreateGroupModal';
 import CreateStoryModal from '../story/CreateStoryModal';
 import ViewStoryModal from '../story/ViewStoryModal';
 import type { Story } from '../../types/story';
+import type { User } from '../../types/user';
 
 export default function ChatsTab() {
   const { users, groups, selectedUser, selectedGroup, setSelectedUser, setSelectedGroup, loadGroups } = useChatStore();
@@ -15,6 +17,9 @@ export default function ChatsTab() {
   const [stories, setStories] = useState<Story[]>([]);
   const [selectedStoryIndex, setSelectedStoryIndex] = useState(0);
   const [isLoadingStories, setIsLoadingStories] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<User[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     loadGroups();
@@ -55,6 +60,34 @@ export default function ChatsTab() {
 
   const handleStorySuccess = () => {
     loadStories();
+  };
+
+  // Search functionality
+  const handleSearch = async (query: string) => {
+    setSearchQuery(query);
+    
+    if (query.trim().length < 2) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const results = await usersApi.searchUsers(query.trim());
+      setSearchResults(results);
+    } catch (error) {
+      console.error('Search failed:', error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleSelectSearchResult = (user: User) => {
+    setSelectedUser(user);
+    setSearchQuery('');
+    setSearchResults([]);
   };
 
   // Group stories by user - only show one avatar per user
@@ -100,8 +133,85 @@ export default function ChatsTab() {
     return `${diffDays}D`;
   };
 
+  // Filter users and groups based on search query
+  const filteredUsers = searchQuery.trim().length === 0 
+    ? users 
+    : users.filter(user => 
+        user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+
+  const filteredGroups = searchQuery.trim().length === 0
+    ? groups
+    : groups.filter(group =>
+        group.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+
   return (
     <>
+      {/* Search Bar */}
+      <div className="px-5 py-3 border-b border-gray-100">
+        <div className="relative">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            placeholder="Search users or groups..."
+            className="w-full py-2 pl-10 pr-4 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition"
+          />
+          <svg 
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          {isSearching && (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-cyan-500"></div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Search Results (when searching for new users) */}
+      {searchQuery.trim().length >= 2 && searchResults.length > 0 && (
+        <div className="border-b border-gray-100">
+          <div className="px-5 py-2 bg-cyan-50">
+            <h4 className="text-xs font-semibold text-cyan-700 uppercase">Search Results</h4>
+          </div>
+          {searchResults.map((user) => (
+            <div
+              key={`search-${user.id}`}
+              onClick={() => handleSelectSearchResult(user)}
+              className="px-5 py-3 cursor-pointer hover:bg-gray-50 transition flex items-center gap-3"
+            >
+              <div className="relative flex-shrink-0">
+                {user.avatar ? (
+                  <img 
+                    src={user.avatar} 
+                    alt={user.username}
+                    className="w-12 h-12 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white font-semibold">
+                    {user.username.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                {user.isOnline && (
+                  <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-gray-900 text-sm">{user.username}</h3>
+                <p className="text-xs text-gray-500 truncate">{user.email}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Create Group Button */}
       <div className="px-5 py-3 border-b border-gray-100">
         <button
@@ -195,12 +305,12 @@ export default function ChatsTab() {
       {/* Chat List */}
       <div className="flex-1 overflow-y-auto">
         {/* Groups Section */}
-        {groups.length > 0 && (
+        {filteredGroups.length > 0 && (
           <div className="mb-2">
             <div className="px-5 py-2 bg-gray-50">
               <h4 className="text-xs font-semibold text-gray-600 uppercase">Groups</h4>
             </div>
-            {groups.map((group) => (
+            {filteredGroups.map((group) => (
               <div
                 key={`group-${group.id}`}
                 onClick={() => setSelectedGroup(group)}
@@ -238,12 +348,12 @@ export default function ChatsTab() {
         )}
 
         {/* Direct Messages Section */}
-        {users.length > 0 && (
+        {filteredUsers.length > 0 && (
           <div>
             <div className="px-5 py-2 bg-gray-50">
               <h4 className="text-xs font-semibold text-gray-600 uppercase">Direct Messages</h4>
             </div>
-            {users.map((user) => (
+            {filteredUsers.map((user) => (
               <div
                 key={`user-${user.id}`}
                 onClick={() => setSelectedUser(user)}
@@ -285,7 +395,19 @@ export default function ChatsTab() {
           </div>
         )}
 
-        {users.length === 0 && groups.length === 0 && (
+        {/* No Results Message */}
+        {searchQuery.trim().length > 0 && filteredUsers.length === 0 && filteredGroups.length === 0 && searchResults.length === 0 && !isSearching && (
+          <div className="px-5 py-8 text-center text-gray-500">
+            <svg className="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <p>No results found for "{searchQuery}"</p>
+            <p className="text-sm mt-1">Try searching with a different keyword</p>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {searchQuery.trim().length === 0 && users.length === 0 && groups.length === 0 && (
           <div className="px-5 py-8 text-center text-gray-500">
             No conversations yet. Start chatting with someone or create a group!
           </div>
