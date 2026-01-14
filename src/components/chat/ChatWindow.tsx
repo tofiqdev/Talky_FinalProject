@@ -4,6 +4,7 @@ import { useAuthStore } from '../../store/authStore';
 import MessageList from './MessageList';
 import GroupDetailsModal from '../group/GroupDetailsModal';
 import messageSendSound from '../../assets/message_send_sound.mp3';
+import EmojiPicker, { type EmojiClickData } from 'emoji-picker-react';
 
 export default function ChatWindow() {
   const { selectedUser, selectedGroup, sendMessage, sendGroupMessage, loadGroups, loadGroupMessages } = useChatStore();
@@ -14,6 +15,7 @@ export default function ChatWindow() {
   const [recordingTime, setRecordingTime] = useState(0);
   const [showGroupDetails, setShowGroupDetails] = useState(false);
   const [showMentionSuggestions, setShowMentionSuggestions] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [mentionSearch, setMentionSearch] = useState('');
   const [mentionStartPos, setMentionStartPos] = useState(0);
   const [selectedMentionIndex, setSelectedMentionIndex] = useState(0);
@@ -22,6 +24,7 @@ export default function ChatWindow() {
   const recordingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Initialize audio
   if (!audioRef.current) {
@@ -37,6 +40,112 @@ export default function ChatWindow() {
     } catch (error) {
       console.log('Sound play error:', error);
     }
+  };
+
+  const handleEmojiClick = (emojiData: EmojiClickData) => {
+    setMessage(prev => prev + emojiData.emoji);
+    setShowEmojiPicker(false);
+    inputRef.current?.focus();
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (max 5MB for better performance)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size must be less than 5MB');
+      return;
+    }
+
+    try {
+      setIsSending(true);
+      
+      let base64: string;
+      
+      // If it's an image, compress it
+      if (file.type.startsWith('image/')) {
+        base64 = await compressImage(file);
+      } else {
+        // For non-images, just convert to base64
+        base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
+      // Determine file type
+      const isImage = file.type.startsWith('image/');
+      const fileMessage = isImage 
+        ? `[IMAGE:${file.name}]${base64}`
+        : `[FILE:${file.name}]${base64}`;
+
+      // Send as message
+      if (selectedGroup) {
+        await sendGroupMessage(selectedGroup.id, fileMessage);
+      } else if (selectedUser) {
+        await sendMessage(selectedUser.id, fileMessage);
+      }
+
+      playMessageSound();
+      
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } catch (error) {
+      console.error('Failed to send file:', error);
+      alert('Failed to send file: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          
+          // Max dimensions
+          const maxWidth = 1024;
+          const maxHeight = 1024;
+          
+          // Calculate new dimensions
+          if (width > height) {
+            if (width > maxWidth) {
+              height = (height * maxWidth) / width;
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width = (width * maxHeight) / height;
+              height = maxHeight;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          // Convert to base64 with compression (0.7 quality)
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+          resolve(compressedBase64);
+        };
+        img.onerror = reject;
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   };
 
   const isGroup = !!selectedGroup;
@@ -535,12 +644,49 @@ export default function ChatWindow() {
           </div>
         ) : (
           // Normal input UI
-          <form onSubmit={handleSend} className="flex items-center gap-3">
-            <button type="button" className="text-gray-400 hover:text-gray-600">
+          <form onSubmit={handleSend} className="flex items-center gap-3 relative">
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*,application/pdf,.doc,.docx,.txt"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            
+            {/* File upload button */}
+            <button 
+              type="button" 
+              onClick={() => fileInputRef.current?.click()}
+              disabled={!canSpeak}
+              className="text-gray-400 hover:text-cyan-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Send file or image"
+            >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
               </svg>
             </button>
+
+            {/* Emoji picker */}
+            <div className="relative">
+              <button 
+                type="button"
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                disabled={!canSpeak}
+                className="text-gray-400 hover:text-cyan-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Add emoji"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
+              
+              {showEmojiPicker && (
+                <div className="absolute bottom-12 left-0 z-50">
+                  <EmojiPicker onEmojiClick={handleEmojiClick} />
+                </div>
+              )}
+            </div>
             <input
               ref={inputRef}
               type="text"
@@ -551,11 +697,6 @@ export default function ChatWindow() {
               disabled={isSending || !canSpeak}
               className="flex-1 px-4 py-2.5 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm disabled:opacity-50 transition-all duration-200 focus:bg-white"
             />
-            <button type="button" className="text-gray-400 hover:text-gray-600" disabled={!canSpeak}>
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </button>
             <button 
               type="button" 
               onMouseDown={startRecording}

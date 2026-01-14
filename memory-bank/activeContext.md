@@ -1,9 +1,21 @@
 # Active Context
 
 ## Şu Anki Odak
-✅ **Proje Production Ready!** Backend ve frontend tamamen entegre, tüm özellikler çalışıyor. Real-time mesajlaşma, grup yönetimi, ses mesajları, kullanıcı yetkilendirme sistemi, **mute/unmute komut sistemi**, **mute all özelliği**, **story özelliği**, **kullanıcı engelleme**, **mesaj gönderme sesi** aktif. SignalR real-time mesajlaşma optimize edildi. Proje stabil ve kullanıma hazır durumda.
+✅ **Proje Production Ready!** Backend ve frontend tamamen entegre, tüm özellikler çalışıyor. Real-time mesajlaşma, grup yönetimi, ses mesajları, kullanıcı yetkilendirme sistemi, **mute/unmute komut sistemi**, **mute all özelliği**, **story özelliği**, **kullanıcı engelleme**, **mesaj gönderme sesi**, **emoji picker**, **dosya/resim gönderme** aktif. SignalR real-time mesajlaşma optimize edildi. Proje stabil ve kullanıma hazır durumda.
 
 ## Son Değişiklikler
+
+### Emoji ve Media Gönderme Eklendi ✅
+- ✅ Emoji picker entegrasyonu (emoji-picker-react)
+- ✅ Emoji butonu ile emoji seçimi
+- ✅ Dosya/resim upload butonu (ataş ikonu)
+- ✅ Desteklenen formatlar: Resimler, PDF, DOC, DOCX, TXT
+- ✅ Maksimum dosya boyutu: 10MB
+- ✅ Base64 encoding ile gönderim
+- ✅ Resim gösterimi: Thumbnail + tıkla-büyüt
+- ✅ Dosya gösterimi: İkon + dosya adı + tıkla-indir
+- ✅ Hem direkt hem grup mesajları için
+- ✅ MessageList: Image ve File rendering component'leri
 
 ### SignalR Mesajlaşma Optimizasyonu ✅
 - ✅ SignalR listener'ı hem direkt hem grup mesajları için çalışıyor
@@ -200,13 +212,14 @@
 - ✅ Kullanıcı engelleme (block/unblock)
 - ✅ Mesaj gönderme sesi
 - ✅ SignalR mesajlaşma optimizasyonu
+- ✅ Emoji picker entegrasyonu
+- ✅ Dosya/resim gönderme
 - ⏳ Story replies (story'lere cevap verme)
 - ⏳ Story reactions (emoji ile tepki)
 - ⏳ Real-time grup mesajları (SignalR ile - şu an REST API)
 - ⏳ Typing indicator (opsiyonel)
 - ⏳ Message read receipts (opsiyonel)
-- ⏳ Dosya/resim paylaşımı (opsiyonel)
-- ⏳ Emoji picker (opsiyonel)
+- ⏳ Video gönderme (opsiyonel)
 - ⏳ Dark mode backend entegrasyonu (UI hazır)
 - ⏳ Push notifications (opsiyonel)
 - ⏳ Video/Voice call functionality (UI hazır, backend gerekli)
@@ -373,3 +386,10 @@ ChatPage
 - **Kullanıcı engelleme**: PeopleTab'da Contacts/Blocked tab switcher
 - **Block UI**: Kırmızı X icon, Unblock butonu, gri avatar (blocked users)
 - **Mesaj sesi**: message_send_sound.mp3, 50% volume, hata toleranslı
+- **Emoji picker**: emoji-picker-react, popup picker, emoji ekleme
+- **File upload**: Hidden input, ataş butonu, base64 encoding, 10MB limit
+- **Media rendering**: ImageMessage (thumbnail), FileMessage (download), VoiceMessage (player)
+- **Dependencies**: emoji-picker-react npm package
+- **Emoji picker**: emoji-picker-react, popup picker, emoji ekleme
+- **File upload**: Hidden input, ataş butonu, base64 encoding, 10MB limit
+- **Media rendering**: ImageMessage (thumbnail), FileMessage (download), VoiceMessage (player)

@@ -86,7 +86,22 @@ namespace TalkyAPI
             builder.Services.AddSignalR();
 
             // Add controllers
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.MaxDepth = 64; // Increase max depth
+                });
+
+            // Configure Kestrel to accept larger requests (for file uploads)
+            builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+            {
+                options.MultipartBodyLengthLimit = 52428800; // 50MB
+            });
+
+            builder.WebHost.ConfigureKestrel(serverOptions =>
+            {
+                serverOptions.Limits.MaxRequestBodySize = 52428800; // 50MB
+            });
 
             // Add Swagger with JWT support
             builder.Services.AddEndpointsApiExplorer();

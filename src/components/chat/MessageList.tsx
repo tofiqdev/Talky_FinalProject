@@ -19,12 +19,42 @@ export default function MessageList() {
     return content.startsWith('[VOICE:');
   };
 
+  const isImageMessage = (content: string) => {
+    return content.startsWith('[IMAGE:');
+  };
+
+  const isFileMessage = (content: string) => {
+    return content.startsWith('[FILE:');
+  };
+
   const parseVoiceMessage = (content: string) => {
     const match = content.match(/\[VOICE:(\d+)s\](.*)/);
     if (match) {
       return {
         duration: parseInt(match[1]),
         audioData: match[2]
+      };
+    }
+    return null;
+  };
+
+  const parseImageMessage = (content: string) => {
+    const match = content.match(/\[IMAGE:(.*?)\](.*)/);
+    if (match) {
+      return {
+        filename: match[1],
+        imageData: match[2]
+      };
+    }
+    return null;
+  };
+
+  const parseFileMessage = (content: string) => {
+    const match = content.match(/\[FILE:(.*?)\](.*)/);
+    if (match) {
+      return {
+        filename: match[1],
+        fileData: match[2]
       };
     }
     return null;
@@ -148,6 +178,59 @@ export default function MessageList() {
     );
   };
 
+  const ImageMessage = ({ content }: { content: string }) => {
+    const imageData = parseImageMessage(content);
+    if (!imageData) return null;
+
+    return (
+      <div className="max-w-sm">
+        <img 
+          src={imageData.imageData} 
+          alt={imageData.filename}
+          className="rounded-lg max-w-full h-auto cursor-pointer hover:opacity-90 transition"
+          onClick={() => window.open(imageData.imageData, '_blank')}
+        />
+        <p className="text-xs mt-1 opacity-75">{imageData.filename}</p>
+      </div>
+    );
+  };
+
+  const FileMessage = ({ content, isSent }: { content: string; isSent: boolean }) => {
+    const fileData = parseFileMessage(content);
+    if (!fileData) return null;
+
+    const handleDownload = () => {
+      const link = document.createElement('a');
+      link.href = fileData.fileData;
+      link.download = fileData.filename;
+      link.click();
+    };
+
+    return (
+      <div 
+        onClick={handleDownload}
+        className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:opacity-90 transition ${
+          isSent ? 'bg-white/10' : 'bg-gray-100'
+        }`}
+      >
+        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+          isSent ? 'bg-white/20' : 'bg-cyan-100'
+        }`}>
+          <svg className={`w-5 h-5 ${isSent ? 'text-white' : 'text-cyan-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium truncate">{fileData.filename}</p>
+          <p className="text-xs opacity-75">Click to download</p>
+        </div>
+        <svg className={`w-5 h-5 ${isSent ? 'text-white' : 'text-gray-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+      </div>
+    );
+  };
+
   return (
     <div 
       ref={messagesContainerRef}
@@ -211,6 +294,14 @@ export default function MessageList() {
               <div className={`max-w-xl ${isSent ? 'ml-12' : 'mr-12'}`}>
                 {isVoiceMessage(msg.content) ? (
                   <VoiceMessagePlayer content={msg.content} isSent={isSent} />
+                ) : isImageMessage(msg.content) ? (
+                  <div className={`rounded-2xl overflow-hidden ${isSent ? 'bg-cyan-500' : 'bg-gray-200'} p-2`}>
+                    <ImageMessage content={msg.content} />
+                  </div>
+                ) : isFileMessage(msg.content) ? (
+                  <div className={`rounded-2xl ${isSent ? 'bg-cyan-500' : 'bg-gray-200'}`}>
+                    <FileMessage content={msg.content} isSent={isSent} />
+                  </div>
                 ) : (
                   <div
                     className={`px-5 py-3 rounded-3xl transition-all duration-300 hover:scale-[1.02] ${

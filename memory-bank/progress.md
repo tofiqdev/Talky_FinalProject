@@ -98,6 +98,8 @@
 - ✅ 24 saat otomatik silme
 - ✅ Kullanıcı engelleme (block/unblock)
 - ✅ Mesaj gönderme sesi
+- ✅ Emoji picker (emoji-picker-react)
+- ✅ Dosya/resim gönderme (base64, max 10MB)
 
 ## Yapılacaklar
 
@@ -161,8 +163,7 @@
 ⏳ Story replies (story'lere cevap)
 ⏳ Story reactions (emoji ile tepki)
 ⏳ Gerçek profil resimleri upload
-⏳ Dosya/resim gönderme
-⏳ Emoji picker entegrasyonu
+⏳ Video gönderme
 ⏳ Arama/filtreleme (search functionality)
 ⏳ Push notifications
 ⏳ Dark mode toggle (backend entegrasyonu)
