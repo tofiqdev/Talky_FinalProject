@@ -100,6 +100,9 @@
 - ✅ Mesaj gönderme sesi
 - ✅ Emoji picker (emoji-picker-react)
 - ✅ Dosya/resim gönderme (base64, max 10MB)
+- ✅ Profil resmi yükleme (base64, max 5MB, sıkıştırma)
+- ✅ Username/Email güncelleme
+- ✅ Profil resimleri tüm yerlerde (chat, story, settings)
 
 ## Yapılacaklar
 

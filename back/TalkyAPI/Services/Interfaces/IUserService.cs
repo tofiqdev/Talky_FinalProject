@@ -9,5 +9,7 @@ namespace TalkyAPI.Services.Interfaces
         Task<UserDto?> GetUserByUsername(string username);
         Task<List<UserDto>> SearchUsers(string searchTerm, int currentUserId);
         Task<bool> UpdateUserStatus(int userId, bool isOnline);
+        Task<UserDto?> UpdateProfilePicture(int userId, string profilePictureBase64);
+        Task<UserDto?> UpdateProfile(int userId, string username, string email);
     }
 }

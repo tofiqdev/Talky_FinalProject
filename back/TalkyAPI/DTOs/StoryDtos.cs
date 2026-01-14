@@ -11,6 +11,7 @@ namespace TalkyAPI.DTOs
         public int Id { get; set; }
         public int UserId { get; set; }
         public string Username { get; set; } = string.Empty;
+        public string? Avatar { get; set; }
         public string ImageUrl { get; set; } = string.Empty;
         public string? Caption { get; set; }
         public DateTime CreatedAt { get; set; }
@@ -25,6 +26,7 @@ namespace TalkyAPI.DTOs
         public int StoryId { get; set; }
         public int UserId { get; set; }
         public string Username { get; set; } = string.Empty;
+        public string? Avatar { get; set; }
         public DateTime ViewedAt { get; set; }
     }
 }

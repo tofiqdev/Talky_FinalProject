@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useChatStore } from '../../store/chatStore';
+import { useAuthStore } from '../../store/authStore';
 import CreateGroupModal from '../group/CreateGroupModal';
 import CreateStoryModal from '../story/CreateStoryModal';
 import ViewStoryModal from '../story/ViewStoryModal';
@@ -7,6 +8,7 @@ import type { Story } from '../../types/story';
 
 export default function ChatsTab() {
   const { users, groups, selectedUser, selectedGroup, setSelectedUser, setSelectedGroup, loadGroups } = useChatStore();
+  const { user: currentUser } = useAuthStore();
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [showCreateStory, setShowCreateStory] = useState(false);
   const [showViewStory, setShowViewStory] = useState(false);
@@ -121,10 +123,27 @@ export default function ChatsTab() {
           className="flex flex-col items-center gap-1 min-w-[60px] cursor-pointer group"
         >
           <div className="w-14 h-14 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 p-0.5 group-hover:scale-105 transition">
-            <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
-              <svg className="w-6 h-6 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
+            <div className="w-full h-full rounded-full bg-white p-0.5 flex items-center justify-center">
+              {currentUser?.avatar ? (
+                <div className="relative w-full h-full">
+                  <img 
+                    src={currentUser.avatar} 
+                    alt={currentUser.username}
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-full">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                  </div>
+                </div>
+              ) : (
+                <div className="w-full h-full rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                </div>
+              )}
             </div>
           </div>
           <span className="text-xs text-gray-700 font-medium">Add Story</span>
@@ -148,9 +167,17 @@ export default function ChatsTab() {
                   : 'bg-gray-300'
               }`}>
                 <div className="w-full h-full rounded-full bg-white p-0.5">
-                  <div className="w-full h-full rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white font-semibold text-sm">
-                    {userStory.username.charAt(0).toUpperCase()}
-                  </div>
+                  {userStory.firstStory.avatar ? (
+                    <img 
+                      src={userStory.firstStory.avatar} 
+                      alt={userStory.username}
+                      className="w-full h-full rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white font-semibold text-sm">
+                      {userStory.username.charAt(0).toUpperCase()}
+                    </div>
+                  )}
                 </div>
               </div>
               {/* Story count badge */}
@@ -217,9 +244,17 @@ export default function ChatsTab() {
                 }`}
               >
                 <div className="relative flex-shrink-0">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white font-semibold">
-                    {user.username.charAt(0).toUpperCase()}
-                  </div>
+                  {user.avatar ? (
+                    <img 
+                      src={user.avatar} 
+                      alt={user.username}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white font-semibold">
+                      {user.username.charAt(0).toUpperCase()}
+                    </div>
+                  )}
                   {user.isOnline && (
                     <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
                   )}

@@ -19,7 +19,7 @@ namespace TalkyAPI.Models
         [Required]
         public string PasswordHash { get; set; } = string.Empty;
 
-        [MaxLength(255)]
+        // Base64 encoded image - no max length (can be large)
         public string? Avatar { get; set; }
 
         [MaxLength(500)]

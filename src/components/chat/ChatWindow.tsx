@@ -495,12 +495,20 @@ export default function ChatWindow() {
       <div className="bg-white px-6 py-4 flex items-center justify-between border-b border-gray-100">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <div className={`w-10 h-10 rounded-full ${isGroup ? 'bg-gradient-to-br from-purple-400 to-pink-500' : 'bg-gradient-to-br from-cyan-400 to-blue-500'} flex items-center justify-center text-white font-semibold`}>
-              {isGroup 
-                ? selectedGroup?.name.charAt(0).toUpperCase() 
-                : selectedUser?.username.charAt(0).toUpperCase()
-              }
-            </div>
+            {!isGroup && selectedUser?.avatar ? (
+              <img 
+                src={selectedUser.avatar} 
+                alt={selectedUser.username}
+                className="w-10 h-10 rounded-full object-cover"
+              />
+            ) : (
+              <div className={`w-10 h-10 rounded-full ${isGroup ? 'bg-gradient-to-br from-purple-400 to-pink-500' : 'bg-gradient-to-br from-cyan-400 to-blue-500'} flex items-center justify-center text-white font-semibold`}>
+                {isGroup 
+                  ? selectedGroup?.name.charAt(0).toUpperCase() 
+                  : selectedUser?.username.charAt(0).toUpperCase()
+                }
+              </div>
+            )}
             {!isGroup && selectedUser?.isOnline && (
               <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
             )}

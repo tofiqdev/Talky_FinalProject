@@ -125,5 +125,70 @@ namespace TalkyAPI.Services.Implementations
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<UserDto?> UpdateProfilePicture(int userId, string profilePictureBase64)
+        {
+            var user = await _context.Users.FindAsync(userId);
+
+            if (user == null)
+                return null;
+
+            user.Avatar = profilePictureBase64;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return new UserDto
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                Avatar = user.Avatar,
+                Bio = user.Bio,
+                IsOnline = user.IsOnline,
+                LastSeen = user.LastSeen,
+                CreatedAt = user.CreatedAt
+            };
+        }
+
+        public async Task<UserDto?> UpdateProfile(int userId, string username, string email)
+        {
+            var user = await _context.Users.FindAsync(userId);
+
+            if (user == null)
+                return null;
+
+            // Check if username is already taken by another user
+            var existingUserWithUsername = await _context.Users
+                .FirstOrDefaultAsync(u => u.Username.ToLower() == username.ToLower() && u.Id != userId);
+
+            if (existingUserWithUsername != null)
+                throw new InvalidOperationException("Username is already taken");
+
+            // Check if email is already taken by another user
+            var existingUserWithEmail = await _context.Users
+                .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower() && u.Id != userId);
+
+            if (existingUserWithEmail != null)
+                throw new InvalidOperationException("Email is already taken");
+
+            user.Username = username;
+            user.Email = email;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return new UserDto
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                Avatar = user.Avatar,
+                Bio = user.Bio,
+                IsOnline = user.IsOnline,
+                LastSeen = user.LastSeen,
+                CreatedAt = user.CreatedAt
+            };
+        }
     }
 }

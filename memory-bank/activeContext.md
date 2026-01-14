@@ -1,9 +1,38 @@
 # Active Context
 
 ## Şu Anki Odak
-✅ **Proje Production Ready!** Backend ve frontend tamamen entegre, tüm özellikler çalışıyor. Real-time mesajlaşma, grup yönetimi, ses mesajları, kullanıcı yetkilendirme sistemi, **mute/unmute komut sistemi**, **mute all özelliği**, **story özelliği**, **kullanıcı engelleme**, **mesaj gönderme sesi**, **emoji picker**, **dosya/resim gönderme** aktif. SignalR real-time mesajlaşma optimize edildi. Proje stabil ve kullanıma hazır durumda.
+✅ **Proje Production Ready!** Backend ve frontend tamamen entegre, tüm özellikler çalışıyor. Real-time mesajlaşma, grup yönetimi, ses mesajları, kullanıcı yetkilendirme sistemi, **profil resmi yükleme**, **username/email güncelleme**, **story'lerde profil resimleri**, mute/unmute komut sistemi, mute all özelliği, story özelliği, kullanıcı engelleme, mesaj gönderme sesi, emoji picker, dosya/resim gönderme aktif. SignalR real-time mesajlaşma optimize edildi. Proje stabil ve kullanıma hazır durumda.
 
 ## Son Değişiklikler
+
+### Profil Yönetimi Özellikleri Eklendi ✅
+- ✅ Profil resmi yükleme (base64, max 5MB)
+- ✅ Resim sıkıştırma (400x400, JPEG 0.8 quality)
+- ✅ Username güncelleme
+- ✅ Email güncelleme
+- ✅ Uniqueness kontrolü (username/email)
+- ✅ Avatar kolonu database'de nvarchar(max)
+- ✅ Migration: UpdateAvatarColumnSize
+- ✅ Backend: PUT /api/users/profile-picture
+- ✅ Backend: PUT /api/users/profile
+- ✅ Frontend: EditProfileModal (upload + edit)
+- ✅ Profil resimleri tüm yerlerde gösteriliyor:
+  - SettingsTab (profil bölümü)
+  - ChatsTab (direkt mesaj listesi)
+  - PeopleTab (kişiler ve engellenenler)
+  - ChatWindow (sohbet header'ı)
+  - Story listesi (ChatsTab)
+  - Story görüntüleme (ViewStoryModal)
+  - Story views paneli
+
+### Story'lerde Profil Resimleri Eklendi ✅
+- ✅ StoryDto - Avatar field'ı
+- ✅ StoryViewDto - Avatar field'ı
+- ✅ StoriesController - Avatar döndürülüyor
+- ✅ ChatsTab - Story avatarları
+- ✅ Add Story butonu - Kendi profil resmi
+- ✅ ViewStoryModal - Story header'da profil resmi
+- ✅ Views paneli - Görüntüleyenlerin profil resimleri
 
 ### Emoji ve Media Gönderme Eklendi ✅
 - ✅ Emoji picker entegrasyonu (emoji-picker-react)

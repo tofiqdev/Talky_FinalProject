@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,9 +22,17 @@ export default function SettingsTab() {
       {/* Profile Section */}
       <div className="px-5 py-6 border-b border-gray-100">
         <div className="flex items-center gap-4 mb-4">
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white text-2xl font-bold">
-            {user?.username.charAt(0) || 'U'}
-          </div>
+          {user?.avatar ? (
+            <img 
+              src={user.avatar} 
+              alt={user.username}
+              className="w-20 h-20 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white text-2xl font-bold">
+              {user?.username.charAt(0) || 'U'}
+            </div>
+          )}
           <div>
             <h3 className="font-bold text-lg text-gray-900">{user?.username || 'User'}</h3>
             <p className="text-sm text-gray-600">{user?.email || 'user@example.com'}</p>
@@ -133,9 +141,172 @@ function SettingItem({ icon, title, subtitle, onClick }: { icon: React.ReactNode
 
 // Edit Profile Modal
 function EditProfileModal({ onClose }: { onClose: () => void }) {
-  const { user } = useAuthStore();
+  const { user, setAuth } = useAuthStore();
   const [username, setUsername] = useState(user?.username || '');
   const [email, setEmail] = useState(user?.email || '');
+  const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(user?.avatar || null);
+
+  // Update preview when user changes
+  useEffect(() => {
+    if (user?.avatar && !previewImage) {
+      setPreviewImage(user.avatar);
+    }
+  }, [user?.avatar, previewImage]);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image size must be less than 5MB');
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      // Compress and convert to base64
+      const base64String = await compressImage(file);
+      setPreviewImage(base64String);
+
+      console.log('Uploading profile picture, size:', base64String.length);
+
+      // Upload to backend
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/users/profile-picture', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ profilePicture: base64String })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload profile picture');
+      }
+
+      const updatedUser = await response.json();
+      console.log('Profile picture updated, user:', updatedUser);
+      console.log('Has avatar:', !!updatedUser.avatar);
+      
+      // Update auth store
+      if (token) {
+        setAuth(updatedUser, token);
+        console.log('Auth store updated');
+      }
+
+      alert('Profile picture updated successfully!');
+    } catch (error) {
+      console.error('Error uploading profile picture:', error);
+      alert('Failed to upload profile picture');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          
+          // Max dimensions for profile picture
+          const maxWidth = 400;
+          const maxHeight = 400;
+          
+          // Calculate new dimensions
+          if (width > height) {
+            if (width > maxWidth) {
+              height = (height * maxWidth) / width;
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width = (width * maxHeight) / height;
+              height = maxHeight;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          // Convert to base64 with compression (0.8 quality)
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+          resolve(compressedBase64);
+        };
+        img.onerror = reject;
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleSaveProfile = async () => {
+    if (!username.trim() || !email.trim()) {
+      alert('Username and email are required');
+      return;
+    }
+
+    setSaving(true);
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/users/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ username, email })
+      });
+
+      if (!response.ok) {
+        // Try to parse error message
+        let errorMessage = 'Failed to update profile';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch {
+          // If JSON parsing fails, use status text
+          errorMessage = response.statusText || errorMessage;
+        }
+        throw new Error(errorMessage);
+      }
+
+      const updatedUser = await response.json();
+      
+      // Update auth store
+      if (token) {
+        setAuth(updatedUser, token);
+      }
+
+      alert('Profile updated successfully!');
+      onClose();
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert(error instanceof Error ? error.message : 'Failed to update profile');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -150,6 +321,45 @@ function EditProfileModal({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="space-y-4">
+          {/* Profile Picture Upload */}
+          <div className="flex flex-col items-center">
+            <div className="relative">
+              {previewImage || user?.avatar ? (
+                <img 
+                  src={previewImage || user?.avatar || ''} 
+                  alt="Profile"
+                  className="w-24 h-24 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white text-3xl font-bold">
+                  {user?.username.charAt(0) || 'U'}
+                </div>
+              )}
+              <label 
+                htmlFor="profile-picture-upload"
+                className="absolute bottom-0 right-0 w-8 h-8 bg-cyan-500 rounded-full flex items-center justify-center cursor-pointer hover:bg-cyan-600 transition"
+              >
+                {uploading ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                )}
+              </label>
+              <input
+                id="profile-picture-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+                disabled={uploading}
+              />
+            </div>
+            <p className="text-xs text-gray-500 mt-2">Click camera icon to upload</p>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
             <input
@@ -157,6 +367,7 @@ function EditProfileModal({ onClose }: { onClose: () => void }) {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              disabled={saving}
             />
           </div>
           <div>
@@ -166,6 +377,7 @@ function EditProfileModal({ onClose }: { onClose: () => void }) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              disabled={saving}
             />
           </div>
         </div>
@@ -174,17 +386,23 @@ function EditProfileModal({ onClose }: { onClose: () => void }) {
           <button
             onClick={onClose}
             className="flex-1 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+            disabled={saving}
           >
             Cancel
           </button>
           <button
-            onClick={() => {
-              alert('Profile update feature coming soon!');
-              onClose();
-            }}
-            className="flex-1 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition"
+            onClick={handleSaveProfile}
+            className="flex-1 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            disabled={saving}
           >
-            Save
+            {saving ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>Saving...</span>
+              </>
+            ) : (
+              'Save'
+            )}
           </button>
         </div>
       </div>

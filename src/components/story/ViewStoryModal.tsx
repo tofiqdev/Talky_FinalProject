@@ -146,9 +146,17 @@ export default function ViewStoryModal({ isOpen, stories, initialIndex, onClose 
       {/* Header */}
       <div className="absolute top-4 left-0 right-0 px-4 flex items-center justify-between z-10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white font-semibold">
-            {currentStory.username.charAt(0).toUpperCase()}
-          </div>
+          {currentStory.avatar ? (
+            <img 
+              src={currentStory.avatar} 
+              alt={currentStory.username}
+              className="w-10 h-10 rounded-full object-cover border-2 border-white"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white font-semibold border-2 border-white">
+              {currentStory.username.charAt(0).toUpperCase()}
+            </div>
+          )}
           <div>
             <p className="text-white font-semibold">{currentStory.username}</p>
             <p className="text-white text-xs opacity-80">{getTimeAgo(currentStory.createdAt)}</p>
@@ -238,9 +246,17 @@ export default function ViewStoryModal({ isOpen, stories, initialIndex, onClose 
             <div className="divide-y divide-gray-100">
               {views.map((view) => (
                 <div key={view.id} className="p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white font-semibold">
-                    {view.username.charAt(0).toUpperCase()}
-                  </div>
+                  {view.avatar ? (
+                    <img 
+                      src={view.avatar} 
+                      alt={view.username}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white font-semibold">
+                      {view.username.charAt(0).toUpperCase()}
+                    </div>
+                  )}
                   <div className="flex-1">
                     <p className="font-medium text-gray-900">{view.username}</p>
                     <p className="text-xs text-gray-500">{getTimeAgo(view.viewedAt)}</p>

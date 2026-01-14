@@ -2,6 +2,7 @@ export interface Story {
   id: number;
   userId: number;
   username: string;
+  avatar?: string;
   imageUrl: string;
   caption?: string;
   createdAt: string;
@@ -20,5 +21,6 @@ export interface StoryView {
   storyId: number;
   userId: number;
   username: string;
+  avatar?: string;
   viewedAt: string;
 }

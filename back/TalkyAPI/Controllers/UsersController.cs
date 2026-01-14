@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using TalkyAPI.DTOs.User;
 using TalkyAPI.Services.Interfaces;
 
 namespace TalkyAPI.Controllers
@@ -80,6 +81,52 @@ namespace TalkyAPI.Controllers
                 return NotFound(new { message = "User not found" });
 
             return Ok(new { message = "Status updated successfully" });
+        }
+
+        [HttpPut("profile-picture")]
+        public async Task<IActionResult> UpdateProfilePicture([FromBody] UpdateProfilePictureDto dto)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                return Unauthorized();
+
+            if (string.IsNullOrWhiteSpace(dto.ProfilePicture))
+                return BadRequest(new { message = "Profile picture is required" });
+
+            // Validate base64 format
+            if (!dto.ProfilePicture.StartsWith("data:image/"))
+                return BadRequest(new { message = "Invalid image format. Must be base64 encoded image." });
+
+            var updatedUser = await _userService.UpdateProfilePicture(userId, dto.ProfilePicture);
+
+            if (updatedUser == null)
+                return NotFound(new { message = "User not found" });
+
+            return Ok(updatedUser);
+        }
+
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto dto)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                return Unauthorized();
+
+            try
+            {
+                var updatedUser = await _userService.UpdateProfile(userId, dto.Username, dto.Email);
+
+                if (updatedUser == null)
+                    return NotFound(new { message = "User not found" });
+
+                return Ok(updatedUser);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

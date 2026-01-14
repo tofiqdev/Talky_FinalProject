@@ -192,9 +192,17 @@ export default function PeopleTab() {
                 className="px-5 py-3 hover:bg-gray-50 transition flex items-center gap-3"
               >
                 <div className="relative flex-shrink-0">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white font-semibold">
-                    {user.username.charAt(0).toUpperCase()}
-                  </div>
+                  {user.avatar ? (
+                    <img 
+                      src={user.avatar} 
+                      alt={user.username}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white font-semibold">
+                      {user.username.charAt(0).toUpperCase()}
+                    </div>
+                  )}
                   {user.isOnline && (
                     <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
                   )}
@@ -247,9 +255,17 @@ export default function PeopleTab() {
                 className="px-5 py-3 hover:bg-gray-50 transition flex items-center gap-3"
               >
                 <div className="relative flex-shrink-0">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center text-white font-semibold">
-                    {user.username.charAt(0).toUpperCase()}
-                  </div>
+                  {user.avatar ? (
+                    <img 
+                      src={user.avatar} 
+                      alt={user.username}
+                      className="w-12 h-12 rounded-full object-cover opacity-50"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center text-white font-semibold">
+                      {user.username.charAt(0).toUpperCase()}
+                    </div>
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-gray-900 text-sm">{user.username}</h3>

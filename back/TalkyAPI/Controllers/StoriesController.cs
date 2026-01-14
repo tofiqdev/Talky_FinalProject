@@ -38,6 +38,7 @@ namespace TalkyAPI.Controllers
                     Id = s.Id,
                     UserId = s.UserId,
                     Username = s.User.Username,
+                    Avatar = s.User.Avatar,
                     ImageUrl = s.ImageUrl,
                     Caption = s.Caption,
                     CreatedAt = s.CreatedAt,
@@ -65,6 +66,7 @@ namespace TalkyAPI.Controllers
                     Id = s.Id,
                     UserId = s.UserId,
                     Username = s.User.Username,
+                    Avatar = s.User.Avatar,
                     ImageUrl = s.ImageUrl,
                     Caption = s.Caption,
                     CreatedAt = s.CreatedAt,
@@ -106,6 +108,7 @@ namespace TalkyAPI.Controllers
                 Id = story.Id,
                 UserId = story.UserId,
                 Username = user?.Username ?? "",
+                Avatar = user?.Avatar,
                 ImageUrl = story.ImageUrl,
                 Caption = story.Caption,
                 CreatedAt = story.CreatedAt,
@@ -172,6 +175,7 @@ namespace TalkyAPI.Controllers
                     StoryId = sv.StoryId,
                     UserId = sv.UserId,
                     Username = sv.User.Username,
+                    Avatar = sv.User.Avatar,
                     ViewedAt = sv.ViewedAt
                 })
                 .ToListAsync();
