@@ -1,9 +1,16 @@
 # Active Context
 
 ## Şu Anki Odak
-✅ **Proje Production Ready!** Backend ve frontend tamamen entegre, tüm özellikler çalışıyor. Real-time mesajlaşma, grup yönetimi, ses mesajları, kullanıcı yetkilendirme sistemi, **mute/unmute komut sistemi**, **mute all özelliği**, **story özelliği**, **kullanıcı engelleme**, **mesaj gönderme sesi** aktif. Proje stabil ve kullanıma hazır durumda.
+✅ **Proje Production Ready!** Backend ve frontend tamamen entegre, tüm özellikler çalışıyor. Real-time mesajlaşma, grup yönetimi, ses mesajları, kullanıcı yetkilendirme sistemi, **mute/unmute komut sistemi**, **mute all özelliği**, **story özelliği**, **kullanıcı engelleme**, **mesaj gönderme sesi** aktif. SignalR real-time mesajlaşma optimize edildi. Proje stabil ve kullanıma hazır durumda.
 
 ## Son Değişiklikler
+
+### SignalR Mesajlaşma Optimizasyonu ✅
+- ✅ SignalR listener'ı hem direkt hem grup mesajları için çalışıyor
+- ✅ Grup mesajları için receiverId kontrolü eklendi
+- ✅ Mesajlar anlık olarak state'e ekleniyor
+- ✅ Duplicate mesaj kontrolü aktif
+- ✅ Console log'ları debugging için eklendi
 
 ### Mesaj Gönderme Sesi Eklendi ✅
 - ✅ Mesaj gönderildiğinde ses efekti çalıyor
@@ -190,6 +197,9 @@
 - ✅ Story özelliği (oluşturma, görüntüleme, gruplama)
 - ✅ Mute All özelliği (tüm grubu susturma)
 - ✅ Chat komutları (/muteall, /unmuteall)
+- ✅ Kullanıcı engelleme (block/unblock)
+- ✅ Mesaj gönderme sesi
+- ✅ SignalR mesajlaşma optimizasyonu
 - ⏳ Story replies (story'lere cevap verme)
 - ⏳ Story reactions (emoji ile tepki)
 - ⏳ Real-time grup mesajları (SignalR ile - şu an REST API)
@@ -310,10 +320,13 @@ ChatPage
 - Event listener'lar ChatPage mount'unda kaydediliyor
 - Duplicate listener'lar cleanup ile önleniyor
 - ReceiveMessage event'i hem gönderene hem alıcıya gidiyor
+- **Grup mesajları için receiverId kontrolü eklendi**
+- **SignalR listener hem direkt hem grup mesajları destekliyor**
 - Console log'lar debugging için eklendi
 - Connection state kontrolleri yapılıyor
 - Ses mesajları SignalR yerine REST API ile (base64 çok büyük)
 - Mesaj filtreleme: (senderId === selectedUser.id) VEYA (receiverId === selectedUser.id)
+- Grup mesajları: receiverId === selectedGroup.id kontrolü
 - Duplicate mesaj kontrolü: message.id ile kontrol ediliyor
 - Mesajlar anlık görünüyor, sayfa yenileme gereksiz
 

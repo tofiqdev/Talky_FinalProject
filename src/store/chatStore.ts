@@ -267,23 +267,26 @@ export const useChatStore = create<ChatState>((set, get) => ({
     // Listen for incoming messages
     signalrService.onReceiveMessage((message) => {
       console.log('SignalR: Received message', message);
-      const { selectedUser } = get();
-      const currentUserId = message.senderId; // This will be checked against auth user
+      const { selectedUser, selectedGroup } = get();
       
-      // Add message if:
-      // 1. We have a selected user AND
-      // 2. The message is between current user and selected user
+      // For direct messages
       if (selectedUser) {
         const isMessageForSelectedChat = 
           (message.senderId === selectedUser.id) || // Message from selected user
           (message.receiverId === selectedUser.id); // Message to selected user
         
         if (isMessageForSelectedChat) {
-          console.log('SignalR: Adding message to state');
+          console.log('SignalR: Adding direct message to state');
           get().addMessage(message);
         } else {
           console.log('SignalR: Message not for selected user, ignoring');
         }
+      }
+      
+      // For group messages (if receiverId matches selectedGroup)
+      if (selectedGroup && message.receiverId === selectedGroup.id) {
+        console.log('SignalR: Adding group message to state');
+        get().addMessage(message);
       }
     });
 
