@@ -1,9 +1,16 @@
+﻿import { useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { useNavigate } from 'react-router-dom';
 
 export default function SettingsTab() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  const [showAccount, setShowAccount] = useState(false);
+  const [showChats, setShowChats] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showStorage, setShowStorage] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -23,7 +30,10 @@ export default function SettingsTab() {
             <p className="text-sm text-gray-600">{user?.email || 'user@example.com'}</p>
           </div>
         </div>
-        <button className="w-full py-2 px-4 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition">
+        <button 
+          onClick={() => setShowEditProfile(true)}
+          className="w-full py-2 px-4 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition"
+        >
           Edit Profile
         </button>
       </div>
@@ -31,6 +41,7 @@ export default function SettingsTab() {
       {/* Settings Options */}
       <div className="py-2">
         <SettingItem
+          onClick={() => setShowAccount(true)}
           icon={
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -40,6 +51,7 @@ export default function SettingsTab() {
           subtitle="Privacy, security, change number"
         />
         <SettingItem
+          onClick={() => setShowChats(true)}
           icon={
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -49,6 +61,7 @@ export default function SettingsTab() {
           subtitle="Theme, wallpapers, chat history"
         />
         <SettingItem
+          onClick={() => setShowNotifications(true)}
           icon={
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -58,6 +71,7 @@ export default function SettingsTab() {
           subtitle="Message, group & call tones"
         />
         <SettingItem
+          onClick={() => setShowStorage(true)}
           icon={
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -67,6 +81,7 @@ export default function SettingsTab() {
           subtitle="Network usage, auto-download"
         />
         <SettingItem
+          onClick={() => setShowHelp(true)}
           icon={
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -88,13 +103,21 @@ export default function SettingsTab() {
           </button>
         </div>
       </div>
+
+      {/* Modals */}
+      {showEditProfile && <EditProfileModal onClose={() => setShowEditProfile(false)} />}
+      {showAccount && <AccountModal onClose={() => setShowAccount(false)} />}
+      {showChats && <ChatsModal onClose={() => setShowChats(false)} />}
+      {showNotifications && <NotificationsModal onClose={() => setShowNotifications(false)} />}
+      {showStorage && <StorageModal onClose={() => setShowStorage(false)} />}
+      {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
     </div>
   );
 }
 
-function SettingItem({ icon, title, subtitle }: { icon: React.ReactNode; title: string; subtitle: string }) {
+function SettingItem({ icon, title, subtitle, onClick }: { icon: React.ReactNode; title: string; subtitle: string; onClick: () => void }) {
   return (
-    <button className="w-full px-5 py-3 flex items-center gap-3 hover:bg-gray-50 transition">
+    <button onClick={onClick} className="w-full px-5 py-3 flex items-center gap-3 hover:bg-gray-50 transition">
       <div className="text-gray-600">{icon}</div>
       <div className="flex-1 text-left">
         <h4 className="font-medium text-gray-900 text-sm">{title}</h4>
@@ -104,5 +127,350 @@ function SettingItem({ icon, title, subtitle }: { icon: React.ReactNode; title: 
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
       </svg>
     </button>
+  );
+}
+
+
+// Edit Profile Modal
+function EditProfileModal({ onClose }: { onClose: () => void }) {
+  const { user } = useAuthStore();
+  const [username, setUsername] = useState(user?.username || '');
+  const [email, setEmail] = useState(user?.email || '');
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-bold">Edit Profile</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            />
+          </div>
+        </div>
+
+        <div className="flex gap-3 mt-6">
+          <button
+            onClick={onClose}
+            className="flex-1 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              alert('Profile update feature coming soon!');
+              onClose();
+            }}
+            className="flex-1 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition"
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Account Modal
+function AccountModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 max-h-[80vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-bold">Account Settings</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="space-y-2">
+          <SettingOption title="Privacy" subtitle="Last seen, profile photo, about" />
+          <SettingOption title="Security" subtitle="Show security notifications" />
+          <SettingOption title="Two-step verification" subtitle="Add extra security to your account" />
+          <SettingOption title="Change number" subtitle="Change your phone number" />
+          <SettingOption title="Request account info" subtitle="Request a report of your account info" />
+          <SettingOption title="Delete my account" subtitle="Delete your account and erase your data" />
+        </div>
+
+        <button
+          onClick={onClose}
+          className="w-full mt-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Chats Modal
+function ChatsModal({ onClose }: { onClose: () => void }) {
+  const [darkMode, setDarkMode] = useState(false);
+  const [wallpaper, setWallpaper] = useState('default');
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 max-h-[80vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-bold">Chat Settings</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="font-medium text-gray-900">Dark Mode</h4>
+              <p className="text-xs text-gray-500">Enable dark theme</p>
+            </div>
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className={`relative w-12 h-6 rounded-full transition ${
+                darkMode ? 'bg-cyan-500' : 'bg-gray-300'
+              }`}
+            >
+              <div
+                className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                  darkMode ? 'transform translate-x-6' : ''
+                }`}
+              />
+            </button>
+          </div>
+
+          <div>
+            <h4 className="font-medium text-gray-900 mb-2">Wallpaper</h4>
+            <select
+              value={wallpaper}
+              onChange={(e) => setWallpaper(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            >
+              <option value="default">Default</option>
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+
+          <SettingOption title="Chat history" subtitle="Export chat history" />
+          <SettingOption title="Archive all chats" subtitle="Archive all conversations" />
+          <SettingOption title="Clear all chats" subtitle="Delete all messages" />
+        </div>
+
+        <button
+          onClick={onClose}
+          className="w-full mt-6 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Notifications Modal
+function NotificationsModal({ onClose }: { onClose: () => void }) {
+  const [messageNotif, setMessageNotif] = useState(true);
+  const [groupNotif, setGroupNotif] = useState(true);
+  const [callNotif, setCallNotif] = useState(true);
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 max-h-[80vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-bold">Notification Settings</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <ToggleSetting
+            title="Message notifications"
+            subtitle="Show notifications for new messages"
+            value={messageNotif}
+            onChange={setMessageNotif}
+          />
+          <ToggleSetting
+            title="Group notifications"
+            subtitle="Show notifications for group messages"
+            value={groupNotif}
+            onChange={setGroupNotif}
+          />
+          <ToggleSetting
+            title="Call notifications"
+            subtitle="Show notifications for incoming calls"
+            value={callNotif}
+            onChange={setCallNotif}
+          />
+
+          <div className="border-t border-gray-200 pt-4 mt-4">
+            <SettingOption title="Notification tone" subtitle="Choose notification sound" />
+            <SettingOption title="Vibrate" subtitle="Vibrate on notification" />
+            <SettingOption title="Popup notification" subtitle="Show popup for new messages" />
+          </div>
+        </div>
+
+        <button
+          onClick={onClose}
+          className="w-full mt-6 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Storage Modal
+function StorageModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 max-h-[80vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-bold">Storage and Data</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="space-y-2">
+          <div className="p-4 bg-gray-50 rounded-lg mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-gray-600">Storage used</span>
+              <span className="text-sm font-semibold text-gray-900">124 MB</span>
+            </div>
+            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div className="h-full bg-cyan-500" style={{ width: '35%' }}></div>
+            </div>
+          </div>
+
+          <SettingOption title="Manage storage" subtitle="Free up space on your device" />
+          <SettingOption title="Network usage" subtitle="View data usage statistics" />
+          <SettingOption title="Auto-download media" subtitle="When using mobile data" />
+          <SettingOption title="Auto-download media" subtitle="When connected on Wi-Fi" />
+          <SettingOption title="Media quality" subtitle="Choose upload quality" />
+        </div>
+
+        <button
+          onClick={onClose}
+          className="w-full mt-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Help Modal
+function HelpModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 max-h-[80vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-bold">Help</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="space-y-2">
+          <SettingOption title="Help center" subtitle="Get answers to your questions" />
+          <SettingOption title="Contact us" subtitle="Send us a message" />
+          <SettingOption title="Terms and Privacy Policy" subtitle="Read our terms and policies" />
+          <SettingOption title="App info" subtitle="Version 1.0.0" />
+        </div>
+
+        <div className="mt-6 p-4 bg-cyan-50 rounded-lg">
+          <h4 className="font-semibold text-cyan-900 mb-2">About Talky</h4>
+          <p className="text-sm text-cyan-700">
+            Talky is a modern real-time messaging platform built with React and .NET 8.
+            Enjoy secure, fast, and reliable communication with your friends and groups.
+          </p>
+        </div>
+
+        <button
+          onClick={onClose}
+          className="w-full mt-6 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Helper Components
+function SettingOption({ title, subtitle }: { title: string; subtitle: string }) {
+  return (
+    <button className="w-full px-4 py-3 text-left hover:bg-gray-50 rounded-lg transition">
+      <h4 className="font-medium text-gray-900 text-sm">{title}</h4>
+      <p className="text-xs text-gray-500 mt-0.5">{subtitle}</p>
+    </button>
+  );
+}
+
+function ToggleSetting({ 
+  title, 
+  subtitle, 
+  value, 
+  onChange 
+}: { 
+  title: string; 
+  subtitle: string; 
+  value: boolean; 
+  onChange: (value: boolean) => void;
+}) {
+  return (
+    <div className="flex items-center justify-between py-2">
+      <div className="flex-1">
+        <h4 className="font-medium text-gray-900 text-sm">{title}</h4>
+        <p className="text-xs text-gray-500 mt-0.5">{subtitle}</p>
+      </div>
+      <button
+        onClick={() => onChange(!value)}
+        className={`relative w-12 h-6 rounded-full transition ${
+          value ? 'bg-cyan-500' : 'bg-gray-300'
+        }`}
+      >
+        <div
+          className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
+            value ? 'transform translate-x-6' : ''
+          }`}
+        />
+      </button>
+    </div>
   );
 }

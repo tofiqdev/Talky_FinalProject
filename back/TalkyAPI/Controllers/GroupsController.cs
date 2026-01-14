@@ -541,7 +541,7 @@ namespace TalkyAPI.Controllers
             {
                 GroupId = id,
                 SenderId = userId,
-                Content = $"Şşşt @{targetMember.User.Username} Encapsulation By @{currentUser!.Username}",
+                Content = $"Şəhər yatır, Mafiya oyaqdır. @{targetMember.User.Username} isə artıq danışmır. By @{currentUser!.Username}",
                 IsSystemMessage = true,
                 SentAt = DateTime.UtcNow
             };

@@ -89,6 +89,8 @@
 - ✅ Grup silme ve gruptan ayrılma
 - ✅ Mute/Unmute sistemi (UI + Komut)
 - ✅ Sistem mesajları
+- ✅ Settings ekranı (tüm modal'lar)
+- ✅ Call history (backend entegrasyonu)
 
 ## Yapılacaklar
 
@@ -145,15 +147,13 @@
 ⏳ Gerçek profil resimleri upload
 ⏳ Dosya/resim gönderme
 ⏳ Emoji picker entegrasyonu
-⏳ Ses mesajı kaydı
 ⏳ Arama/filtreleme (search functionality)
 ⏳ Push notifications
-⏳ Dark mode toggle
+⏳ Dark mode toggle (backend entegrasyonu)
 ⏳ Typing indicator animasyonu
 ⏳ Message read receipts
 ⏳ Online/offline status gerçek zamanlı
-⏳ Video/voice call functionality
-⏳ Group chats
+⏳ Video/voice call functionality (UI hazır, backend gerekli)
 ⏳ Message reactions
 
 ## Mevcut Durum
@@ -171,6 +171,8 @@ Frontend tam fonksiyonel ve referans tasarıma uygun şekilde tamamlandı. Tüm 
 - ✅ Online/offline durumları
 - ✅ Responsive tasarım
 - ✅ Smooth animasyonlar
+- ✅ Settings ekranı (6 modal)
+- ✅ Call history
 
 ### ✅ Backend - Production Ready
 Backend API tamamen çalışıyor! Tüm endpoint'ler hazır ve test edildi.

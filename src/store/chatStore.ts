@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { Message } from '../types/message';
 import type { User } from '../types/user';
 import type { Group } from '../types/group';
+import type { Call } from '../types/call';
 import { usersApi, messagesApi } from '../services/apiService';
 import { signalrService } from '../services/signalrService';
 
@@ -9,6 +10,7 @@ interface ChatState {
   messages: Message[];
   users: User[];
   groups: Group[];
+  calls: Call[];
   selectedUser: User | null;
   selectedGroup: Group | null;
   isLoading: boolean;
@@ -17,6 +19,7 @@ interface ChatState {
   // Actions
   loadUsers: () => Promise<void>;
   loadGroups: () => Promise<void>;
+  loadCalls: () => Promise<void>;
   loadMessages: (userId: number) => Promise<void>;
   loadGroupMessages: (groupId: number) => Promise<void>;
   sendMessage: (receiverId: number, content: string) => Promise<void>;
@@ -33,6 +36,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
   users: [],
   groups: [],
+  calls: [],
   selectedUser: null,
   selectedGroup: null,
   isLoading: false,
@@ -70,6 +74,29 @@ export const useChatStore = create<ChatState>((set, get) => ({
       const errorMessage = error instanceof Error ? error.message : 'Failed to load groups';
       set({ error: errorMessage });
       console.error('Failed to load groups:', error);
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  loadCalls: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/calls', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) throw new Error('Failed to load calls');
+      
+      const calls = await response.json();
+      set({ calls });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load calls';
+      set({ error: errorMessage });
+      console.error('Failed to load calls:', error);
     } finally {
       set({ isLoading: false });
     }

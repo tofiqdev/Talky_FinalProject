@@ -5,6 +5,30 @@
 
 ## Son Değişiklikler
 
+### Settings Ekranı Fonksiyonları Eklendi ✅
+- ✅ Edit Profile modal (username, email düzenleme)
+- ✅ Account Settings modal (privacy, security, 2FA, vb.)
+- ✅ Chat Settings modal (dark mode toggle, wallpaper, chat history)
+- ✅ Notifications modal (message/group/call notifications toggle)
+- ✅ Storage modal (storage kullanımı, network usage)
+- ✅ Help modal (help center, contact, about)
+- ✅ Tüm modal'lar responsive ve çalışır durumda
+- ✅ Toggle switch'ler aktif
+- ✅ UI seviyesinde tam fonksiyonel
+
+### CallsTab Backend Entegrasyonu ✅
+- ✅ Mock data kaldırıldı
+- ✅ Backend'den gerçek call history yükleniyor
+- ✅ Call type'ları oluşturuldu (src/types/call.ts)
+- ✅ ChatStore'a calls state ve loadCalls() eklendi
+- ✅ Incoming/Outgoing call gösterimi
+- ✅ Missed call gösterimi (kırmızı)
+- ✅ Call duration formatlaması (MM:SS)
+- ✅ Video/Voice call icon'ları
+- ✅ Smart time formatting (Today, Yesterday, X days ago)
+- ✅ Loading ve empty states
+- ✅ GET /api/calls endpoint entegrasyonu
+
 ### Mute/Unmute Komut Sistemi Eklendi ✅
 - ✅ Chat'te komut ile susturma: `@username /mute`
 - ✅ Chat'te komut ile susturmayı kaldırma: `@username /unmute`
@@ -112,13 +136,13 @@
 - ⏳ Ses mesajlarını test et
 - ⏳ Grup mesajlaşmasını test et
 - ⏳ Real-time grup mesajları (SignalR ile - şu an REST API)
-- ⏳ CallsTab backend entegrasyonu (opsiyonel)
 - ⏳ Typing indicator (opsiyonel)
 - ⏳ Message read receipts (opsiyonel)
 - ⏳ Dosya/resim paylaşımı (opsiyonel)
 - ⏳ Emoji picker (opsiyonel)
-- ⏳ Dark mode (opsiyonel)
+- ⏳ Dark mode backend entegrasyonu (UI hazır)
 - ⏳ Push notifications (opsiyonel)
+- ⏳ Video/Voice call functionality (UI hazır, backend gerekli)
 - ⏳ Kick komutu: `@username /kick` (opsiyonel)
 - ⏳ Ban komutu: `@username /ban` (opsiyonel)
 
@@ -133,6 +157,8 @@
 - **Grup Yetkilendirme**: Owner/Admin/Member rolleri
 - **Komut Sistemi**: Chat'te `@username /command` formatı
 - **Sistem Mesajları**: IsSystemMessage flag ile özel gösterim
+- **Settings UI**: Modal-based settings (6 kategori)
+- **Call History**: Backend entegrasyonu tamamlandı
 - **Styling**: Tailwind CSS 3, referans tasarıma %100 uyumlu
 - **Authentication**: JWT Bearer token
 - **Password**: BCrypt hashing
