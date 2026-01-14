@@ -15,6 +15,8 @@ namespace TalkyAPI.Data
         public DbSet<Group> Groups { get; set; }
         public DbSet<GroupMember> GroupMembers { get; set; }
         public DbSet<GroupMessage> GroupMessages { get; set; }
+        public DbSet<Story> Stories { get; set; }
+        public DbSet<StoryView> StoryViews { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -106,6 +108,36 @@ namespace TalkyAPI.Data
                 entity.HasOne(gm => gm.Sender)
                     .WithMany()
                     .HasForeignKey(gm => gm.SenderId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Story entity configuration
+            modelBuilder.Entity<Story>(entity =>
+            {
+                entity.HasIndex(e => e.UserId);
+                entity.HasIndex(e => e.CreatedAt);
+                entity.HasIndex(e => e.ExpiresAt);
+
+                entity.HasOne(s => s.User)
+                    .WithMany()
+                    .HasForeignKey(s => s.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // StoryView entity configuration
+            modelBuilder.Entity<StoryView>(entity =>
+            {
+                entity.HasIndex(e => new { e.StoryId, e.UserId }).IsUnique();
+                entity.HasIndex(e => e.ViewedAt);
+
+                entity.HasOne(sv => sv.Story)
+                    .WithMany(s => s.Views)
+                    .HasForeignKey(sv => sv.StoryId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(sv => sv.User)
+                    .WithMany()
+                    .HasForeignKey(sv => sv.UserId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
         }

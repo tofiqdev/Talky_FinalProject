@@ -5,6 +5,7 @@ A modern, production-ready real-time messaging web application built with React 
 ## 🚀 Features
 
 - ✅ **Real-time Messaging**: Instant message delivery with SignalR WebSocket
+- ✅ **Stories**: Create and view 24-hour stories with images and captions
 - ✅ **Group Chats**: Create groups, manage members, role-based permissions (Owner/Admin/Member)
 - ✅ **Mute/Unmute System**: Moderators can mute members via UI or chat commands (`@username /mute`)
 - ✅ **Voice Messages**: Hold-to-record feature with Opus codec compression
@@ -14,7 +15,7 @@ A modern, production-ready real-time messaging web application built with React 
 - ✅ **Message History**: Persistent message storage and retrieval
 - ✅ **System Messages**: Special notifications for group actions (mute, unmute, etc.)
 - ✅ **Multiple Tabs**: 
-  - 💬 Chats - Direct messages and group conversations
+  - 💬 Chats - Direct messages, group conversations, and stories
   - 📞 Calls - Call history (incoming/outgoing/missed)
   - 👥 People - User search and contacts
   - ⚙️ Settings - Profile and app settings
@@ -169,6 +170,14 @@ Talky/
 - `DELETE /api/groups/{id}` - Delete group (JWT required)
 - `POST /api/groups/{id}/leave` - Leave group (JWT required)
 
+### Stories
+- `GET /api/stories` - Get all active stories (JWT required)
+- `GET /api/stories/{id}` - Get story details (JWT required)
+- `POST /api/stories` - Create story (JWT required)
+- `POST /api/stories/{id}/view` - Mark story as viewed (JWT required)
+- `GET /api/stories/{id}/views` - Get story views (JWT required, owner only)
+- `DELETE /api/stories/{id}` - Delete story (JWT required, owner only)
+
 ### SignalR Hub
 - `/chatHub` - WebSocket endpoint for real-time messaging
 
@@ -195,6 +204,7 @@ System will respond with: "Şşşt @john Encapsulation By @admin"
 ## 🔜 Optional Enhancements
 
 - [ ] Real-time group messages via SignalR (currently using REST API)
+- [ ] Story replies and reactions
 - [ ] Typing indicator
 - [ ] Message read receipts
 - [ ] File/image sharing
@@ -212,7 +222,9 @@ System will respond with: "Şşşt @john Encapsulation By @admin"
 - **Groups** - Group information
 - **GroupMembers** - Group membership and roles
 - **GroupMessages** - Messages in groups
-- **Calls** - Call history (planned)
+- **Stories** - User stories (24-hour expiry)
+- **StoryViews** - Story view tracking
+- **Calls** - Call history
 
 ## 🧪 Testing
 

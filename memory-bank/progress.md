@@ -91,6 +91,9 @@
 - ✅ Sistem mesajları
 - ✅ Settings ekranı (tüm modal'lar)
 - ✅ Call history (backend entegrasyonu)
+- ✅ Story özelliği (oluşturma, görüntüleme, gruplama)
+- ✅ Story view tracking
+- ✅ 24 saat otomatik silme
 
 ## Yapılacaklar
 
@@ -128,22 +131,27 @@
 ✅ SignalR hub (ChatHub) - Real-time messaging
 ✅ CallsController - Arama geçmişi API
 ✅ GroupsController - Grup yönetimi API
+✅ StoriesController - Story yönetimi API
 ✅ Mute/Unmute API endpoints
 ✅ Komut sistemi backend desteği
 ✅ Sistem mesajları (IsSystemMessage flag)
+✅ Story view tracking
+✅ 24 saat otomatik silme (ExpiresAt)
 ✅ CORS düzeltmeleri
 ✅ Vite proxy desteği
 ✅ Production build (back/publish/)
 ✅ JWT Authentication
 ✅ User search API
 ✅ Grup oluşturma ve mesajlaşma
-✅ Database migration (AddGroupFeature, AddMuteFeature)
+✅ Database migration (AddGroupFeature, AddMuteFeature, AddStoryFeature)
 
 **Backend URL**: http://localhost:5282
 **Swagger UI**: http://localhost:5282/swagger
 **Database**: TalkyDB @ (localdb)\MSSQLLocalDB
 
 ### Frontend İyileştirmeleri (Opsiyonel)
+⏳ Story replies (story'lere cevap)
+⏳ Story reactions (emoji ile tepki)
 ⏳ Gerçek profil resimleri upload
 ⏳ Dosya/resim gönderme
 ⏳ Emoji picker entegrasyonu

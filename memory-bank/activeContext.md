@@ -1,9 +1,32 @@
 # Active Context
 
 ## Şu Anki Odak
-✅ **Proje Production Ready!** Backend ve frontend tamamen entegre, tüm özellikler çalışıyor. Real-time mesajlaşma, grup yönetimi, ses mesajları, kullanıcı yetkilendirme sistemi, **mute/unmute komut sistemi** aktif. Proje stabil ve kullanıma hazır durumda.
+✅ **Proje Production Ready!** Backend ve frontend tamamen entegre, tüm özellikler çalışıyor. Real-time mesajlaşma, grup yönetimi, ses mesajları, kullanıcı yetkilendirme sistemi, **mute/unmute komut sistemi**, **story özelliği** aktif. Proje stabil ve kullanıma hazır durumda.
 
 ## Son Değişiklikler
+
+### Story Özelliği Eklendi ✅
+- ✅ Story oluşturma (resim + caption)
+- ✅ Story görüntüleme (5 saniye otomatik geçiş)
+- ✅ Story'ler kullanıcıya göre gruplanıyor
+- ✅ Her kullanıcı için tek avatar + story sayısı badge
+- ✅ Görüntülenen/görüntülenmemiş renk kodları
+- ✅ Progress bar animasyonu
+- ✅ View tracking (kimin görüntülediği)
+- ✅ 24 saat otomatik silme
+- ✅ X buton çakışması düzeltildi (views panel vs story close)
+- ✅ Backend: Stories ve StoryViews tabloları
+- ✅ Frontend: CreateStoryModal, ViewStoryModal
+- ✅ API: GET/POST/DELETE /api/stories endpoints
+
+### Story Gruplama ve Navigasyon ✅
+- ✅ Aynı kullanıcının birden fazla story'si tek avatar'da gösteriliyor
+- ✅ Story sayısı badge (sağ üst köşe)
+- ✅ Tıklandığında o kullanıcının tüm story'leri açılıyor
+- ✅ Otomatik geçiş sadece aynı kullanıcının story'leri arasında
+- ✅ Ok tuşları ile manuel geçiş
+- ✅ Son story'de otomatik kapanma
+- ✅ Progress bar sadece mevcut kullanıcının story'leri için
 
 ### Settings Ekranı Fonksiyonları Eklendi ✅
 - ✅ Edit Profile modal (username, email düzenleme)
@@ -133,6 +156,9 @@
 
 ### Test ve İyileştirmeler
 - ✅ @ Mention özelliği (grup mesajlarında)
+- ✅ Story özelliği (oluşturma, görüntüleme, gruplama)
+- ⏳ Story replies (story'lere cevap verme)
+- ⏳ Story reactions (emoji ile tepki)
 - ⏳ Ses mesajlarını test et
 - ⏳ Grup mesajlaşmasını test et
 - ⏳ Real-time grup mesajları (SignalR ile - şu an REST API)
@@ -155,12 +181,14 @@
 - **Real-time**: SignalR (direkt mesajlar), REST API (grup mesajları)
 - **Authentication**: JWT Bearer token
 - **Grup Yetkilendirme**: Owner/Admin/Member rolleri
-- **Komut Sistemi**: Chat'te `@username /command` formatı
+- **Komut sistemi**: Chat'te `@username /command` formatı
 - **Sistem Mesajları**: IsSystemMessage flag ile özel gösterim
 - **Settings UI**: Modal-based settings (6 kategori)
 - **Call History**: Backend entegrasyonu tamamlandı
+- **Story System**: 24-hour expiry, view tracking, user grouping
+- **Story UI**: CreateStoryModal, ViewStoryModal, progress bars
+- **Story Grouping**: Tek avatar per user, story count badge
 - **Styling**: Tailwind CSS 3, referans tasarıma %100 uyumlu
-- **Authentication**: JWT Bearer token
 - **Password**: BCrypt hashing
 - **Animations**: CSS keyframes + Tailwind transitions
 - **Voice Messages**: REST API (base64 too large for SignalR)
@@ -271,3 +299,7 @@ ChatPage
 - **Komut sistemi**: `@username /mute` ve `@username /unmute` komutları
 - **Sistem mesajları**: Sarı arka plan, ortalanmış, özel stil
 - **Muted UI**: Input devre dışı, uyarı mesajı, butonlar disabled
+- **Story sistemi**: CreateStoryModal (resim upload, caption), ViewStoryModal (otomatik geçiş, progress)
+- **Story gruplama**: Kullanıcıya göre gruplama, tek avatar, story count badge
+- **Story navigasyon**: Ok tuşları, otomatik geçiş (5 saniye), aynı kullanıcı story'leri
+- **Story UI**: Views panel, X buton çakışması düzeltildi
