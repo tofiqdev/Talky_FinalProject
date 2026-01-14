@@ -1,9 +1,17 @@
 # Active Context
 
 ## Şu Anki Odak
-✅ **Proje Production Ready!** Backend ve frontend tamamen entegre, tüm özellikler çalışıyor. Real-time mesajlaşma, grup yönetimi, ses mesajları, kullanıcı yetkilendirme sistemi, **profil resmi yükleme**, **username/email güncelleme**, **story'lerde profil resimleri**, mute/unmute komut sistemi, mute all özelliği, story özelliği, kullanıcı engelleme, mesaj gönderme sesi, emoji picker, dosya/resim gönderme, **ChatsTab arama özelliği** aktif. SignalR real-time mesajlaşma optimize edildi. Proje stabil ve kullanıma hazır durumda.
+✅ **Proje Production Ready!** Backend ve frontend tamamen entegre, tüm özellikler çalışıyor. Real-time mesajlaşma, grup yönetimi, ses mesajları, kullanıcı yetkilendirme sistemi, **profil resmi yükleme**, **username/email güncelleme**, **story'lerde profil resimleri**, mute/unmute komut sistemi, mute all özelliği, story özelliği, kullanıcı engelleme, mesaj gönderme sesi, emoji picker, dosya/resim gönderme, **ChatsTab arama özelliği**, **özelleştirilmiş mute/unmute mesajları** aktif. SignalR real-time mesajlaşma optimize edildi. Proje stabil ve kullanıma hazır durumda.
 
 ## Son Değişiklikler
+
+### Mute/Unmute Sistem Mesajları Güncellendi ✅
+- ✅ Mute All mesajı: "Doktor bütün şəhərə narkoz vurdu... Hamı dərin yuxuya gedir."
+- ✅ Unmute All mesajı: "Narkozun təsiri keçdi! Gözünüzü açın və danışın, kim sağ qalıb?"
+- ✅ Emoji'ler kaldırıldı (encoding sorunları nedeniyle)
+- ✅ Azerbaycan Türkçesi karakterleri düzgün çalışıyor
+- ✅ Hem /muteall komutu hem de API endpoint'leri güncellendi
+- ✅ Yazım hataları düzeltildi (Dokptor → Doktor, Narkoszun → Narkozun)
 
 ### ChatsTab Arama Özelliği Eklendi ✅
 - ✅ Ana ekranda (ChatsTab) arama çubuğu eklendi
@@ -469,3 +477,5 @@ ChatPage
 - **ChatsTab Search**: Real-time arama, filtreleme, yeni kullanıcı bulma
 - **Search UX**: Minimum 2 karakter, loading spinner, no results message
 - **Header Cleanup**: Gereksiz arama ikonu ve menü kaldırıldı, sadeleştirildi
+- **Mute Messages**: Özelleştirilmiş Azerbaycan Türkçesi mesajları
+- **System Messages**: Mute/unmute için tematik mesajlar (Doktor, narkoz teması)

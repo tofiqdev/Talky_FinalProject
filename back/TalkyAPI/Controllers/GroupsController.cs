@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -274,7 +274,7 @@ namespace TalkyAPI.Controllers
                 {
                     GroupId = id,
                     SenderId = userId,
-                    Content = $"🔇 Grup susturuldu. Sadece yöneticiler mesaj gönderebilir. By @{currentUser!.Username}",
+                    Content = $"Doktor bütün şəhərə narkoz vurdu... Hamı dərin yuxuya gedir. By @{currentUser!.Username}",
                     IsSystemMessage = true,
                     SentAt = DateTime.UtcNow
                 };
@@ -313,7 +313,7 @@ namespace TalkyAPI.Controllers
                 {
                     GroupId = id,
                     SenderId = userId,
-                    Content = $"🔊 Grup susturması kaldırıldı. Herkes mesaj gönderebilir. By @{currentUser!.Username}",
+                    Content = $"Narkozun təsiri keçdi! Gözünüzü açın və danışın, kim sağ qalıb? By @{currentUser!.Username}",
                     IsSystemMessage = true,
                     SentAt = DateTime.UtcNow
                 };
@@ -379,7 +379,7 @@ namespace TalkyAPI.Controllers
                 {
                     GroupId = id,
                     SenderId = userId,
-                    Content = $"Şəhər yatır, Mafiya oyaqdır. @{targetUsername} isə artıq danışmır. By @{currentUser!.Username}",
+                    Content = $"ÅžÉ™hÉ™r yatÄ±r, Mafiya oyaqdÄ±r. @{targetUsername} isÉ™ artÄ±q danÄ±ÅŸmÄ±r. By @{currentUser!.Username}",
                     IsSystemMessage = true,
                     SentAt = DateTime.UtcNow
                 };
@@ -431,7 +431,7 @@ namespace TalkyAPI.Controllers
                 {
                     GroupId = id,
                     SenderId = userId,
-                    Content = $"@{targetUsername} artık konuşabilir. Unmuted by @{currentUser!.Username}",
+                    Content = $"@{targetUsername} artÄ±k konuÅŸabilir. Unmuted by @{currentUser!.Username}",
                     IsSystemMessage = true,
                     SentAt = DateTime.UtcNow
                 };
@@ -745,7 +745,7 @@ namespace TalkyAPI.Controllers
             {
                 GroupId = id,
                 SenderId = userId,
-                Content = $"Şəhər yatır, Mafiya oyaqdır. @{targetMember.User.Username} isə artıq danışmır. By @{currentUser!.Username}",
+                Content = $"ÅžÉ™hÉ™r yatÄ±r, Mafiya oyaqdÄ±r. @{targetMember.User.Username} isÉ™ artÄ±q danÄ±ÅŸmÄ±r. By @{currentUser!.Username}",
                 IsSystemMessage = true,
                 SentAt = DateTime.UtcNow
             };
@@ -812,7 +812,7 @@ namespace TalkyAPI.Controllers
             {
                 GroupId = id,
                 SenderId = userId,
-                Content = $"@{targetMember.User.Username} artık konuşabilir. Unmuted by @{currentUser!.Username}",
+                Content = $"@{targetMember.User.Username} artÄ±k konuÅŸabilir. Unmuted by @{currentUser!.Username}",
                 IsSystemMessage = true,
                 SentAt = DateTime.UtcNow
             };
@@ -872,7 +872,7 @@ namespace TalkyAPI.Controllers
             {
                 GroupId = id,
                 SenderId = userId,
-                Content = $" 💤 Doktor bütün şəhərə narkoz vurdu... Hamı dərin yuxuya gedir. By @{currentUser!.Username}",
+                Content = $"Doktor bütün şəhərə narkoz vurdu... Hamı dərin yuxuya gedir. By @{currentUser!.Username}",
                 IsSystemMessage = true,
                 SentAt = DateTime.UtcNow
             };
@@ -932,7 +932,7 @@ namespace TalkyAPI.Controllers
             {
                 GroupId = id,
                 SenderId = userId,
-                Content = $" 💉 Narkozun təsiri keçdi! Gözünüzü açın və danışın, kim sağ qalıb? By @{currentUser!.Username}",
+                Content = $"Narkozun təsiri keçdi! Gözünüzü açın və danışın, kim sağ qalıb? By @{currentUser!.Username}",
                 IsSystemMessage = true,
                 SentAt = DateTime.UtcNow
             };
@@ -1018,3 +1018,4 @@ namespace TalkyAPI.Controllers
         }
     }
 }
+
