@@ -1,9 +1,21 @@
 # Active Context
 
 ## Şu Anki Odak
-✅ **Proje Production Ready!** Backend ve frontend tamamen entegre, tüm özellikler çalışıyor. Real-time mesajlaşma, grup yönetimi, ses mesajları, kullanıcı yetkilendirme sistemi, **profil resmi yükleme**, **username/email güncelleme**, **story'lerde profil resimleri**, mute/unmute komut sistemi, mute all özelliği, story özelliği, kullanıcı engelleme, mesaj gönderme sesi, emoji picker, dosya/resim gönderme, **ChatsTab arama özelliği**, **özelleştirilmiş mute/unmute mesajları** aktif. SignalR real-time mesajlaşma optimize edildi. Proje stabil ve kullanıma hazır durumda.
+✅ **Proje Netlify'a Deploy Edildi!** Backend local'de çalışıyor, ngrok ile internete açıldı, frontend Netlify'da production'da. Real-time mesajlaşma, grup yönetimi, ses mesajları, kullanıcı yetkilendirme sistemi, profil resmi yükleme, username/email güncelleme, story'lerde profil resimleri, mute/unmute komut sistemi, mute all özelliği, story özelliği, kullanıcı engelleme, mesaj gönderme sesi, emoji picker, dosya/resim gönderme, ChatsTab arama özelliği, özelleştirilmiş mute/unmute mesajları aktif. SignalR real-time mesajlaşma optimize edildi. **Netlify deployment tamamlandı, ngrok ile local backend'e bağlanıyor.**
 
 ## Son Değişiklikler
+
+### Netlify Deployment Tamamlandı ✅
+- ✅ Backend local'de çalışıyor (localhost:5282)
+- ✅ ngrok ile backend internete açıldı (https://a0f569cfa40e.ngrok-free.app)
+- ✅ Frontend Netlify'a deploy edildi (https://talkychat.netlify.app)
+- ✅ `.env.production` dosyası ngrok URL ile yapılandırıldı
+- ✅ Backend camelCase JSON desteği eklendi (PropertyNamingPolicy)
+- ✅ API endpoint'lerinde `/api` prefix sorunu düzeltildi
+- ✅ Tüm API endpoint'leri güncellendi (register, login, users, messages, calls, groups)
+- ✅ Production build ve deploy başarılı
+- ✅ Backend ve ngrok process'leri yönetiliyor
+- ✅ DEPLOYMENT_STATUS.md dokümantasyonu oluşturuldu
 
 ### Mute/Unmute Sistem Mesajları Güncellendi ✅
 - ✅ Mute All mesajı: "Doktor bütün şəhərə narkoz vurdu... Hamı dərin yuxuya gedir."
@@ -331,6 +343,11 @@
 - **Voice Messages**: REST API (base64 too large for SignalR)
 - **Audio Format**: WebM with Opus codec, 16kbps bitrate
 - **Profile Pictures**: User and Group avatars, base64, nvarchar(max)
+- **Deployment**: Netlify (frontend) + ngrok (backend tunnel)
+- **Production URL**: https://talkychat.netlify.app
+- **Backend Tunnel**: ngrok (değişken URL, her restart'ta yeni)
+- **Environment**: `.env.production` ile ngrok URL yönetimi
+- **JSON Format**: Backend camelCase desteği (PropertyNamingPolicy)
 
 ## Component Hiyerarşisi
 ```
@@ -442,8 +459,8 @@ ChatPage
 ### Frontend
 - Vite proxy kullanılıyor (/api → http://localhost:5282)
 - CORS sorunu proxy ile çözüldü
-- API_BASE_URL: '/api' (relative path)
-- SignalR URL: http://localhost:5282/chatHub
+- API_BASE_URL: '/api' (relative path - development), ngrok URL (production)
+- SignalR URL: http://localhost:5282/chatHub (development), ngrok URL (production)
 - Type definitions backend uyumlu (id: number, dates: string)
 - Auth store backend entegrasyonu tamamlandı
 - Chat store backend entegrasyonu tamamlandı
@@ -479,3 +496,7 @@ ChatPage
 - **Header Cleanup**: Gereksiz arama ikonu ve menü kaldırıldı, sadeleştirildi
 - **Mute Messages**: Özelleştirilmiş Azerbaycan Türkçesi mesajları
 - **System Messages**: Mute/unmute için tematik mesajlar (Doktor, narkoz teması)
+- **Deployment**: Netlify production build, environment variables
+- **API Endpoints**: Tüm endpoint'lerde `/api` prefix düzeltildi
+- **Error Handling**: Response body parsing iyileştirildi (text → JSON parse)
+- **Production Config**: `.env.production` ile ngrok URL yönetimi

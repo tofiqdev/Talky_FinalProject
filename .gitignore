@@ -35,3 +35,6 @@ obj/
 *.dll
 *.exe
 *.pdb
+
+# Local Netlify folder
+.netlify

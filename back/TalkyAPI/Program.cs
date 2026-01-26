@@ -67,11 +67,10 @@ namespace TalkyAPI
             {
                 options.AddPolicy("AllowFrontend", policy =>
                 {
-                    policy.WithOrigins("http://localhost:5174", "http://localhost:3000")
+                    policy.SetIsOriginAllowed(_ => true) // Allow any origin (ngrok için)
                           .AllowAnyHeader()
                           .AllowAnyMethod()
-                          .AllowCredentials()
-                          .SetIsOriginAllowed(_ => true); // Allow any origin in development
+                          .AllowCredentials();
                 });
             });
 
@@ -90,6 +89,7 @@ namespace TalkyAPI
                 .AddJsonOptions(options =>
                 {
                     options.JsonSerializerOptions.MaxDepth = 64; // Increase max depth
+                    options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase; // Support camelCase from frontend
                 });
 
             // Configure Kestrel to accept larger requests (for file uploads)

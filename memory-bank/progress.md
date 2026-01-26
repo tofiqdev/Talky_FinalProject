@@ -2,6 +2,16 @@
 
 ## Çalışan Özellikler
 
+### Deployment ✅
+✅ Frontend Netlify'da production (https://talkychat.netlify.app)
+✅ Backend local'de çalışıyor (localhost:5282)
+✅ ngrok tunnel aktif (https://a0f569cfa40e.ngrok-free.app)
+✅ Environment variables yapılandırıldı (.env.production)
+✅ Production build başarılı
+✅ API endpoint'leri düzeltildi (/api prefix)
+✅ Backend camelCase JSON desteği
+✅ CORS yapılandırması (ngrok için)
+
 ### Frontend ✅
 ✅ React 19.2.0 kurulu ve çalışıyor
 ✅ TypeScript konfigürasyonu tamamlanmış
@@ -184,6 +194,21 @@
 
 ## Mevcut Durum
 
+### ✅ Deployment - Production Live!
+Frontend Netlify'da, backend ngrok ile internete açık!
+
+**Production URL**: https://talkychat.netlify.app
+**Backend Tunnel**: https://a0f569cfa40e.ngrok-free.app
+**Swagger**: https://a0f569cfa40e.ngrok-free.app/swagger
+
+**Deployment Detayları:**
+- ✅ Netlify CLI ile deploy
+- ✅ ngrok ile local backend tunnel
+- ✅ Environment variables (.env.production)
+- ✅ API endpoint'leri düzeltildi
+- ✅ Backend camelCase desteği
+- ✅ Production build optimize edildi
+
 ### ✅ Frontend - Production Ready
 Frontend tam fonksiyonel ve referans tasarıma uygun şekilde tamamlandı. Tüm ana ekranlar (CHATS, CALLS, PEOPLE, SETTINGS) hazır ve backend ile entegre.
 
@@ -244,6 +269,11 @@ Yok! Tüm sorunlar çözüldü ✅
 - ✅ Duplicate mesajlar → Önlendi
 - ✅ Contact sistemi → Kaldırıldı, username search eklendi
 - ✅ Grup mesajlaşma → Tamamen çalışıyor
+- ✅ API endpoint'leri → `/api` prefix eklendi
+- ✅ Backend JSON format → camelCase desteği eklendi
+- ✅ Response parsing → text → JSON parse düzeltildi
+- ✅ Netlify deployment → Başarılı
+- ✅ ngrok tunnel → Aktif ve çalışıyor
 
 ## Proje Kararlarının Evrimi
 
@@ -266,6 +296,17 @@ Yok! Tüm sorunlar çözüldü ✅
 - localStorage token persistence
 - Graceful error handling (backend olmadan çalışma)
 - Tab-based navigation (Sidebar component)
+
+### Deployment Kararları
+- **Frontend Hosting**: Netlify (https://talkychat.netlify.app)
+- **Backend**: Local development + ngrok tunnel
+- **ngrok**: Backend'i internete açmak için (değişken URL)
+- **Environment Management**: `.env.production` ile ngrok URL
+- **Build Process**: `npm run build` → `netlify deploy --prod`
+- **API Format**: Backend camelCase JSON desteği (PropertyNamingPolicy)
+- **CORS**: SetIsOriginAllowed(_ => true) - ngrok için
+- **Process Management**: Backend ve ngrok ayrı process'ler
+- **Documentation**: DEPLOYMENT_STATUS.md ile deployment durumu
 
 ### Tasarım Kararları
 - Pill-shaped message bubbles

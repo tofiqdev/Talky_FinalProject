@@ -14,11 +14,19 @@ class SignalRService {
 
     console.log('SignalR: Starting connection with token:', token ? 'Token exists' : 'No token');
 
+    // Use environment variable for production, localhost for development
+    const hubUrl = import.meta.env.VITE_API_URL 
+      ? `${import.meta.env.VITE_API_URL}/chatHub`
+      : 'http://localhost:5282/chatHub';
+
     this.connection = new signalR.HubConnectionBuilder()
-      .withUrl('http://localhost:5282/chatHub', {
+      .withUrl(hubUrl, {
         accessTokenFactory: () => {
           console.log('SignalR: Providing access token');
           return token;
+        },
+        headers: {
+          'ngrok-skip-browser-warning': 'true', // Skip ngrok warning page
         },
       })
       .withAutomaticReconnect({

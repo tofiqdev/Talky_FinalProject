@@ -36,6 +36,18 @@ npm run build      # Production build
 npm run preview    # Preview production build
 ```
 
+### Production Deployment (Netlify)
+```bash
+# Build
+npm run build
+
+# Deploy
+netlify deploy --prod --dir=dist
+
+# Production URL
+https://talkychat.netlify.app
+```
+
 ### Backend Kurulum ve Çalıştırma
 ```bash
 cd back/TalkyAPI
@@ -53,9 +65,26 @@ dotnet run
 dotnet watch run  # Hot reload ile
 ```
 
-**API URL**: https://localhost:7183
-**Swagger UI**: https://localhost:7183/swagger
+**API URL**: http://localhost:5282 (development)
+**Production Tunnel**: https://a0f569cfa40e.ngrok-free.app (ngrok)
+**Swagger UI**: http://localhost:5282/swagger (development)
+**Swagger UI**: https://a0f569cfa40e.ngrok-free.app/swagger (production)
 **Database**: TalkyDB @ (localdb)\MSSQLLocalDB
+
+### ngrok Tunnel (Production)
+```bash
+# ngrok başlat
+C:\ngrok\ngrok.exe http 5282
+
+# ngrok URL'i .env.production'a ekle
+VITE_API_URL=https://[ngrok-url].ngrok-free.app
+
+# Frontend'i build ve deploy et
+npm run build
+netlify deploy --prod --dir=dist
+```
+
+**Not**: ngrok her yeniden başlatıldığında URL değişir. Yeni URL'i `.env.production` dosyasına yazıp yeniden build/deploy etmek gerekir.
 
 ## Proje Yapısı
 
