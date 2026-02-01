@@ -1,0 +1,48 @@
+﻿@using Entity.DataTransferObject.UserDTO
+@model List<UserListDTO>
+
+<style>
+    table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+    }
+
+    .table{
+        margin-left: auto;
+        margin-right: auto;
+        /* Optional: set a width for the centering to be visible;
+           it won't center if it takes up 100% of the space */
+        width: 80%;
+        margin-top:50px;
+</style>
+<table class="table"> 
+    <thead>
+        <tr>
+            <td>Id</td>
+            <td>Name</td>
+            <td>Edit</td>
+            <td>Delete</td>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <th>@item.Id</th>
+                <th>@item.Name</th>
+                <th>
+                    <a href="Category/Edit/@item.Id">Edit</a>
+                </th>
+                <th>
+                    <a href="Category/Delete/@item.Id">Delete</a>
+                </th>
+            </tr>
+        }
+
+    </tbody>
+
+</table>
+
+<a asp-controller="Category" asp-action="Add">Əlavə et</a>

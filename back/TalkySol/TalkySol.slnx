@@ -1,8 +1,0 @@
-<Solution>
-  <Folder Name="/00.Core/" />
-  <Folder Name="/01.DAL/" />
-  <Folder Name="/02.Entites/" />
-  <Folder Name="/03.BLL/" />
-  <Project Path="../Talky/Talky.csproj" />
-  <Project Path="../TalkyAPI/TalkyAPI.csproj" />
-</Solution>

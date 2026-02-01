@@ -35,12 +35,15 @@ A modern, production-ready real-time messaging web application built with React 
 
 ### Backend
 - **.NET 8** - C# Web API framework
+- **N-Tier Architecture** - Core → Entity → DAL → BLL → API
 - **ASP.NET Core** - Web API
 - **SignalR** - WebSocket/real-time communication
 - **Entity Framework Core** 8.0.0 - ORM
 - **SQL Server LocalDB** - Database
 - **JWT Bearer** 8.0.0 - Authentication
 - **BCrypt.Net-Next** 4.0.3 - Password hashing
+- **FluentValidation** - Input validation
+- **AutoMapper** - Object mapping
 - **Swagger** 6.6.2 - API documentation
 
 ## 📦 Installation & Setup
@@ -69,21 +72,22 @@ npm run preview
 ### Backend Setup
 ```bash
 # Navigate to backend directory
-cd back/TalkyAPI
+cd BackNtier/Talky_API
 
 # Restore packages
 dotnet restore
 
 # Apply database migrations
+dotnet ef migrations add InitialCreate
 dotnet ef database update
 
 # Run the API
 dotnet run
-# Backend runs on http://localhost:5282
-# Swagger UI: http://localhost:5282/swagger
+# Backend runs on https://localhost:7001
+# Swagger UI: https://localhost:7001/swagger
 
-# Or run with hot reload
-dotnet watch run
+# Or use the batch file
+START_BACKEND.bat
 ```
 
 ## 📁 Project Structure
@@ -102,13 +106,15 @@ Talky/
 │   ├── App.tsx                  # Router and routes
 │   └── main.tsx                 # Entry point
 │
-├── back/TalkyAPI/               # Backend (.NET 8)
-│   ├── Controllers/             # Auth, Users, Messages, Groups, Calls
-│   ├── Models/                  # User, Message, Group, GroupMember, GroupMessage
-│   ├── DTOs/                    # Data Transfer Objects
-│   ├── Data/                    # AppDbContext (Entity Framework)
-│   ├── Hubs/                    # ChatHub (SignalR)
-│   └── Program.cs               # Application entry point
+├── BackNtier/                   # Backend (.NET 8 N-Tier)
+│   ├── 00.Core/                 # Result pattern, business rules
+│   ├── Entity/                  # Entities + DTOs
+│   ├── 02.DAL/                  # Data Access Layer (Repository)
+│   ├── 03.BLL/                  # Business Logic Layer (Services)
+│   └── Talky_API/               # Web API + SignalR
+│       ├── Controllers/         # REST endpoints
+│       ├── Hubs/                # ChatHub (SignalR)
+│       └── Program.cs           # Application entry point
 │
 ├── memory-bank/                 # Project documentation
 │   ├── projectbrief.md
@@ -118,7 +124,8 @@ Talky/
 │   ├── progress.md
 │   └── systemPatterns.md
 │
-└── README.md
+├── README.md
+└── README_BACKEND.md            # Detailed backend documentation
 ```
 
 ## 🎨 Design

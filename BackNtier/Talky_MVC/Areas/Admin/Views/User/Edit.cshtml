@@ -1,0 +1,15 @@
+﻿@model CategoryListDTO
+
+
+<form asp-controller="Category" asp-action="Edit" method="post">
+    <div class="form-group">
+        <input type="hidden" asp-for="Id" />
+        <label>Ad</label>
+        <input type="text" asp-for="Name" name="Name" class="form-control" />
+    </div>
+    <br />
+    <br />
+    <br />
+
+    <button type="submit" class="btn btn-primary">Yadda Saxla</button>
+</form>

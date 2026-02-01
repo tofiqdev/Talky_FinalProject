@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/00.Core/">
+    <Project Path="00.Core/Core/Core.csproj" />
+  </Folder>
+  <Folder Name="/01.Entities/">
+    <Project Path="Entity/Entity.csproj" />
+  </Folder>
+  <Folder Name="/02.DAL/">
+    <Project Path="02.DAL/DAL/DAL.csproj" />
+  </Folder>
+  <Folder Name="/03.BLL/">
+    <Project Path="03.BLL/BLL/BLL.csproj" />
+  </Folder>
+  <Project Path="Talky_API/Talky_API.csproj" Id="13b9c83b-3154-45c7-8004-49c94cfa677e" />
+</Solution>
