@@ -182,17 +182,27 @@ function EditProfileModal({ onClose }: { onClose: () => void }) {
 
       // Upload to backend
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/users/profile-picture', {
+      console.log('Token:', token ? 'exists' : 'missing');
+      console.log('Request URL:', '/api/User/profile-picture');
+      console.log('Request body:', JSON.stringify({ avatar: base64String.substring(0, 50) + '...' }));
+      
+      const response = await fetch('/api/User/profile-picture', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
         },
-        body: JSON.stringify({ profilePicture: base64String })
+        body: JSON.stringify({ avatar: base64String })
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+
       if (!response.ok) {
-        throw new Error('Failed to upload profile picture');
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
+        throw new Error(`Failed to upload profile picture: ${response.status} - ${errorText}`);
       }
 
       const updatedUser = await response.json();
@@ -269,13 +279,39 @@ function EditProfileModal({ onClose }: { onClose: () => void }) {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/users/profile', {
+      
+      // Get current user data first
+      const currentUserResponse = await fetch('/api/auth/me', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
+        }
+      });
+      
+      if (!currentUserResponse.ok) {
+        throw new Error('Failed to get current user');
+      }
+      
+      const currentUser = await currentUserResponse.json();
+      
+      // Update with all required fields
+      const response = await fetch('/api/User/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
         },
-        body: JSON.stringify({ username, email })
+        body: JSON.stringify({
+          id: currentUser.id,
+          name: currentUser.name,
+          username: username,
+          email: email,
+          avatar: currentUser.avatar,
+          bio: currentUser.bio,
+          isOnline: currentUser.isOnline,
+          lastSeen: currentUser.lastSeen
+        })
       });
 
       if (!response.ok) {

@@ -42,9 +42,8 @@ namespace BLL.Validation
 
             
             RuleFor(x => x.Avatar)
-                .MaximumLength(500).WithMessage("Avatar URL'si en fazla 500 karakter olabilir.")
-                .Must(BeValidUrl).When(x => !string.IsNullOrEmpty(x.Avatar))
-                .WithMessage("Geçerli bir URL giriniz.");
+                .Must(BeValidBase64OrUrl).When(x => !string.IsNullOrEmpty(x.Avatar))
+                .WithMessage("Geçerli bir base64 resim veya URL giriniz.");
 
             
             RuleFor(x => x.Bio)
@@ -112,6 +111,19 @@ namespace BLL.Validation
                 return true;
 
             return Uri.TryCreate(url, UriKind.Absolute, out _);
+        }
+
+        private bool BeValidBase64OrUrl(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return true;
+
+            // Check if it's a base64 image
+            if (value.StartsWith("data:image/"))
+                return true;
+
+            // Check if it's a valid URL
+            return Uri.TryCreate(value, UriKind.Absolute, out _);
         }
     }
 }

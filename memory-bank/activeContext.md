@@ -1,9 +1,29 @@
 # Active Context
 
 ## Şu Anki Odak
-✅ **Grup Mesajlaşma Komutları ve Entity Tracking Sorunları Çözüldü!** Backend (BackNtier/Talky_API) port 5135'te çalışıyor, frontend port 5173'te. Grup tıklama beyaz ekran sorunu düzeltildi (GroupListDTO'ya Members array eklendi). Entity tracking conflict'leri çözüldü (Update metodlarında database'den entity çekiliyor). Tüm grup komutları çalışıyor: /muteall, /unmuteall, @username /mute, @username /unmute.
+✅ **Profil ve Grup Avatar Yükleme Özellikleri Tamamlandı!** Backend (BackNtier/Talky_API) port 5135'te çalışıyor, frontend port 5173'te. Kullanıcılar artık profil resimlerini ve grup avatarlarını yükleyebiliyorlar. Base64 formatında resimler database'e kaydediliyor (nvarchar(max)).
 
 ## Son Değişiklikler (1 Şubat 2026)
+
+### Profil ve Grup Avatar Yükleme Eklendi ✅
+- ✅ User ve Group Avatar kolonları nvarchar(max) olarak güncellendi
+- ✅ FluentValidation MaxLength(500) limiti kaldırıldı
+- ✅ Base64 resim formatı kabul ediliyor (data:image/...)
+- ✅ Frontend: Profil resmi yükleme (SettingsTab → EditProfileModal)
+- ✅ Frontend: Grup resmi yükleme (GroupDetailsModal)
+- ✅ Resim sıkıştırma (400x400, JPEG 0.8 quality)
+- ✅ Backend: PUT /api/User/profile-picture endpoint
+- ✅ Backend: PUT /api/Groups/{id}/avatar endpoint
+- ✅ Migration: FixAvatarMaxLength uygulandı
+- ✅ Entity tracking conflict çözüldü (UserManager.Update refactor)
+- ✅ Duplicate name kontrolü düzeltildi (kendi ID'sini exclude ediyor)
+
+### Entity Tracking Sorunları Çözüldü ✅
+- ✅ UserManager.Update() - Database'den fresh entity çekiliyor
+- ✅ Mapper yerine manuel property update kullanılıyor
+- ✅ DuplicateUserName metodu userId ve name parametreleri alıyor
+- ✅ "Another instance with the same key value is already being tracked" hatası çözüldü
+- ✅ Login ve profil güncelleme çalışıyor
 
 ### Grup Tıklama Beyaz Ekran Sorunu Düzeltildi ✅
 - ✅ GroupListDTO'ya Members array eklendi (List<GroupMemberListDTO>)
@@ -13,13 +33,6 @@
 - ✅ CreatedByName → CreatedByUsername olarak düzeltildi
 - ✅ AutoMapper mapping'leri eklendi (GroupListDTO ↔ GroupUpdateDTO, GroupMemberListDTO ↔ GroupMemberUpdateDTO)
 - ✅ Grup tıklandığında artık mesajlaşma ekranı açılıyor
-
-### Entity Tracking Conflict Sorunları Düzeltildi ✅
-- ✅ GroupMemberManager.Update() - Database'den entity çekiliyor, sonra güncelleniyor
-- ✅ GroupManager.Update() - Database'den entity çekiliyor, sonra güncelleniyor
-- ✅ "Another instance with the same key value is already being tracked" hatası çözüldü
-- ✅ Mapper yerine manuel field update kullanılıyor
-- ✅ Duplicate name check sadece name değiştiğinde yapılıyor
 
 ### Grup Komutları Düzeltildi ✅
 - ✅ `/muteall` - Tüm grubu sustur (çalışıyor)

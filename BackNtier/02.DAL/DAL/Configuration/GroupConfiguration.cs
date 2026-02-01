@@ -35,8 +35,7 @@ namespace DAL.Configuration
                 .IsUnicode(true);
 
             builder.Property(x => x.Avatar)
-                .HasColumnType("nvarchar(500)")
-                .HasMaxLength(500)
+                .HasColumnType("nvarchar(max)")
                 .IsRequired(false);
 
             builder.Property(x => x.CreatedById)

@@ -972,7 +972,7 @@ namespace Talky_API.Controllers
 
         // PUT: api/groups/{id}/avatar
         [HttpPut("{id}/avatar")]
-        public IActionResult UpdateGroupAvatar(int id, [FromBody] string avatar)
+        public IActionResult UpdateGroupAvatar(int id, [FromBody] UpdateGroupAvatarRequest request)
         {
             var userId = GetUserId();
             
@@ -998,11 +998,11 @@ namespace Talky_API.Controllers
                 return Forbid();
 
             // Validate base64 format
-            if (!string.IsNullOrWhiteSpace(avatar) && !avatar.StartsWith("data:image/"))
+            if (!string.IsNullOrWhiteSpace(request.Avatar) && !request.Avatar.StartsWith("data:image/"))
                 return BadRequest(new { message = "Invalid image format. Must be base64 encoded image." });
 
             var updateDto = _mapper.Map<GroupUpdateDTO>(group);
-            updateDto.Avatar = avatar;
+            updateDto.Avatar = request.Avatar;
             
             var result = _groupService.Update(updateDto);
             if (result.IsSuccess)
@@ -1010,6 +1010,11 @@ namespace Talky_API.Controllers
                 return Ok(new { message = "Group avatar updated successfully" });
             }
             return BadRequest(new { message = result.Message });
+        }
+
+        public class UpdateGroupAvatarRequest
+        {
+            public string Avatar { get; set; } = string.Empty;
         }
     }
 }

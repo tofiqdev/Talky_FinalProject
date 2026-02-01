@@ -52,11 +52,12 @@ export default function GroupDetailsModal({ group, isOpen, onClose, onUpdate, on
 
       // Upload to backend
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/groups/${group.id}/avatar`, {
+      const response = await fetch(`/api/Groups/${group.id}/avatar`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
         },
         body: JSON.stringify({ avatar: base64String })
       });

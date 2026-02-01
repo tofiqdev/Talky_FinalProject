@@ -19,10 +19,10 @@ namespace BLL.Validation
                 .MaximumLength(1000)
                 .WithMessage("Açıqlama maksimum 1000 simvol ola bilər.");
 
-            // Avatar (url və ya file adı ola bilər)
+            // Avatar (url və ya base64 image ola bilər)
             RuleFor(x => x.Avatar)
-                .MaximumLength(500)
-                .WithMessage("Avatar uzunluğu maksimum 500 simvol ola bilər.");
+                .Must(BeValidBase64OrUrl).When(x => !string.IsNullOrEmpty(x.Avatar))
+                .WithMessage("Düzgün base64 şəkil və ya URL daxil edin.");
 
             // CreatedById
             RuleFor(x => x.CreatedById)
@@ -38,6 +38,19 @@ namespace BLL.Validation
             RuleFor(x => x.UpdatedAt)
                 .GreaterThanOrEqualTo(x => x.CreatedAt)
                 .WithMessage("Yenilənmə tarixi yaradılma tarixindən əvvəl ola bilməz.");
+        }
+
+        private bool BeValidBase64OrUrl(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return true;
+
+            // Check if it's a base64 image
+            if (value.StartsWith("data:image/"))
+                return true;
+
+            // Check if it's a valid URL
+            return Uri.TryCreate(value, UriKind.Absolute, out _);
         }
     }
 }

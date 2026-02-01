@@ -100,7 +100,7 @@ export const authApi = {
 // Users API
 export const usersApi = {
   getAllUsers: async (): Promise<User[]> => {
-    const response = await fetch(`${API_BASE_URL}/user`, {
+    const response = await fetch(`${API_BASE_URL}/User`, {
       headers: createHeaders(true),
     });
 
@@ -112,7 +112,7 @@ export const usersApi = {
   },
 
   getUserById: async (userId: number): Promise<User> => {
-    const response = await fetch(`${API_BASE_URL}/user/${userId}`, {
+    const response = await fetch(`${API_BASE_URL}/User/${userId}`, {
       headers: createHeaders(true),
     });
 
@@ -124,7 +124,7 @@ export const usersApi = {
   },
 
   getUserByUsername: async (username: string): Promise<User> => {
-    const response = await fetch(`${API_BASE_URL}/user/username/${username}`, {
+    const response = await fetch(`${API_BASE_URL}/User/username/${username}`, {
       headers: createHeaders(true),
     });
 
@@ -136,7 +136,7 @@ export const usersApi = {
   },
 
   searchUsers: async (searchTerm: string): Promise<User[]> => {
-    const response = await fetch(`${API_BASE_URL}/user/search?q=${encodeURIComponent(searchTerm)}`, {
+    const response = await fetch(`${API_BASE_URL}/User/search?q=${encodeURIComponent(searchTerm)}`, {
       headers: createHeaders(true),
     });
 
@@ -148,7 +148,7 @@ export const usersApi = {
   },
 
   updateStatus: async (isOnline: boolean): Promise<void> => {
-    const response = await fetch(`${API_BASE_URL}/user/status`, {
+    const response = await fetch(`${API_BASE_URL}/User/status`, {
       method: 'PUT',
       headers: createHeaders(true),
       body: JSON.stringify(isOnline),
@@ -168,7 +168,7 @@ export const usersApi = {
 // Messages API
 export const messagesApi = {
   getMessages: async (userId: number): Promise<Message[]> => {
-    const response = await fetch(`${API_BASE_URL}/message/${userId}`, {
+    const response = await fetch(`${API_BASE_URL}/Message/${userId}`, {
       headers: createHeaders(true),
     });
 
@@ -180,7 +180,7 @@ export const messagesApi = {
   },
 
   sendMessage: async (receiverId: number, content: string): Promise<Message> => {
-    const response = await fetch(`${API_BASE_URL}/message`, {
+    const response = await fetch(`${API_BASE_URL}/Message`, {
       method: 'POST',
       headers: createHeaders(true),
       body: JSON.stringify({ receiverId, content }),
@@ -194,7 +194,7 @@ export const messagesApi = {
   },
 
   markAsRead: async (messageId: number): Promise<void> => {
-    const response = await fetch(`${API_BASE_URL}/message/${messageId}/read`, {
+    const response = await fetch(`${API_BASE_URL}/Message/${messageId}/read`, {
       method: 'PUT',
       headers: createHeaders(true),
     });
@@ -213,7 +213,7 @@ export const messagesApi = {
 // Calls API
 export const callsApi = {
   getCalls: async () => {
-    const response = await fetch(`${API_BASE_URL}/call`, {
+    const response = await fetch(`${API_BASE_URL}/Call`, {
       headers: createHeaders(true),
     });
 
@@ -225,7 +225,7 @@ export const callsApi = {
   },
 
   createCall: async (receiverId: number, callType: 'voice' | 'video', status: string, duration?: number) => {
-    const response = await fetch(`${API_BASE_URL}/call`, {
+    const response = await fetch(`${API_BASE_URL}/Call`, {
       method: 'POST',
       headers: createHeaders(true),
       body: JSON.stringify({ receiverId, callType, status, duration }),

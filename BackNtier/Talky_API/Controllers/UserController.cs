@@ -168,13 +168,20 @@ namespace Talky_API.Controllers
             
             if (result.IsSuccess)
             {
+                // Return updated user data
+                var updatedUser = _userService.Get(userId);
+                if (updatedUser.IsSuccess)
+                {
+                    var userData = _mapper.Map<UserListDTO>(updatedUser.Data);
+                    return Ok(userData);
+                }
                 return Ok(new { message = result.Message });
             }
             return BadRequest(new { message = result.Message });
         }
 
         [HttpPut("profile-picture")]
-        public IActionResult UpdateProfilePicture([FromBody] string avatar)
+        public IActionResult UpdateProfilePicture([FromBody] UpdateAvatarRequest request)
         {
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) 
                            ?? User.FindFirst("sub");
@@ -193,7 +200,7 @@ namespace Talky_API.Controllers
                     Name = result.Data.Name,
                     Username = result.Data.Username,
                     Email = result.Data.Email,
-                    Avatar = avatar,
+                    Avatar = request.Avatar,
                     Bio = result.Data.Bio,
                     IsOnline = result.Data.IsOnline,
                     LastSeen = result.Data.LastSeen
@@ -202,11 +209,23 @@ namespace Talky_API.Controllers
                 
                 if (updateResult.IsSuccess)
                 {
+                    // Return updated user data
+                    var updatedUser = _userService.Get(userId);
+                    if (updatedUser.IsSuccess)
+                    {
+                        var userData = _mapper.Map<UserListDTO>(updatedUser.Data);
+                        return Ok(userData);
+                    }
                     return Ok(new { message = "Profile picture updated successfully" });
                 }
                 return BadRequest(new { message = updateResult.Message });
             }
             return NotFound(new { message = result.Message });
+        }
+
+        public class UpdateAvatarRequest
+        {
+            public string Avatar { get; set; } = string.Empty;
         }
 
         [HttpDelete("{id}")]

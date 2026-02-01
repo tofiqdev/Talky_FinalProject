@@ -78,31 +78,43 @@ namespace BLL.Concret
 
         public IResult Update(UserUpdateDTO userUpdateDTO)
         {
-            var userMapper = _mapper.Map<User>(userUpdateDTO);
+            // Get fresh entity from database (not tracked)
+            var existingUser = _userDal.Get(x => x.Id == userUpdateDTO.Id && x.Deleted == 0);
+            
+            if (existingUser == null)
+                return new ErrorResult("User not found");
 
+            // Check duplicate name (excluding current user)
+            var checkData = BusinessRules.Check(DuplicateUserName(userUpdateDTO.Id, userUpdateDTO.Name));
+            if (!checkData.IsSuccess)
+                return checkData;
+
+            // Update properties
+            existingUser.Name = userUpdateDTO.Name;
+            existingUser.Username = userUpdateDTO.Username;
+            existingUser.Email = userUpdateDTO.Email;
+            existingUser.Avatar = userUpdateDTO.Avatar;
+            existingUser.Bio = userUpdateDTO.Bio;
+            existingUser.IsOnline = userUpdateDTO.IsOnline;
+            existingUser.LastSeen = userUpdateDTO.LastSeen;
+            existingUser.UpdatedAt = DateTime.UtcNow;
+
+            // Validate
             var validateValidator = new UserValidator();
-            var validationResult = validateValidator.Validate(userMapper);
+            var validationResult = validateValidator.Validate(existingUser);
 
             if (!validationResult.IsValid)
                 return new ErrorResult(validationResult.Errors.FluentErrorString());
 
-
-            var checkData = BusinessRules.Check(DuplicateUserName(userMapper));
-
-            if (!checkData.IsSuccess)
-                return checkData;
-
-            _userDal.Update(userMapper);
+            _userDal.Update(existingUser);
             return new SuccesResult("Updated Succesfully");
         }
 
-
-
-        public IResult DuplicateUserName(User user)
+        public IResult DuplicateUserName(int userId, string name)
         {
-            var userName = _userDal.Get(x => x.Name == user.Name && x.Deleted == 0);
+            var isDuplicate = _userDal.GetAll(x => x.Name == name && x.Deleted == 0 && x.Id != userId).Any();
 
-            if (userName is not null)
+            if (isDuplicate)
             {
                 return new ErrorResult("Duplicate Name");
             }
