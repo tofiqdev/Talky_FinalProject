@@ -1,19 +1,15 @@
 using Core.Result.Abstrack;
-using Entity.TableModel;
-using System;
+using Entity.DataTransferObject.ContactDTO;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BLL.Abstrack
 {
     public interface IContactService
     {
-        IDataResult<List<Contact>> GetAll();
-        IDataResult<Contact> GetById(int id);
-        IResult Add(Contact contact);
-        IResult Update(Contact contact);
+        IDataResult<List<ContactListDTO>> GetAll();
+        IDataResult<ContactListDTO> GetById(int id);
+        IResult Add(ContactAddDTO contactAddDTO);
+        IResult Update(ContactUpdateDTO contactUpdateDTO);
         IResult Delete(int id);
     }
 }

@@ -1,106 +1,134 @@
-using AutoMapper;
 using BLL.Abstrack;
 using Entity.DataTransferObject.ContactDTO;
-using Entity.TableModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Talky_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ContactController : ControllerBase
     {
         private readonly IContactService _contactService;
-        private readonly IMapper _mapper;
+        private readonly IUserService _userService;
 
-        public ContactController(IContactService contactService, IMapper mapper)
+        public ContactController(IContactService contactService, IUserService userService)
         {
             _contactService = contactService;
-            _mapper = mapper;
+            _userService = userService;
         }
 
+        private int GetUserId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
+            return int.Parse(userIdClaim!.Value);
+        }
+
+        // GET: api/contact - Get my contacts
         [HttpGet]
-        public IActionResult GetAll()
+        public IActionResult GetMyContacts()
         {
+            var userId = GetUserId();
+            
             var result = _contactService.GetAll();
             if (result.IsSuccess)
             {
-                var data = _mapper.Map<List<ContactListDTO>>(result.Data);
-                return Ok(data);
-            }
-            return BadRequest(result.Message);
-        }
-
-        [HttpGet("{id}")]
-        public IActionResult GetById(int id)
-        {
-            var result = _contactService.GetById(id);
-            if (result.IsSuccess)
-            {
-                var data = _mapper.Map<ContactListDTO>(result.Data);
-                return Ok(data);
-            }
-            return NotFound(result.Message);
-        }
-
-        [HttpPost]
-        public IActionResult Add([FromBody] ContactAddDTO contactAddDTO)
-        {
-            var contact = _mapper.Map<Contact>(contactAddDTO);
-            var result = _contactService.Add(contact);
-            
-            if (result.IsSuccess)
-            {
-                return CreatedAtAction(nameof(GetById), new { id = contact.Id }, contact);
-            }
-            return BadRequest(result.Message);
-        }
-
-        [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] ContactUpdateDTO contactUpdateDTO)
-        {
-            if (id != contactUpdateDTO.Id)
-            {
-                return BadRequest("ID mismatch");
-            }
-
-            var contact = _mapper.Map<Contact>(contactUpdateDTO);
-            var result = _contactService.Update(contact);
-            
-            if (result.IsSuccess)
-            {
-                return Ok(result.Message);
-            }
-            return BadRequest(result.Message);
-        }
-
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
-        {
-            var result = _contactService.Delete(id);
-            
-            if (result.IsSuccess)
-            {
-                return Ok(result.Message);
-            }
-            return NotFound(result.Message);
-        }
-
-        [HttpGet("user/{userId}")]
-        public IActionResult GetUserContacts(int userId)
-        {
-            var result = _contactService.GetAll();
-            if (result.IsSuccess)
-            {
-                var contacts = result.Data
+                var myContacts = result.Data
                     .Where(c => c.UserId == userId)
-                    .OrderBy(c => c.AddedAt)
                     .ToList();
                 
-                var data = _mapper.Map<List<ContactListDTO>>(contacts);
-                return Ok(data);
+                return Ok(myContacts);
             }
-            return BadRequest(result.Message);
+            return BadRequest(new { message = result.Message });
+        }
+
+        // POST: api/contact - Add contact
+        [HttpPost]
+        public IActionResult AddContact([FromBody] int contactUserId)
+        {
+            var userId = GetUserId();
+            
+            // Check if contact already exists
+            var existingContacts = _contactService.GetAll();
+            if (existingContacts.IsSuccess)
+            {
+                var exists = existingContacts.Data.Any(c => 
+                    c.UserId == userId && c.ContactUserId == contactUserId);
+                
+                if (exists)
+                {
+                    return BadRequest(new { message = "Contact already exists" });
+                }
+            }
+            
+            // Check if user exists
+            var userResult = _userService.Get(contactUserId);
+            if (!userResult.IsSuccess)
+            {
+                return NotFound(new { message = "User not found" });
+            }
+
+            var contactAddDto = new ContactAddDTO
+            {
+                UserId = userId,
+                ContactUserId = contactUserId
+            };
+            
+            var result = _contactService.Add(contactAddDto);
+            
+            if (result.IsSuccess)
+            {
+                return Ok(new { message = "Contact added successfully" });
+            }
+            return BadRequest(new { message = result.Message });
+        }
+
+        // DELETE: api/contact/{contactUserId} - Remove contact
+        [HttpDelete("{contactUserId}")]
+        public IActionResult RemoveContact(int contactUserId)
+        {
+            var userId = GetUserId();
+            
+            var contacts = _contactService.GetAll();
+            if (!contacts.IsSuccess)
+            {
+                return BadRequest(new { message = contacts.Message });
+            }
+
+            var contact = contacts.Data.FirstOrDefault(c => 
+                c.UserId == userId && c.ContactUserId == contactUserId);
+            
+            if (contact == null)
+            {
+                return NotFound(new { message = "Contact not found" });
+            }
+
+            var result = _contactService.Delete(contact.Id);
+            
+            if (result.IsSuccess)
+            {
+                return Ok(new { message = "Contact removed successfully" });
+            }
+            return BadRequest(new { message = result.Message });
+        }
+
+        // GET: api/contact/check/{contactUserId} - Check if user is in contacts
+        [HttpGet("check/{contactUserId}")]
+        public IActionResult CheckContact(int contactUserId)
+        {
+            var userId = GetUserId();
+            
+            var contacts = _contactService.GetAll();
+            if (contacts.IsSuccess)
+            {
+                var isContact = contacts.Data.Any(c => 
+                    c.UserId == userId && c.ContactUserId == contactUserId);
+                
+                return Ok(new { isContact });
+            }
+            return BadRequest(new { message = contacts.Message });
         }
     }
 }

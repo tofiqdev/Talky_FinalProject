@@ -1,3 +1,4 @@
+using AutoMapper;
 using BLL.Abstrack;
 using BLL.Extension;
 using BLL.Validation;
@@ -5,6 +6,7 @@ using Core.Business;
 using Core.Result.Abstrack;
 using Core.Result.Concret;
 using DAL.Abstrack;
+using Entity.DataTransferObject.ContactDTO;
 using Entity.TableModel;
 using FluentValidation.Results;
 using System;
@@ -18,14 +20,18 @@ namespace BLL.Concret
     public class ContactManager : IContactService
     {
         private readonly IContactDAL _contactDAL;
+        private readonly IMapper _mapper;
 
-        public ContactManager(IContactDAL contactDAL)
+        public ContactManager(IContactDAL contactDAL, IMapper mapper)
         {
             _contactDAL = contactDAL;
+            _mapper = mapper;
         }
 
-        public IResult Add(Contact contact)
+        public IResult Add(ContactAddDTO contactAddDTO)
         {
+            var contact = _mapper.Map<Contact>(contactAddDTO);
+            
             ContactValidator validator = new ContactValidator();
             ValidationResult result = validator.Validate(contact);
 
@@ -60,24 +66,28 @@ namespace BLL.Concret
             return new SuccesResult("Kişi başarıyla silindi.");
         }
 
-        public IDataResult<List<Contact>> GetAll()
+        public IDataResult<List<ContactListDTO>> GetAll()
         {
             var data = _contactDAL.GetAll().ToList();
-            return new SuccessDataResult<List<Contact>>(data, "Kişiler listelendi.");
+            var dtoList = _mapper.Map<List<ContactListDTO>>(data);
+            return new SuccessDataResult<List<ContactListDTO>>(dtoList, "Kişiler listelendi.");
         }
 
-        public IDataResult<Contact> GetById(int id)
+        public IDataResult<ContactListDTO> GetById(int id)
         {
             var data = _contactDAL.Get(x => x.Id == id);
             if (data == null)
             {
-                return new ErrorDataResult<Contact>("Kişi bulunamadı.");
+                return new ErrorDataResult<ContactListDTO>("Kişi bulunamadı.");
             }
-            return new SuccessDataResult<Contact>(data, "Kişi getirildi.");
+            var dto = _mapper.Map<ContactListDTO>(data);
+            return new SuccessDataResult<ContactListDTO>(dto, "Kişi getirildi.");
         }
 
-        public IResult Update(Contact contact)
+        public IResult Update(ContactUpdateDTO contactUpdateDTO)
         {
+            var contact = _mapper.Map<Contact>(contactUpdateDTO);
+            
             ContactValidator validator = new ContactValidator();
             ValidationResult result = validator.Validate(contact);
 

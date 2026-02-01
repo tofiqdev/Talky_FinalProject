@@ -74,9 +74,7 @@ namespace Talky_API.Controllers
             if (result.IsSuccess)
             {
                 var users = result.Data.Where(u => 
-                    u.Username.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                    u.Name.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                    u.Email.Contains(q, StringComparison.OrdinalIgnoreCase)
+                    u.Username.Contains(q, StringComparison.OrdinalIgnoreCase)
                 ).ToList();
                 
                 var data = _mapper.Map<List<UserListDTO>>(users);

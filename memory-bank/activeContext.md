@@ -1,43 +1,35 @@
 # Active Context
 
 ## Şu Anki Odak
-✅ **Proje Netlify'a Deploy Edildi!** Backend local'de çalışıyor, ngrok ile internete açıldı, frontend Netlify'da production'da. Real-time mesajlaşma, grup yönetimi, ses mesajları, kullanıcı yetkilendirme sistemi, profil resmi yükleme, username/email güncelleme, story'lerde profil resimleri, mute/unmute komut sistemi, mute all özelliği, story özelliği, kullanıcı engelleme, mesaj gönderme sesi, emoji picker, dosya/resim gönderme, ChatsTab arama özelliği, özelleştirilmiş mute/unmute mesajları aktif. SignalR real-time mesajlaşma optimize edildi. **Netlify deployment tamamlandı, ngrok ile local backend'e bağlanıyor.**
+✅ **BackNtier Migration ve Tüm Sorunlar Çözüldü!** Backend (BackNtier/Talky_API) port 5135'te çalışıyor, frontend port 5173'te. AutoMapper navigation property sorunları düzeltildi, database index hatası giderildi, mesaj gönderimi çalışıyor. Telegram-like özellik eklendi: Arama sonucundan kullanıcı seçildiğinde Chats listesinde görünüyor.
 
 ## Son Değişiklikler
 
-### Netlify Deployment Tamamlandı ✅
-- ✅ Backend local'de çalışıyor (localhost:5282)
-- ✅ ngrok ile backend internete açıldı (https://a0f569cfa40e.ngrok-free.app)
-- ✅ Frontend Netlify'a deploy edildi (https://talkychat.netlify.app)
-- ✅ `.env.production` dosyası ngrok URL ile yapılandırıldı
-- ✅ Backend camelCase JSON desteği eklendi (PropertyNamingPolicy)
-- ✅ API endpoint'lerinde `/api` prefix sorunu düzeltildi
-- ✅ Tüm API endpoint'leri güncellendi (register, login, users, messages, calls, groups)
-- ✅ Production build ve deploy başarılı
-- ✅ Backend ve ngrok process'leri yönetiliyor
-- ✅ DEPLOYMENT_STATUS.md dokümantasyonu oluşturuldu
+### Telegram-like Özellik Eklendi ✅
+- ✅ Arama sonucundan kullanıcı seçildiğinde `users` listesine ekleniyor
+- ✅ Duplicate kontrol (aynı kullanıcı iki kez eklenmiyor)
+- ✅ Mesajlaşma başladığında kullanıcı Chats listesinde görünüyor
+- ✅ ChatsTab.tsx - `handleSelectSearchResult` fonksiyonu güncellendi
+- ✅ Telegram gibi çalışıyor: Ara → Seç → Mesajlaş → Chats'ta Görün
 
-### Mute/Unmute Sistem Mesajları Güncellendi ✅
-- ✅ Mute All mesajı: "Doktor bütün şəhərə narkoz vurdu... Hamı dərin yuxuya gedir."
-- ✅ Unmute All mesajı: "Narkozun təsiri keçdi! Gözünüzü açın və danışın, kim sağ qalıb?"
-- ✅ Emoji'ler kaldırıldı (encoding sorunları nedeniyle)
-- ✅ Azerbaycan Türkçesi karakterleri düzgün çalışıyor
-- ✅ Hem /muteall komutu hem de API endpoint'leri güncellendi
-- ✅ Yazım hataları düzeltildi (Dokptor → Doktor, Narkoszun → Narkozun)
+### Mesaj Gönderimi Sorunları Düzeltildi ✅
+- ✅ AutoMapper navigation property'leri ignore edildi
+- ✅ Message, GroupMessage, GroupMember, Group, Contact, Story, StoryView, BlockedUser, Call, User
+- ✅ Database'deki yanlış `idx_Name_Deleted` index'i kaldırıldı
+- ✅ Messages tablosunda unique constraint hatası giderildi
+- ✅ Mesaj gönderimi artık sorunsuz çalışıyor
 
-### ChatsTab Arama Özelliği Eklendi ✅
-- ✅ Ana ekranda (ChatsTab) arama çubuğu eklendi
-- ✅ Kullanıcı arama (minimum 2 karakter)
-- ✅ Backend API entegrasyonu (GET /api/users/search?q=term)
-- ✅ Mevcut sohbetleri filtreleme (direkt mesajlar + gruplar)
-- ✅ Arama sonuçları ayrı bölümde gösteriliyor (cyan vurgu)
-- ✅ Kullanıcı adı ve email'e göre arama
-- ✅ Arama sonucuna tıklayınca direkt sohbet açılıyor
-- ✅ Loading spinner (arama sırasında)
-- ✅ "No results found" mesajı
-- ✅ Smooth transitions ve hover efektleri
-- ✅ Header'daki gereksiz arama ikonu ve menü kaldırıldı
-- ✅ Sidebar header sadeleştirildi (logo + başlık)
+### BackNtier Migration Tamamlandı ✅
+- ✅ back/ klasörü silindi (eski monolitik yapı)
+- ✅ BackNtier/ ile devam (modern N-Tier mimari)
+- ✅ ContactManager DTO desteği eklendi (AutoMapper)
+- ✅ ContactController mapper kullanımı kaldırıldı (service zaten DTO döndürüyor)
+- ✅ Backend yeniden başlatıldı (port: 5135)
+- ✅ Vite config güncellendi (proxy: 5135)
+- ✅ Frontend yeniden başlatıldı
+- ✅ Build başarılı: 0 error, 0 warning
+- ✅ Database migration tamamlandı
+- ✅ 73 API endpoint hazır
 
 ### Profil Yönetimi Özellikleri Eklendi ✅
 - ✅ Profil resmi yükleme (base64, max 5MB)

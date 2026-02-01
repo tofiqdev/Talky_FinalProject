@@ -4,12 +4,9 @@ import Sidebar from '../components/sidebar/Sidebar';
 import ChatWindow from '../components/chat/ChatWindow';
 
 export default function ChatPage() {
-  const { selectedUser, selectedGroup, loadUsers, initializeSignalR, cleanup } = useChatStore();
+  const { selectedUser, selectedGroup, initializeSignalR, cleanup } = useChatStore();
 
   useEffect(() => {
-    // Load users from backend
-    loadUsers();
-
     // Initialize SignalR listeners
     initializeSignalR();
 
@@ -17,7 +14,7 @@ export default function ChatPage() {
     return () => {
       cleanup();
     };
-  }, [loadUsers, initializeSignalR, cleanup]);
+  }, [initializeSignalR, cleanup]);
 
   const hasActiveChat = selectedUser || selectedGroup;
 

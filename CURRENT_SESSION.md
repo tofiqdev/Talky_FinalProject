@@ -1,90 +1,115 @@
 # 🚀 Current Session Status
 
-**Tarih:** 26 Ocak 2026, 14:20
-**Durum:** ✅ TÜM SİSTEMLER ÇALIŞIYOR
+**Tarih:** 1 Şubat 2026
+**Durum:** ✅ TÜM SİSTEMLER ÇALIŞIYOR - BackNtier Migration Tamamlandı
 
 ---
 
 ## 📊 Çalışan Servisler
 
-### 1. Backend (Local)
+### 1. Backend (BackNtier - Local)
 - **Durum:** ✅ Çalışıyor
-- **URL:** http://localhost:5282
-- **Process ID:** 2
-- **Swagger:** http://localhost:5282/swagger
+- **URL:** http://localhost:5135
+- **Process ID:** 5
+- **Swagger:** http://localhost:5135/swagger
+- **Mimari:** N-Tier (Core → Entity → DAL → BLL → API)
 
-### 2. ngrok (Tunnel)
-- **Durum:** ✅ Çalışıyor
-- **Public URL:** https://69799141441d.ngrok-free.app
-- **Process ID:** 3
-- **Swagger:** https://69799141441d.ngrok-free.app/swagger
-- **Not:** İlk ziyarette "Visit Site" butonuna tıklayın
-
-### 3. Frontend (Development)
+### 2. Frontend (Development)
 - **Durum:** ✅ Çalışıyor
 - **Local URL:** http://localhost:5173
-- **Process ID:** 4
+- **Process ID:** 6
 - **Mode:** Development (Vite dev server)
+- **Proxy:** /api → http://localhost:5135
 
 ---
 
-## 🎯 Test Adımları
+## 🎯 BackNtier Migration Tamamlandı
 
-### Local Test (Development)
-1. Aç: http://localhost:5173
-2. Register/Login yap
-3. Mesajlaşmayı test et
-4. Tüm özellikler çalışıyor (local backend ile)
+### ✅ Yapılan İşlemler
+1. ✅ **back/** klasörü silindi (eski monolitik yapı)
+2. ✅ **BackNtier/** ile devam (modern N-Tier mimari)
+3. ✅ ContactManager DTO desteği eklendi
+4. ✅ ContactController mapper kullanımı kaldırıldı
+5. ✅ Backend yeniden başlatıldı (port: 5135)
+6. ✅ Vite config güncellendi (5135 portu)
+7. ✅ Frontend yeniden başlatıldı
 
-### ngrok Test (Production-like)
-1. Swagger'ı aç: https://69799141441d.ngrok-free.app/swagger
-2. "Visit Site" butonuna tıkla (ilk ziyaret)
-3. API endpoint'lerini test et
-4. Frontend'den ngrok URL'ine istek atılabilir
+### ✅ BackNtier Özellikleri
+- **N-Tier Architecture**: 5 katman (Core, Entity, DAL, BLL, API)
+- **Repository Pattern**: Generic + Specific repositories
+- **Result Pattern**: IResult, IDataResult<T>
+- **DTO Pattern**: AddDTO, UpdateDTO, ListDTO
+- **FluentValidation**: Input validation
+- **AutoMapper**: Entity ↔ DTO mapping
+- **JWT Authentication**: Bearer token
+- **SignalR**: Real-time messaging
+- **Build Status**: 0 error, 0 warning
+
+### ✅ API Endpoints (73 total)
+- Auth: 4 endpoints
+- Users: 8 endpoints
+- Messages: 5 endpoints
+- Groups: 16 endpoints
+- Stories: 6 endpoints
+- Calls: 5 endpoints
+- Contacts: 6 endpoints
+- BlockedUsers: 7 endpoints
+- GroupMember: 5 endpoints
+- GroupMessage: 5 endpoints
+- StoryView: 5 endpoints
+- SignalR Hub: 1 hub
 
 ---
 
 ## 🔧 Önemli Bilgiler
 
-### ngrok URL Değişti
-Eski URL: `https://a0f569cfa40e.ngrok-free.app`
-Yeni URL: `https://69799141441d.ngrok-free.app`
+### Port Değişikliği
+- **Eski Backend**: http://localhost:5282 (back/TalkyAPI)
+- **Yeni Backend**: http://localhost:5135 (BackNtier/Talky_API)
+- **Frontend Proxy**: Güncellendi ✅
 
-`.env.production` dosyası güncellendi ✅
+### Database
+- **Connection**: (localdb)\MSSQLLocalDB
+- **Database**: TalkyDB
+- **Migration**: Tamamlandı ✅
 
-### Netlify Deploy Silindi
-Netlify deployment kaldırıldı. Şu anda sadece local development çalışıyor.
-
-Eğer tekrar Netlify'a deploy etmek isterseniz:
-```bash
-npm run build
-netlify deploy --prod --dir=dist
-```
+### Telegram-like Contact Sistemi
+- ✅ User ara → mesajlaşmaya başla → Direct Messages'da görünsün
+- ✅ Contact'a ekle butonu olmalı
+- ✅ Contact eklenmeden sadece o user görünmeli
+- ✅ Contact sistemi backend'de hazır
+- ✅ Frontend entegrasyonu gerekli
 
 ---
 
-## 📝 Process Yönetimi
+## 📝 Sonraki Adımlar
 
-### Process'leri Kontrol Et
-```powershell
-# Çalışan process'leri görmek için
-Get-Process | Where-Object {$_.ProcessName -like "*dotnet*" -or $_.ProcessName -like "*ngrok*" -or $_.ProcessName -like "*node*"}
-```
+### 1. Frontend Contact Entegrasyonu (30 dakika)
+- [ ] Contact API'sini frontend'e entegre et
+- [ ] "Add to Contacts" butonu ekle
+- [ ] Contact kontrolü yap
+- [ ] ChatsTab'da sadece contact'ları göster
 
-### Process'leri Durdur
-Backend ve ngrok process'leri Kiro tarafından yönetiliyor.
-Frontend'i durdurmak için: Ctrl+C (terminal'de)
+### 2. Test (30 dakika)
+- [ ] Backend endpoint'lerini test et (Swagger)
+- [ ] Frontend'i test et (http://localhost:5173)
+- [ ] Contact sistemi test et
+- [ ] Real-time mesajlaşma test et
+
+### 3. Deployment (opsiyonel)
+- [ ] ngrok ile backend'i internete aç
+- [ ] Netlify'a frontend deploy et
+- [ ] Environment variables güncelle
 
 ---
 
 ## 🎉 Hazır!
 
-Tüm sistemler çalışıyor ve test edilmeye hazır!
+Tüm sistemler çalışıyor ve BackNtier migration tamamlandı!
 
 **Test URL'leri:**
 - Frontend (Local): http://localhost:5173
-- Backend (Local): http://localhost:5282
-- Backend (Public): https://69799141441d.ngrok-free.app
-- Swagger (Public): https://69799141441d.ngrok-free.app/swagger
+- Backend (Local): http://localhost:5135
+- Swagger (Local): http://localhost:5135/swagger
 
 Artık uygulamayı kullanabilirsiniz! 🚀

@@ -9,7 +9,7 @@ import type { Story } from '../../types/story';
 import type { User } from '../../types/user';
 
 export default function ChatsTab() {
-  const { users, groups, selectedUser, selectedGroup, setSelectedUser, setSelectedGroup, loadGroups } = useChatStore();
+  const { users, groups, messages, selectedUser, selectedGroup, setSelectedUser, setSelectedGroup, loadGroups } = useChatStore();
   const { user: currentUser } = useAuthStore();
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [showCreateStory, setShowCreateStory] = useState(false);
@@ -85,6 +85,14 @@ export default function ChatsTab() {
   };
 
   const handleSelectSearchResult = (user: User) => {
+    // Add user to users list if not already there
+    const userExists = users.some(u => u.id === user.id);
+    if (!userExists) {
+      useChatStore.setState((state) => ({
+        users: [...state.users, user]
+      }));
+    }
+    
     setSelectedUser(user);
     setSearchQuery('');
     setSearchResults([]);
@@ -133,12 +141,18 @@ export default function ChatsTab() {
     return `${diffDays}D`;
   };
 
+  // Filter users based on messages - only show users we've chatted with
+  const usersWithMessages = users.filter(user => {
+    return messages.some(msg => 
+      msg.senderId === user.id || msg.receiverId === user.id
+    );
+  });
+
   // Filter users and groups based on search query
   const filteredUsers = searchQuery.trim().length === 0 
-    ? users 
-    : users.filter(user => 
-        user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchQuery.toLowerCase())
+    ? usersWithMessages 
+    : usersWithMessages.filter(user => 
+        user.username.toLowerCase().includes(searchQuery.toLowerCase())
       );
 
   const filteredGroups = searchQuery.trim().length === 0
