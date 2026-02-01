@@ -17,6 +17,7 @@
 - ✅ Migration: FixAvatarMaxLength uygulandı
 - ✅ Entity tracking conflict çözüldü (UserManager.Update refactor)
 - ✅ Duplicate name kontrolü düzeltildi (kendi ID'sini exclude ediyor)
+- ✅ MessageList undefined senderUsername hatası düzeltildi (optional chaining)
 
 ### Entity Tracking Sorunları Çözüldü ✅
 - ✅ UserManager.Update() - Database'den fresh entity çekiliyor

@@ -288,7 +288,7 @@ export default function MessageList() {
             >
               {!isSent && (
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 mr-2 flex-shrink-0 flex items-center justify-center text-white text-sm font-semibold">
-                  {msg.senderUsername.charAt(0).toUpperCase()}
+                  {msg.senderUsername?.charAt(0).toUpperCase() || 'U'}
                 </div>
               )}
               <div className={`max-w-xl ${isSent ? 'ml-12' : 'mr-12'}`}>
