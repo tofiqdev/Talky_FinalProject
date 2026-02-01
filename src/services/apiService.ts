@@ -238,3 +238,60 @@ export const callsApi = {
     return response.json();
   },
 };
+
+// Movie Rooms API
+export const movieroomsApi = {
+  get: async (endpoint: string) => {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      headers: createHeaders(true),
+    });
+
+    if (!response.ok) {
+      throw new Error('Request failed');
+    }
+
+    return response.json();
+  },
+
+  post: async (endpoint: string, data: any) => {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: 'POST',
+      headers: createHeaders(true),
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      let errorMessage = 'Request failed';
+      try {
+        const text = await response.text();
+        if (text) {
+          try {
+            const error = JSON.parse(text);
+            errorMessage = error.message || errorMessage;
+          } catch {
+            errorMessage = text;
+          }
+        }
+      } catch {
+        // Ignore
+      }
+      throw new Error(errorMessage);
+    }
+
+    return response.json();
+  },
+
+  put: async (endpoint: string, data: any) => {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: 'PUT',
+      headers: createHeaders(true),
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error('Request failed');
+    }
+
+    return response.json();
+  },
+};

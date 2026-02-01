@@ -1,9 +1,69 @@
 # Active Context
 
 ## Şu Anki Odak
-✅ **Profil ve Grup Avatar Yükleme Özellikleri Tamamlandı!** Backend (BackNtier/Talky_API) port 5135'te çalışıyor, frontend port 5173'te. Kullanıcılar artık profil resimlerini ve grup avatarlarını yükleyebiliyorlar. Base64 formatında resimler database'e kaydediliyor (nvarchar(max)).
+✅ **Film Gecesi (Movie Room) Özelliği Tamamlandı!** Backend (BackNtier/Talky_API) port 5135'te çalışıyor, frontend port 5173'te. Kullanıcılar YouTube'dan film odaları oluşturabilir, arkadaşlarıyla senkronize bir şekilde film izleyebilir ve aynı anda sohbet edebilirler.
 
 ## Son Değişiklikler (1 Şubat 2026)
+
+### 🎬 Film Gecesi (Movie Room) Özelliği Eklendi ✅
+- ✅ **Backend Entity Models**: MovieRoom, MovieRoomParticipant, MovieRoomMessage
+- ✅ **Database Migration**: AddMovieRoomFeature uygulandı
+- ✅ **N-Tier Architecture**: DAL, BLL, API katmanları
+- ✅ **MovieRoomHub**: SignalR hub ile real-time senkronizasyon
+- ✅ **API Endpoints**: 11 endpoint (CRUD + join/leave + playback sync + messages)
+- ✅ **Frontend Components**: MoviesTab, CreateMovieRoomModal, MovieRoomWindow
+- ✅ **YouTube Integration**: react-youtube ile video player
+- ✅ **Senkronize Oynatma**: Sadece oda sahibi kontrole sahip
+- ✅ **Real-time Chat**: Film izlerken mesajlaşma
+- ✅ **Katılımcı Listesi**: Online/offline durumları
+- ✅ **Video Overlay**: Non-owner'lar için tıklama engelleme
+- ✅ **Debug Logging**: Kapsamlı console ve backend log'ları
+
+#### Film Gecesi Özellikleri:
+- ✅ Film odası oluşturma (YouTube URL ile)
+- ✅ Aktif odaları listeleme
+- ✅ Odaya katılma/ayrılma
+- ✅ **Senkronize video oynatma** (play/pause/seek)
+- ✅ **Sadece oda sahibi kontrole sahip**
+- ✅ Yan tarafta real-time chat
+- ✅ Katılımcı listesi (online/offline status)
+- ✅ YouTube thumbnail preview
+- ✅ Oynatma durumu gösterimi
+- ✅ "👑 Oda Sahibi" badge'i
+- ✅ "🔄 Senkronize ediliyor..." göstergesi
+- ✅ Video overlay (non-owner'lar için)
+
+#### Film Gecesi API Endpoints:
+- GET /api/movierooms - Tüm odalar
+- GET /api/movierooms/active - Aktif odalar
+- GET /api/movierooms/{id} - Oda detayı
+- POST /api/movierooms - Oda oluştur
+- PUT /api/movierooms/{id} - Oda güncelle
+- DELETE /api/movierooms/{id} - Oda sil
+- POST /api/movierooms/{id}/join - Odaya katıl
+- POST /api/movierooms/{id}/leave - Odadan ayrıl
+- PUT /api/movierooms/{id}/playback - Oynatma durumu güncelle
+- GET /api/movierooms/{id}/messages - Oda mesajları
+- POST /api/movierooms/{id}/messages - Mesaj gönder
+
+#### Film Gecesi SignalR Hub:
+- `/movieRoomHub` - SignalR endpoint
+- `JoinMovieRoom(roomId)` - Odaya katıl
+- `LeaveMovieRoom(roomId)` - Odadan ayrıl
+- `SyncPlayback(roomId, currentTime, isPlaying)` - Video senkronizasyonu (sadece owner)
+- `PlaybackSync` event - Tüm katılımcılara broadcast
+- `UserJoined` / `UserLeft` events - Katılımcı değişiklikleri
+- `ReceiveRoomMessage` event - Yeni mesaj bildirimi
+
+#### Film Gecesi Teknik Detaylar:
+- **Backend**: MovieRoomHub (SignalR), MovieRoomManager, MovieRoomMessageManager
+- **Frontend**: movieRoomSignalrService, MovieRoomWindow, MoviesTab
+- **Senkronizasyon**: Owner'ın her aksiyonu (play/pause/seek) tüm katılımcılara broadcast
+- **Video Kontrolü**: Sadece owner için aktif, diğerleri için devre dışı
+- **Overlay**: Non-owner'lar için transparent overlay ile tıklama engelleme
+- **JWT Auth**: SignalR için JWT token desteği (/movieRoomHub)
+- **Logging**: Kapsamlı debug log'ları (frontend console + backend)
+- **Auto-sync**: 1 saniyeden fazla fark varsa otomatik senkronizasyon
 
 ### Profil ve Grup Avatar Yükleme Eklendi ✅
 - ✅ User ve Group Avatar kolonları nvarchar(max) olarak güncellendi
@@ -322,6 +382,12 @@
 
 ## Sonraki Adımlar
 
+### Film Gecesi İyileştirmeleri
+- ⏳ Video senkronizasyon test ve debug
+- ⏳ Seek event handling iyileştirmesi
+- ⏳ Buffering durumu senkronizasyonu
+- ⏳ Video ended durumu handling
+
 ### Test ve İyileştirmeler
 - ✅ @ Mention özelliği (grup mesajlarında)
 - ✅ Story özelliği (oluşturma, görüntüleme, gruplama)
@@ -332,6 +398,7 @@
 - ✅ SignalR mesajlaşma optimizasyonu
 - ✅ Emoji picker entegrasyonu
 - ✅ Dosya/resim gönderme
+- ✅ Film Gecesi (Movie Room) özelliği
 - ⏳ Story replies (story'lere cevap verme)
 - ⏳ Story reactions (emoji ile tepki)
 - ⏳ Real-time grup mesajları (SignalR ile - şu an REST API)
@@ -343,12 +410,12 @@
 - ⏳ Video/Voice call functionality (UI hazır, backend gerekli)
 
 ## Aktif Kararlar
-- **Component Structure**: Sidebar yönetir tüm tab'ları
+- **Component Structure**: Sidebar yönetir tüm tab'ları (5 tab: Chats, Calls, People, Movies, Settings)
 - **Navigation**: Bottom navigation ile tab switching
 - **Backend**: LocalDB kullanılıyor - (localdb)\MSSQLLocalDB
 - **Database**: Code First yaklaşımı, EF Core migrations
 - **State Management**: Zustand (basit ve etkili)
-- **Real-time**: SignalR (direkt mesajlar), REST API (grup mesajları)
+- **Real-time**: SignalR (direkt mesajlar, film odaları), REST API (grup mesajları)
 - **Authentication**: JWT Bearer token
 - **Contact System**: Sadece contact'lar görünüyor (ölçeklenebilir)
 - **Story Visibility**: Sadece contact'ların story'leri
@@ -362,6 +429,8 @@
 - **Story System**: 24-hour expiry, view tracking, user grouping
 - **Story UI**: CreateStoryModal, ViewStoryModal, progress bars
 - **Story Grouping**: Tek avatar per user, story count badge
+- **Movie Room**: YouTube integration, SignalR sync, owner-only control
+- **Movie Room Sync**: Sadece oda sahibi videoyu kontrol eder, diğerleri otomatik sync
 - **Styling**: Tailwind CSS 3, referans tasarıma %100 uyumlu
 - **Password**: BCrypt hashing
 - **Animations**: CSS keyframes + Tailwind transitions

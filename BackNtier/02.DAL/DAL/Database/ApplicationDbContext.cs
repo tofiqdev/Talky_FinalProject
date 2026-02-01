@@ -35,6 +35,9 @@ namespace DAL.Database
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<Story> Stories { get; set; }
         public DbSet<StoryView> StoryViews { get; set; }
+        public DbSet<MovieRoom> MovieRooms { get; set; }
+        public DbSet<MovieRoomParticipant> MovieRoomParticipants { get; set; }
+        public DbSet<MovieRoomMessage> MovieRoomMessages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -114,6 +117,9 @@ namespace DAL.Database
             modelBuilder.Entity<Contact>().HasQueryFilter(c => c.Deleted == 0);
             modelBuilder.Entity<Story>().HasQueryFilter(s => s.Deleted == 0);
             modelBuilder.Entity<StoryView>().HasQueryFilter(sv => sv.Deleted == 0);
+            modelBuilder.Entity<MovieRoom>().HasQueryFilter(mr => mr.Deleted == 0);
+            modelBuilder.Entity<MovieRoomParticipant>().HasQueryFilter(mrp => mrp.Deleted == 0);
+            modelBuilder.Entity<MovieRoomMessage>().HasQueryFilter(mrm => mrm.Deleted == 0);
             #endregion
         }
     }

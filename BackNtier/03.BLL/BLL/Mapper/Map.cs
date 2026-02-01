@@ -10,6 +10,7 @@ using Entity.DataTransferObject.MessageDTO;
 using Entity.DataTransferObject.StoryDTO;
 using Entity.DataTransferObject.StoryViewDTO;
 using Entity.DataTransferObject.UserDTO;
+using Entity.DataTransferObject.MovieRoomDTO;
 using Entity.TableModel;
 using System;
 using System.Collections.Generic;
@@ -130,6 +131,25 @@ namespace BLL.Mapper
             CreateMap<StoryViewAddDTO, StoryView>()
                 .ForMember(dest => dest.Story, opt => opt.Ignore())
                 .ForMember(dest => dest.User, opt => opt.Ignore())
+                .ReverseMap();
+
+            CreateMap<MovieRoom, MovieRoomListDTO>().ReverseMap();
+            CreateMap<MovieRoomAddDTO, MovieRoom>()
+                .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
+                .ForMember(dest => dest.Participants, opt => opt.Ignore())
+                .ForMember(dest => dest.Messages, opt => opt.Ignore())
+                .ReverseMap();
+            CreateMap<MovieRoomUpdateDTO, MovieRoom>()
+                .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
+                .ForMember(dest => dest.Participants, opt => opt.Ignore())
+                .ForMember(dest => dest.Messages, opt => opt.Ignore())
+                .ReverseMap();
+
+            CreateMap<MovieRoomParticipant, MovieRoomParticipantListDTO>().ReverseMap();
+            CreateMap<MovieRoomMessage, MovieRoomMessageListDTO>().ReverseMap();
+            CreateMap<MovieRoomMessageAddDTO, MovieRoomMessage>()
+                .ForMember(dest => dest.MovieRoom, opt => opt.Ignore())
+                .ForMember(dest => dest.Sender, opt => opt.Ignore())
                 .ReverseMap();
         }
 

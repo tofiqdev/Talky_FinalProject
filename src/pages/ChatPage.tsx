@@ -1,10 +1,13 @@
 import { useEffect } from 'react';
 import { useChatStore } from '../store/chatStore';
+import { useMovieRoomStore } from '../store/movieRoomStore';
 import Sidebar from '../components/sidebar/Sidebar';
 import ChatWindow from '../components/chat/ChatWindow';
+import MovieRoomWindow from '../components/movie/MovieRoomWindow';
 
 export default function ChatPage() {
   const { selectedUser, selectedGroup, initializeSignalR, cleanup } = useChatStore();
+  const { selectedRoom } = useMovieRoomStore();
 
   useEffect(() => {
     // Initialize SignalR listeners
@@ -17,11 +20,14 @@ export default function ChatPage() {
   }, [initializeSignalR, cleanup]);
 
   const hasActiveChat = selectedUser || selectedGroup;
+  const hasActiveRoom = selectedRoom;
 
   return (
     <div className="h-screen flex bg-white">
       <Sidebar />
-      {hasActiveChat ? (
+      {hasActiveRoom ? (
+        <MovieRoomWindow />
+      ) : hasActiveChat ? (
         <ChatWindow />
       ) : (
         <div className="flex-1 flex items-center justify-center bg-gray-50">

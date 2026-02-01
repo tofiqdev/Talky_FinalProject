@@ -37,6 +37,9 @@ builder.Services.AddScoped<IBlockedUserDAL, BlockedUserDAL>();
 builder.Services.AddScoped<IContactDAL, ContactDAL>();
 builder.Services.AddScoped<IStoryDAL, StoryDAL>();
 builder.Services.AddScoped<IStoryViewDAL, StoryViewDAL>();
+builder.Services.AddScoped<IMovieRoomDAL, MovieRoomDAL>();
+builder.Services.AddScoped<IMovieRoomParticipantDAL, MovieRoomParticipantDAL>();
+builder.Services.AddScoped<IMovieRoomMessageDAL, MovieRoomMessageDAL>();
 
 // BLL Services
 builder.Services.AddScoped<IUserService, UserManager>();
@@ -49,6 +52,8 @@ builder.Services.AddScoped<IBlockedUserService, BlockedUserManager>();
 builder.Services.AddScoped<IContactService, ContactManager>();
 builder.Services.AddScoped<IStoryService, StoryManager>();
 builder.Services.AddScoped<IStoryViewService, StoryViewManager>();
+builder.Services.AddScoped<IMovieRoomService, MovieRoomManager>();
+builder.Services.AddScoped<IMovieRoomMessageService, MovieRoomMessageManager>();
 
 // JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -81,7 +86,8 @@ builder.Services.AddAuthentication(options =>
             var accessToken = context.Request.Query["access_token"];
             var path = context.HttpContext.Request.Path;
 
-            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatHub"))
+            if (!string.IsNullOrEmpty(accessToken) && 
+                (path.StartsWithSegments("/chatHub") || path.StartsWithSegments("/movieRoomHub")))
             {
                 context.Token = accessToken;
             }
@@ -175,5 +181,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<ChatHub>("/chatHub");
+app.MapHub<MovieRoomHub>("/movieRoomHub");
 
 app.Run();
