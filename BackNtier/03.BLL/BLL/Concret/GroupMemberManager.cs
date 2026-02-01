@@ -31,8 +31,16 @@ namespace BLL.Concret
 
         public IResult Update(GroupMemberUpdateDTO dto)
         {
-            var entity = _mapper.Map<GroupMember>(dto);
-            _groupMemberDAL.Update(entity);
+            // Get the existing entity from database
+            var existingEntity = _groupMemberDAL.Get(x => x.Id == dto.Id && x.Deleted == 0);
+            if (existingEntity == null)
+                return new ErrorResult("Group member not found");
+
+            // Update only the fields that can be changed
+            existingEntity.IsAdmin = dto.IsAdmin;
+            existingEntity.IsMuted = dto.IsMuted;
+            
+            _groupMemberDAL.Update(existingEntity);
             return new SuccesResult("Group member updated successfully");
         }
 

@@ -69,8 +69,12 @@ namespace BLL.Mapper
                 .ForMember(dest => dest.Group, opt => opt.Ignore())
                 .ReverseMap();
             CreateMap<GroupMember, GroupMemberListDTO>().ReverseMap();
+            CreateMap<GroupMemberListDTO, GroupMemberUpdateDTO>().ReverseMap();
 
-            CreateMap<Group, GroupListDTO>().ReverseMap();
+            CreateMap<Group, GroupListDTO>()
+                .ForMember(dest => dest.CreatedByUsername, opt => opt.MapFrom(src => src.CreatedBy.Username))
+                .ReverseMap();
+            CreateMap<GroupListDTO, GroupUpdateDTO>().ReverseMap();
             CreateMap<GroupAddDTO, Group>()
                 .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
                 .ForMember(dest => dest.Members, opt => opt.Ignore())

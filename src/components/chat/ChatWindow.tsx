@@ -9,6 +9,10 @@ import EmojiPicker, { type EmojiClickData } from 'emoji-picker-react';
 export default function ChatWindow() {
   const { selectedUser, selectedGroup, sendMessage, sendGroupMessage, loadGroups, loadGroupMessages } = useChatStore();
   const { user } = useAuthStore();
+  
+  // Debug log
+  console.log('ChatWindow render:', { selectedUser, selectedGroup });
+  
   const [message, setMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -311,88 +315,26 @@ export default function ChatWindow() {
     setMessage('');
     
     try {
-      // Check for commands in group chat
+      // Send message (backend will handle commands)
       if (selectedGroup) {
-        // Command pattern: @username /mute or @username /unmute
-        const commandMatch = messageToSend.match(/^@(\w+)\s+\/(mute|unmute)$/i);
+        await sendGroupMessage(selectedGroup.id, messageToSend);
         
-        if (commandMatch) {
-          const [, targetUsername, command] = commandMatch;
-          
-          // Check if user has permission (owner or admin)
-          const currentMember = selectedGroup.members.find(m => m.userId === user?.id);
-          const isOwner = user?.id === selectedGroup.createdById;
-          const isAdmin = currentMember?.isAdmin || false;
-          
-          if (!isOwner && !isAdmin) {
-            alert('Only group owner and admins can use this command');
-            setIsSending(false);
-            return;
-          }
-          
-          // Find target member
-          const targetMember = selectedGroup.members.find(
-            m => m.username.toLowerCase() === targetUsername.toLowerCase()
-          );
-          
-          if (!targetMember) {
-            alert(`User @${targetUsername} not found in this group`);
-            setIsSending(false);
-            return;
-          }
-          
-          // Cannot mute owner
-          if (targetMember.userId === selectedGroup.createdById) {
-            alert('Cannot mute the group owner');
-            setIsSending(false);
-            return;
-          }
-          
-          // Execute command
-          try {
-            const token = localStorage.getItem('token');
-            const endpoint = command.toLowerCase() === 'mute' ? 'mute' : 'unmute';
-            const response = await fetch(`/api/groups/${selectedGroup.id}/members/${targetMember.userId}/${endpoint}`, {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${token}`
-              }
-            });
-            
-            if (!response.ok) {
-              const error = await response.text();
-              throw new Error(error);
-            }
-            
-            // Reload group to get updated member status and system message
-            await loadGroups();
-            
-            // Reload group messages to show system message
-            if (selectedGroup) {
-              await loadGroupMessages(selectedGroup.id);
-            }
-            
-            setIsSending(false);
-            return;
-          } catch (error) {
-            console.error(`Failed to ${command} user:`, error);
-            alert(`Failed to ${command} user: ${error instanceof Error ? error.message : 'Unknown error'}`);
-            setIsSending(false);
-            return;
-          }
+        // If it's a command, reload group data
+        if (messageToSend.startsWith('/') || messageToSend.startsWith('@')) {
+          await loadGroups();
+          await loadGroupMessages(selectedGroup.id);
         }
         
-        // Regular message
-        await sendGroupMessage(selectedGroup.id, messageToSend);
-        playMessageSound(); // Play sound after sending
+        playMessageSound();
       } else if (selectedUser) {
         await sendMessage(selectedUser.id, messageToSend);
-        playMessageSound(); // Play sound after sending
+        playMessageSound();
       }
     } catch (error) {
       console.error('Failed to send message:', error);
       // Restore message on error
       setMessage(messageToSend);
+      alert(error instanceof Error ? error.message : 'Failed to send message');
     } finally {
       setIsSending(false);
     }

@@ -1,23 +1,42 @@
 # Active Context
 
 ## Şu Anki Odak
-✅ **BackNtier Migration ve Tüm Sorunlar Çözüldü!** Backend (BackNtier/Talky_API) port 5135'te çalışıyor, frontend port 5173'te. AutoMapper navigation property sorunları düzeltildi, database index hatası giderildi, mesaj gönderimi çalışıyor. Telegram-like özellik eklendi: Arama sonucundan kullanıcı seçildiğinde Chats listesinde görünüyor.
+✅ **Grup Mesajlaşma Komutları ve Entity Tracking Sorunları Çözüldü!** Backend (BackNtier/Talky_API) port 5135'te çalışıyor, frontend port 5173'te. Grup tıklama beyaz ekran sorunu düzeltildi (GroupListDTO'ya Members array eklendi). Entity tracking conflict'leri çözüldü (Update metodlarında database'den entity çekiliyor). Tüm grup komutları çalışıyor: /muteall, /unmuteall, @username /mute, @username /unmute.
 
-## Son Değişiklikler
+## Son Değişiklikler (1 Şubat 2026)
 
-### Telegram-like Özellik Eklendi ✅
+### Grup Tıklama Beyaz Ekran Sorunu Düzeltildi ✅
+- ✅ GroupListDTO'ya Members array eklendi (List<GroupMemberListDTO>)
+- ✅ GroupMemberListDTO'ya Username, Avatar, IsOnline field'ları eklendi
+- ✅ GroupsController GetAll() ve GetById() metodları members'ı dolduruyor
+- ✅ Her member için user bilgileri (username, avatar, online status) ekleniyor
+- ✅ CreatedByName → CreatedByUsername olarak düzeltildi
+- ✅ AutoMapper mapping'leri eklendi (GroupListDTO ↔ GroupUpdateDTO, GroupMemberListDTO ↔ GroupMemberUpdateDTO)
+- ✅ Grup tıklandığında artık mesajlaşma ekranı açılıyor
+
+### Entity Tracking Conflict Sorunları Düzeltildi ✅
+- ✅ GroupMemberManager.Update() - Database'den entity çekiliyor, sonra güncelleniyor
+- ✅ GroupManager.Update() - Database'den entity çekiliyor, sonra güncelleniyor
+- ✅ "Another instance with the same key value is already being tracked" hatası çözüldü
+- ✅ Mapper yerine manuel field update kullanılıyor
+- ✅ Duplicate name check sadece name değiştiğinde yapılıyor
+
+### Grup Komutları Düzeltildi ✅
+- ✅ `/muteall` - Tüm grubu sustur (çalışıyor)
+- ✅ `/unmuteall` - Tüm grubun susturmasını kaldır (çalışıyor)
+- ✅ `@username /mute` - Belirli kullanıcıyı sustur (çalışıyor)
+- ✅ `@username /unmute` - Belirli kullanıcının susturmasını kaldır (çalışıyor)
+- ✅ Frontend'deki özel command handling kaldırıldı - Tüm komutlar backend'e gönderiliyor
+- ✅ Error handling iyileştirildi - Backend'den gelen hata mesajları düzgün gösteriliyor
+- ✅ Komut sonrası otomatik reload - Grup ve mesajlar yeniden yükleniyor
+- ✅ GroupUpdateDTO field'ları manuel oluşturuluyor (entity tracking conflict önleniyor)
+- ✅ GroupMemberUpdateDTO field'ları manuel oluşturuluyor (entity tracking conflict önleniyor)
+
+### Telegram-like Özellik ✅
 - ✅ Arama sonucundan kullanıcı seçildiğinde `users` listesine ekleniyor
 - ✅ Duplicate kontrol (aynı kullanıcı iki kez eklenmiyor)
 - ✅ Mesajlaşma başladığında kullanıcı Chats listesinde görünüyor
-- ✅ ChatsTab.tsx - `handleSelectSearchResult` fonksiyonu güncellendi
 - ✅ Telegram gibi çalışıyor: Ara → Seç → Mesajlaş → Chats'ta Görün
-
-### Mesaj Gönderimi Sorunları Düzeltildi ✅
-- ✅ AutoMapper navigation property'leri ignore edildi
-- ✅ Message, GroupMessage, GroupMember, Group, Contact, Story, StoryView, BlockedUser, Call, User
-- ✅ Database'deki yanlış `idx_Name_Deleted` index'i kaldırıldı
-- ✅ Messages tablosunda unique constraint hatası giderildi
-- ✅ Mesaj gönderimi artık sorunsuz çalışıyor
 
 ### BackNtier Migration Tamamlandı ✅
 - ✅ back/ klasörü silindi (eski monolitik yapı)

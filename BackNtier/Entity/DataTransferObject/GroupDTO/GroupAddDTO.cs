@@ -13,5 +13,6 @@ namespace Entity.DataTransferObject.GroupDTO
         public string? Description { get; set; }
         public string? Avatar { get; set; }
         public int CreatedById { get; set; }
+        public List<int>? MemberIds { get; set; }
     }
 }

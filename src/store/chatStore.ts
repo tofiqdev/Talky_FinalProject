@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import type { Message } from '../types/message';
 import type { User } from '../types/user';
 import type { Group } from '../types/group';
@@ -32,15 +33,17 @@ interface ChatState {
   cleanup: () => void;
 }
 
-export const useChatStore = create<ChatState>((set, get) => ({
-  messages: [],
-  users: [],
-  groups: [],
-  calls: [],
-  selectedUser: null,
-  selectedGroup: null,
-  isLoading: false,
-  error: null,
+export const useChatStore = create<ChatState>()(
+  persist(
+    (set, get) => ({
+      messages: [],
+      users: [],
+      groups: [],
+      calls: [],
+      selectedUser: null,
+      selectedGroup: null,
+      isLoading: false,
+      error: null,
 
   loadUsers: async () => {
     set({ isLoading: true, error: null });
@@ -191,7 +194,17 @@ export const useChatStore = create<ChatState>((set, get) => ({
         body: JSON.stringify(content)
       });
       
-      if (!response.ok) throw new Error('Failed to send group message');
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage = 'Failed to send group message';
+        try {
+          const errorJson = JSON.parse(errorText);
+          errorMessage = errorJson.message || errorMessage;
+        } catch {
+          errorMessage = errorText || errorMessage;
+        }
+        throw new Error(errorMessage);
+      }
       
       const groupMessage = await response.json();
       
@@ -310,5 +323,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
     signalrService.offUserOnline();
     signalrService.offUserOffline();
   },
-}));
+}),
+    {
+      name: 'chat-storage',
+      partialize: (state) => ({
+        users: state.users,
+        groups: state.groups,
+      }),
+    }
+  )
+);
 

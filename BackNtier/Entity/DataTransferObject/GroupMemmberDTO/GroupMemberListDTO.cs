@@ -11,8 +11,11 @@ namespace Entity.DataTransferObject.GroupMenmberDTO
         public int Id { get; set; }
         public int GroupId { get; set; }
         public int UserId { get; set; }
+        public string Username { get; set; }
+        public string? Avatar { get; set; }
         public bool IsAdmin { get; set; }
         public bool IsMuted { get; set; }
+        public bool IsOnline { get; set; }
         public DateTime JoinedAt { get; set; }
     }
 

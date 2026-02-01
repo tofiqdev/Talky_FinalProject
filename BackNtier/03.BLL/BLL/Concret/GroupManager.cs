@@ -64,20 +64,32 @@ namespace BLL.Concret
 
         public IResult Update(GroupUpdateDTO groupUpdateDTO)
         {
-            var groupMapper = _mapper.Map<Group>(groupUpdateDTO);
+            // Get the existing entity from database
+            var existingGroup = _groupDAL.Get(x => x.Id == groupUpdateDTO.Id && x.Deleted == 0);
+            if (existingGroup == null)
+                return new ErrorResult("Group not found");
+
+            // Update only the fields that can be changed
+            existingGroup.Name = groupUpdateDTO.Name;
+            existingGroup.Description = groupUpdateDTO.Description;
+            existingGroup.Avatar = groupUpdateDTO.Avatar;
+            existingGroup.IsMutedForAll = groupUpdateDTO.IsMutedForAll;
 
             var validateValidator = new GroupValidator();
-            var validationResult = validateValidator.Validate(groupMapper);
+            var validationResult = validateValidator.Validate(existingGroup);
 
             if (!validationResult.IsValid)
                 return new ErrorResult(validationResult.Errors.FluentErrorString());
 
-            var checkData = BusinessRules.Check(DuplicateUserName(groupMapper));
+            // Skip duplicate name check if name hasn't changed
+            if (existingGroup.Name != groupUpdateDTO.Name)
+            {
+                var checkData = BusinessRules.Check(DuplicateUserName(existingGroup));
+                if (!checkData.IsSuccess)
+                    return checkData;
+            }
 
-            if (!checkData.IsSuccess)
-                return checkData;
-
-            _groupDAL.Update(groupMapper);
+            _groupDAL.Update(existingGroup);
             return new SuccesResult("Updated Succesfully");
         }
 

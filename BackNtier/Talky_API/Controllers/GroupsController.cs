@@ -65,6 +65,37 @@ namespace Talky_API.Controllers
                     .ToList();
                 
                 var data = _mapper.Map<List<GroupListDTO>>(userGroups);
+                
+                // Get all users for member info
+                var allUsers = _userService.GetAll();
+                if (!allUsers.IsSuccess)
+                    return BadRequest(new { message = allUsers.Message });
+                
+                // Set member count and members for each group
+                foreach (var group in data)
+                {
+                    var groupMembers = allMembers.Data.Where(gm => gm.GroupId == group.Id).ToList();
+                    group.MemberCount = groupMembers.Count;
+                    
+                    // Map members with user info
+                    group.Members = groupMembers.Select(gm =>
+                    {
+                        var user = allUsers.Data.FirstOrDefault(u => u.Id == gm.UserId);
+                        return new Entity.DataTransferObject.GroupMenmberDTO.GroupMemberListDTO
+                        {
+                            Id = gm.Id,
+                            GroupId = gm.GroupId,
+                            UserId = gm.UserId,
+                            Username = user?.Username ?? "Unknown",
+                            Avatar = user?.Avatar,
+                            IsAdmin = gm.IsAdmin,
+                            IsMuted = gm.IsMuted,
+                            IsOnline = user?.IsOnline ?? false,
+                            JoinedAt = gm.JoinedAt
+                        };
+                    }).ToList();
+                }
+                
                 return Ok(data);
             }
             return BadRequest(new { message = result.Message });
@@ -89,6 +120,34 @@ namespace Talky_API.Controllers
             if (result.IsSuccess)
             {
                 var data = _mapper.Map<GroupListDTO>(result.Data);
+                
+                // Get all users for member info
+                var allUsers = _userService.GetAll();
+                if (!allUsers.IsSuccess)
+                    return BadRequest(new { message = allUsers.Message });
+                
+                // Set member count and members
+                var groupMembers = members.Data.Where(gm => gm.GroupId == id).ToList();
+                data.MemberCount = groupMembers.Count;
+                
+                // Map members with user info
+                data.Members = groupMembers.Select(gm =>
+                {
+                    var user = allUsers.Data.FirstOrDefault(u => u.Id == gm.UserId);
+                    return new Entity.DataTransferObject.GroupMenmberDTO.GroupMemberListDTO
+                    {
+                        Id = gm.Id,
+                        GroupId = gm.GroupId,
+                        UserId = gm.UserId,
+                        Username = user?.Username ?? "Unknown",
+                        Avatar = user?.Avatar,
+                        IsAdmin = gm.IsAdmin,
+                        IsMuted = gm.IsMuted,
+                        IsOnline = user?.IsOnline ?? false,
+                        JoinedAt = gm.JoinedAt
+                    };
+                }).ToList();
+                
                 return Ok(data);
             }
             return NotFound(new { message = result.Message });
@@ -105,6 +164,57 @@ namespace Talky_API.Controllers
             
             if (result.IsSuccess)
             {
+                // Get the created group
+                var allGroups = _groupService.GetAll();
+                if (allGroups.IsSuccess)
+                {
+                    var createdGroup = allGroups.Data
+                        .Where(g => g.CreatedById == userId)
+                        .OrderByDescending(g => g.CreatedAt)
+                        .FirstOrDefault();
+                    
+                    if (createdGroup != null)
+                    {
+                        // Add creator as owner/admin
+                        var ownerMember = new GroupMemberAddDTO
+                        {
+                            GroupId = createdGroup.Id,
+                            UserId = userId,
+                            IsAdmin = true
+                        };
+                        _groupMemberService.Add(ownerMember);
+                        
+                        // Add selected members
+                        if (groupAddDTO.MemberIds != null && groupAddDTO.MemberIds.Any())
+                        {
+                            foreach (var memberId in groupAddDTO.MemberIds)
+                            {
+                                if (memberId != userId) // Don't add creator twice
+                                {
+                                    var member = new GroupMemberAddDTO
+                                    {
+                                        GroupId = createdGroup.Id,
+                                        UserId = memberId,
+                                        IsAdmin = false
+                                    };
+                                    _groupMemberService.Add(member);
+                                }
+                            }
+                        }
+                        
+                        var groupDto = _mapper.Map<GroupListDTO>(createdGroup);
+                        
+                        // Set member count
+                        var allMembers = _groupMemberService.GetAll();
+                        if (allMembers.IsSuccess)
+                        {
+                            groupDto.MemberCount = allMembers.Data.Count(gm => gm.GroupId == createdGroup.Id);
+                        }
+                        
+                        return Ok(groupDto);
+                    }
+                }
+                
                 return Ok(new { message = result.Message });
             }
             return BadRequest(new { message = result.Message });
@@ -244,8 +354,16 @@ namespace Talky_API.Controllers
                 if (group.IsMutedForAll)
                     return BadRequest(new { message = "Group is already muted for all members" });
 
-                var updateDto = _mapper.Map<GroupUpdateDTO>(group);
-                updateDto.IsMutedForAll = true;
+                // Update group directly
+                group.IsMutedForAll = true;
+                var updateDto = new GroupUpdateDTO
+                {
+                    Id = group.Id,
+                    Name = group.Name,
+                    Description = group.Description,
+                    Avatar = group.Avatar,
+                    IsMutedForAll = true
+                };
                 _groupService.Update(updateDto);
 
                 // Create system message
@@ -279,8 +397,16 @@ namespace Talky_API.Controllers
                 if (!group.IsMutedForAll)
                     return BadRequest(new { message = "Group is not muted for all members" });
 
-                var updateDto = _mapper.Map<GroupUpdateDTO>(group);
-                updateDto.IsMutedForAll = false;
+                // Update group directly
+                group.IsMutedForAll = false;
+                var updateDto = new GroupUpdateDTO
+                {
+                    Id = group.Id,
+                    Name = group.Name,
+                    Description = group.Description,
+                    Avatar = group.Avatar,
+                    IsMutedForAll = false
+                };
                 _groupService.Update(updateDto);
 
                 // Create system message
@@ -337,8 +463,13 @@ namespace Talky_API.Controllers
                 if (targetMember.IsMuted)
                     return BadRequest(new { message = $"@{targetUsername} is already muted" });
 
-                var memberUpdateDto = _mapper.Map<GroupMemberUpdateDTO>(targetMember);
-                memberUpdateDto.IsMuted = true;
+                // Update member directly
+                var memberUpdateDto = new GroupMemberUpdateDTO
+                {
+                    Id = targetMember.Id,
+                    IsAdmin = targetMember.IsAdmin,
+                    IsMuted = true
+                };
                 _groupMemberService.Update(memberUpdateDto);
 
                 // Create system message
@@ -384,8 +515,13 @@ namespace Talky_API.Controllers
                 if (!targetMember.IsMuted)
                     return BadRequest(new { message = $"@{targetUsername} is not muted" });
 
-                var memberUpdateDto = _mapper.Map<GroupMemberUpdateDTO>(targetMember);
-                memberUpdateDto.IsMuted = false;
+                // Update member directly
+                var memberUpdateDto = new GroupMemberUpdateDTO
+                {
+                    Id = targetMember.Id,
+                    IsAdmin = targetMember.IsAdmin,
+                    IsMuted = false
+                };
                 _groupMemberService.Update(memberUpdateDto);
 
                 // Create system message
@@ -542,8 +678,13 @@ namespace Talky_API.Controllers
             if (targetMember == null)
                 return NotFound(new { message = "Member not found" });
 
-            var updateDto = _mapper.Map<GroupMemberUpdateDTO>(targetMember);
-            updateDto.IsAdmin = true;
+            // Update member directly
+            var updateDto = new GroupMemberUpdateDTO
+            {
+                Id = targetMember.Id,
+                IsAdmin = true,
+                IsMuted = targetMember.IsMuted
+            };
             
             var result = _groupMemberService.Update(updateDto);
             if (result.IsSuccess)
@@ -581,8 +722,13 @@ namespace Talky_API.Controllers
             if (targetMember == null)
                 return NotFound(new { message = "Member not found" });
 
-            var updateDto = _mapper.Map<GroupMemberUpdateDTO>(targetMember);
-            updateDto.IsAdmin = false;
+            // Update member directly
+            var updateDto = new GroupMemberUpdateDTO
+            {
+                Id = targetMember.Id,
+                IsAdmin = false,
+                IsMuted = targetMember.IsMuted
+            };
             
             var result = _groupMemberService.Update(updateDto);
             if (result.IsSuccess)
@@ -627,8 +773,13 @@ namespace Talky_API.Controllers
             if (targetMember.IsMuted)
                 return BadRequest(new { message = "Member is already muted" });
 
-            var updateDto = _mapper.Map<GroupMemberUpdateDTO>(targetMember);
-            updateDto.IsMuted = true;
+            // Update member directly
+            var updateDto = new GroupMemberUpdateDTO
+            {
+                Id = targetMember.Id,
+                IsAdmin = targetMember.IsAdmin,
+                IsMuted = true
+            };
             _groupMemberService.Update(updateDto);
 
             // Create system message
@@ -689,8 +840,13 @@ namespace Talky_API.Controllers
             if (!targetMember.IsMuted)
                 return BadRequest(new { message = "Member is not muted" });
 
-            var updateDto = _mapper.Map<GroupMemberUpdateDTO>(targetMember);
-            updateDto.IsMuted = false;
+            // Update member directly
+            var updateDto = new GroupMemberUpdateDTO
+            {
+                Id = targetMember.Id,
+                IsAdmin = targetMember.IsAdmin,
+                IsMuted = false
+            };
             _groupMemberService.Update(updateDto);
 
             // Create system message
