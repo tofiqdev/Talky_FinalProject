@@ -1,0 +1,12 @@
+[phases.setup]
+nixPkgs = ['dotnet-sdk_8']
+
+[phases.build]
+cmds = [
+  'cd BackNtier/Talky_API',
+  'dotnet restore',
+  'dotnet publish -c Release -o out'
+]
+
+[phases.start]
+cmd = 'cd BackNtier/Talky_API/out && dotnet Talky_API.dll --urls http://0.0.0.0:$PORT'
