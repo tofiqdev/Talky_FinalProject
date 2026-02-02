@@ -3,10 +3,10 @@ nixPkgs = ['dotnet-sdk_8']
 
 [phases.build]
 cmds = [
-  'cd BackNtier/Talky_API',
-  'dotnet restore',
-  'dotnet publish -c Release -o out'
+  'cd BackNtier',
+  'dotnet restore Talky_API/Talky_API.csproj',
+  'dotnet publish Talky_API/Talky_API.csproj -c Release -o out'
 ]
 
 [phases.start]
-cmd = 'cd BackNtier/Talky_API/out && dotnet Talky_API.dll --urls http://0.0.0.0:$PORT'
+cmd = 'cd BackNtier/out && dotnet Talky_API.dll --urls http://0.0.0.0:$PORT'
