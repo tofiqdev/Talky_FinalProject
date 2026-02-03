@@ -5,6 +5,7 @@ import { usersApi, API_BASE_URL } from '../../services/apiService';
 import CreateGroupModal from '../group/CreateGroupModal';
 import CreateStoryModal from '../story/CreateStoryModal';
 import ViewStoryModal from '../story/ViewStoryModal';
+import { renderCEOBadgeUniversal } from '../../utils/userUtils';
 import type { Story } from '../../types/story';
 import type { User } from '../../types/user';
 
@@ -219,7 +220,10 @@ export default function ChatsTab() {
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-gray-900 text-sm">{user.username}</h3>
+                <h3 className="font-semibold text-gray-900 text-sm flex items-center">
+                  {user.username}
+                  {renderCEOBadgeUniversal(user.email, user.username)}
+                </h3>
                 <p className="text-xs text-gray-500 truncate">{user.email}</p>
               </div>
             </div>
@@ -394,7 +398,10 @@ export default function ChatsTab() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
-                    <h3 className="font-semibold text-gray-900 text-sm">{user.username}</h3>
+                    <h3 className="font-semibold text-gray-900 text-sm flex items-center">
+                      {user.username}
+                      {renderCEOBadgeUniversal(user.email, user.username)}
+                    </h3>
                     <span className="text-xs text-gray-500">
                       {getLastSeenText(user.lastSeen, user.isOnline)}
                     </span>

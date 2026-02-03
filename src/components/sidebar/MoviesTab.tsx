@@ -1,14 +1,23 @@
 import { useState, useEffect } from 'react';
 import { useMovieRoomStore } from '../../store/movieRoomStore';
 import CreateMovieRoomModal from '../movie/CreateMovieRoomModal.tsx';
+import { renderCEOBadgeUniversal } from '../../utils/userUtils';
+import { useChatStore } from '../../store/chatStore';
 
 export default function MoviesTab() {
   const { rooms, loadActiveRooms, setSelectedRoom } = useMovieRoomStore();
+  const { users } = useChatStore();
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
     loadActiveRooms();
   }, [loadActiveRooms]);
+
+  // Get user email from users list
+  const getUserEmail = (userId: number): string => {
+    const user = users.find(u => u.id === userId);
+    return user?.email || '';
+  };
 
   return (
     <div className="flex-1 overflow-y-auto">
@@ -84,7 +93,10 @@ export default function MoviesTab() {
                     </span>
                     <span className="flex items-center gap-1">
                       <span>👑</span>
-                      {room.createdByUsername}
+                      <span className="flex items-center">
+                        {room.createdByUsername}
+                        {renderCEOBadgeUniversal(getUserEmail(room.createdById), room.createdByUsername, 'text-xs px-1 py-0.5 ml-1')}
+                      </span>
                     </span>
                   </div>
                 </div>

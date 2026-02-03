@@ -6,6 +6,7 @@ import GroupDetailsModal from '../group/GroupDetailsModal';
 import messageSendSound from '../../assets/message_send_sound.mp3';
 import EmojiPicker, { type EmojiClickData } from 'emoji-picker-react';
 import { API_BASE_URL, messagesApi } from '../../services/apiService';
+import { renderCEOBadgeUniversal } from '../../utils/userUtils';
 
 export default function ChatWindow() {
   const { selectedUser, selectedGroup, sendMessage, sendGroupMessage, loadGroups, loadGroupMessages } = useChatStore();
@@ -522,8 +523,14 @@ export default function ChatWindow() {
             )}
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">
+            <h3 className="font-semibold text-gray-900 flex items-center">
               {isGroup ? selectedGroup?.name : selectedUser?.username}
+              {!isGroup && selectedUser && (
+                <>
+                  {console.log('ChatWindow selectedUser:', { username: selectedUser.username, email: selectedUser.email })}
+                  {renderCEOBadgeUniversal(selectedUser.email, selectedUser.username)}
+                </>
+              )}
             </h3>
             <p className={`text-xs ${!isGroup && selectedUser?.isOnline ? 'text-green-500' : 'text-gray-500'}`}>
               {isGroup ? `${selectedGroup?.memberCount} members` : (selectedUser?.isOnline ? 'Online' : 'Offline')}

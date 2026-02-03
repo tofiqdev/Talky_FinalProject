@@ -25,6 +25,7 @@ namespace Entity.TableModel
         public string? Avatar { get; set; }
         public string? Bio { get; set; }
         public bool IsOnline { get; set; } = false;
+        public bool IsCEO { get; set; } = false;
         public DateTime? LastSeen { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

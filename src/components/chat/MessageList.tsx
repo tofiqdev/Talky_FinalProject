@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useChatStore } from '../../store/chatStore';
 import { useAuthStore } from '../../store/authStore';
+import { renderCEOBadgeUniversal } from '../../utils/userUtils';
 
 export default function MessageList() {
-  const { messages, selectedGroup } = useChatStore();
+  const { messages, selectedGroup, users } = useChatStore();
   const { user } = useAuthStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -14,6 +15,11 @@ export default function MessageList() {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
   }, [messages]);
+
+  const getSenderEmail = (senderId: number): string => {
+    const sender = users.find(u => u.id === senderId);
+    return sender?.email || '';
+  };
 
   const isVoiceMessage = (content: string) => {
     return content.startsWith('[VOICE:');
@@ -311,8 +317,9 @@ export default function MessageList() {
                     }`}
                   >
                     {!isSent && selectedGroup && (
-                      <p className="text-xs font-semibold mb-1 text-gray-600">
+                      <p className="text-xs font-semibold mb-1 text-gray-600 flex items-center">
                         {msg.senderUsername}
+                        {renderCEOBadgeUniversal(getSenderEmail(msg.senderId), msg.senderUsername, 'text-xs px-1 py-0.5')}
                       </p>
                     )}
                     <p className="text-sm leading-relaxed">

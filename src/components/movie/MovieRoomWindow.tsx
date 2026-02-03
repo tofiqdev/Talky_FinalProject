@@ -3,16 +3,25 @@ import { useMovieRoomStore } from '../../store/movieRoomStore';
 import { useAuthStore } from '../../store/authStore';
 import { movieRoomSignalrService } from '../../services/movieRoomSignalrService';
 import YouTube, { type YouTubeProps } from 'react-youtube';
+import { renderCEOBadgeUniversal } from '../../utils/userUtils';
+import { useChatStore } from '../../store/chatStore';
 
 export default function MovieRoomWindow() {
   const { selectedRoom, messages, loadMessages, sendMessage, joinRoom, leaveRoom } = useMovieRoomStore();
   const { user } = useAuthStore();
+  const { users } = useChatStore();
   const [messageInput, setMessageInput] = useState('');
   const [isJoined, setIsJoined] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<any>(null);
   const isOwner = selectedRoom?.createdById === user?.id;
+
+  // Get user email from users list
+  const getUserEmail = (userId: number): string => {
+    const user = users.find(u => u.id === userId);
+    return user?.email || '';
+  };
 
   useEffect(() => {
     if (selectedRoom) {
@@ -304,7 +313,10 @@ export default function MovieRoomWindow() {
                       <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white"></div>
                     )}
                   </div>
-                  <span className="text-sm text-gray-700">{participant.username}</span>
+                  <span className="text-sm text-gray-700 flex items-center">
+                    {participant.username}
+                    {renderCEOBadgeUniversal(getUserEmail(participant.userId), participant.username, 'text-xs px-1 py-0.5')}
+                  </span>
                 </div>
               ))}
             </div>
@@ -338,8 +350,9 @@ export default function MovieRoomWindow() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline gap-2 mb-1">
-                      <span className="font-semibold text-sm text-gray-900">
+                      <span className="font-semibold text-sm text-gray-900 flex items-center">
                         {message.senderUsername}
+                        {renderCEOBadgeUniversal(getUserEmail(message.senderId), message.senderUsername, 'text-xs px-1 py-0.5')}
                       </span>
                       <span className="text-xs text-gray-500">
                         {new Date(message.sentAt).toLocaleTimeString('tr-TR', {

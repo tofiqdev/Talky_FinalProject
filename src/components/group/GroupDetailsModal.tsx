@@ -3,6 +3,7 @@ import type { Group } from '../../types/group';
 import { useAuthStore } from '../../store/authStore';
 import { useChatStore } from '../../store/chatStore';
 import { API_BASE_URL } from '../../services/apiService';
+import { renderCEOBadgeUniversal } from '../../utils/userUtils';
 
 interface GroupDetailsModalProps {
   group: Group;
@@ -18,6 +19,12 @@ export default function GroupDetailsModal({ group, isOpen, onClose, onUpdate, on
   const [showAddMember, setShowAddMember] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Get user email from users list
+  const getUserEmail = (userId: number): string => {
+    const user = users.find(u => u.id === userId);
+    return user?.email || '';
+  };
   const [showSettings, setShowSettings] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
@@ -525,7 +532,10 @@ export default function GroupDetailsModal({ group, isOpen, onClose, onUpdate, on
                       )}
                     </div>
                     <div>
-                      <p className="font-medium text-sm">{member.username}</p>
+                      <p className="font-medium text-sm flex items-center">
+                        {member.username}
+                        {renderCEOBadgeUniversal(getUserEmail(member.userId), member.username, 'text-xs px-1 py-0.5')}
+                      </p>
                       <p className="text-xs text-gray-500">
                         {isMemberOwner ? (
                           <span className="text-purple-600 font-semibold">Owner</span>

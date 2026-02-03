@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import type { Story, StoryView } from '../../types/story';
 import { API_BASE_URL } from '../../services/apiService';
+import { renderCEOBadgeUniversal } from '../../utils/userUtils';
+import { useChatStore } from '../../store/chatStore';
 
 interface ViewStoryModalProps {
   isOpen: boolean;
@@ -10,6 +12,7 @@ interface ViewStoryModalProps {
 }
 
 export default function ViewStoryModal({ isOpen, stories, initialIndex, onClose }: ViewStoryModalProps) {
+  const { users } = useChatStore();
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [progress, setProgress] = useState(0);
   const [showViews, setShowViews] = useState(false);
@@ -18,6 +21,12 @@ export default function ViewStoryModal({ isOpen, stories, initialIndex, onClose 
 
   const currentStory = stories[currentIndex];
   const STORY_DURATION = 5000; // 5 seconds
+
+  // Get user email from users list
+  const getUserEmail = (userId: number): string => {
+    const user = users.find(u => u.id === userId);
+    return user?.email || '';
+  };
   
   // Get all stories from the current user
   const currentUserStories = stories.filter(s => s.userId === currentStory?.userId);
@@ -159,7 +168,10 @@ export default function ViewStoryModal({ isOpen, stories, initialIndex, onClose 
             </div>
           )}
           <div>
-            <p className="text-white font-semibold">{currentStory.username}</p>
+            <p className="text-white font-semibold flex items-center">
+              {currentStory.username}
+              {renderCEOBadgeUniversal(getUserEmail(currentStory.userId), currentStory.username, 'text-xs px-1 py-0.5 bg-green-200 text-green-900')}
+            </p>
             <p className="text-white text-xs opacity-80">{getTimeAgo(currentStory.createdAt)}</p>
           </div>
         </div>
@@ -259,7 +271,10 @@ export default function ViewStoryModal({ isOpen, stories, initialIndex, onClose 
                     </div>
                   )}
                   <div className="flex-1">
-                    <p className="font-medium text-gray-900">{view.username}</p>
+                    <p className="font-medium text-gray-900 flex items-center">
+                      {view.username}
+                      {renderCEOBadgeUniversal(getUserEmail(view.userId), view.username, 'text-xs px-1 py-0.5')}
+                    </p>
                     <p className="text-xs text-gray-500">{getTimeAgo(view.viewedAt)}</p>
                   </div>
                 </div>

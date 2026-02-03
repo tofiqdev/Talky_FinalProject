@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useChatStore } from '../../store/chatStore';
 import { usersApi, API_BASE_URL } from '../../services/apiService';
+import { renderCEOBadgeUniversal } from '../../utils/userUtils';
 
 interface BlockedUser {
   id: number;
@@ -213,7 +214,10 @@ export default function PeopleTab() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-gray-900 text-sm">{user.username}</h3>
+                  <h3 className="font-semibold text-gray-900 text-sm flex items-center">
+                    {user.username}
+                    {renderCEOBadgeUniversal(user.email, user.username)}
+                  </h3>
                   <p className={`text-sm ${user.isOnline ? 'text-green-500' : 'text-gray-500'}`}>
                     {getLastSeenText(user.lastSeen, user.isOnline)}
                   </p>
@@ -273,7 +277,10 @@ export default function PeopleTab() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-gray-900 text-sm">{user.username}</h3>
+                  <h3 className="font-semibold text-gray-900 text-sm flex items-center">
+                    {user.username}
+                    {renderCEOBadgeUniversal(user.email, user.username)}
+                  </h3>
                   <p className="text-sm text-red-500">Blocked</p>
                 </div>
                 <button 
