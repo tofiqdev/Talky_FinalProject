@@ -53,9 +53,8 @@ namespace DAL.Configuration
                 .IsRequired(false);
 
             // Index'ler
-            builder.HasIndex(x => new {x.Deleted })
-                .IsUnique()
-                .HasDatabaseName("idx_Name_Deleted");
+            builder.HasIndex(x => x.Deleted)
+                .HasDatabaseName("idx_Deleted");
 
             builder.HasIndex(x => x.SenderId)
                 .HasDatabaseName("idx_SenderId");

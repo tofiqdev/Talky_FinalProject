@@ -4,6 +4,9 @@ import type { Message } from '../types/message';
 // Use environment variable for production, proxy for development
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
+// Export API_BASE_URL for use in other files
+export { API_BASE_URL };
+
 // Helper function to get auth token
 const getAuthToken = (): string | null => {
   return localStorage.getItem('token');
@@ -29,7 +32,7 @@ const createHeaders = (includeAuth: boolean = false): HeadersInit => {
 // Auth API
 export const authApi = {
   register: async (username: string, email: string, password: string): Promise<AuthResponse> => {
-    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+    const response = await fetch(`${API_BASE_URL}/Auth/register`, {
       method: 'POST',
       headers: createHeaders(),
       body: JSON.stringify({ username, email, password }),
@@ -57,7 +60,7 @@ export const authApi = {
   },
 
   login: async (email: string, password: string): Promise<AuthResponse> => {
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+    const response = await fetch(`${API_BASE_URL}/Auth/login`, {
       method: 'POST',
       headers: createHeaders(),
       body: JSON.stringify({ emailOrUsername: email, password }),
@@ -85,7 +88,7 @@ export const authApi = {
   },
 
   getCurrentUser: async (): Promise<User> => {
-    const response = await fetch(`${API_BASE_URL}/auth/me`, {
+    const response = await fetch(`${API_BASE_URL}/Auth/me`, {
       headers: createHeaders(true),
     });
 
@@ -180,17 +183,44 @@ export const messagesApi = {
   },
 
   sendMessage: async (receiverId: number, content: string): Promise<Message> => {
-    const response = await fetch(`${API_BASE_URL}/Message`, {
-      method: 'POST',
-      headers: createHeaders(true),
-      body: JSON.stringify({ receiverId, content }),
-    });
+    console.log('messagesApi: sendMessage called with:', { receiverId, content });
+    console.log('messagesApi: API_BASE_URL:', API_BASE_URL);
+    
+    const token = getAuthToken();
+    console.log('messagesApi: Token exists:', !!token);
+    console.log('messagesApi: Token preview:', token ? token.substring(0, 20) + '...' : 'No token');
+    
+    const requestBody = { receiverId, content };
+    console.log('messagesApi: Request body:', requestBody);
+    
+    const headers = createHeaders(true);
+    console.log('messagesApi: Request headers:', headers);
+    
+    try {
+      console.log('messagesApi: Making fetch request to:', `${API_BASE_URL}/Message`);
+      const response = await fetch(`${API_BASE_URL}/Message`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(requestBody),
+      });
 
-    if (!response.ok) {
-      throw new Error('Failed to send message');
+      console.log('messagesApi: Response status:', response.status);
+      console.log('messagesApi: Response ok:', response.ok);
+      console.log('messagesApi: Response headers:', Object.fromEntries(response.headers.entries()));
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('messagesApi: Error response text:', errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText || 'Failed to send message'}`);
+      }
+
+      const result = await response.json();
+      console.log('messagesApi: Success response:', result);
+      return result;
+    } catch (error) {
+      console.error('messagesApi: Fetch error:', error);
+      throw error;
     }
-
-    return response.json();
   },
 
   markAsRead: async (messageId: number): Promise<void> => {

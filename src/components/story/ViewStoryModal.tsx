@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { Story, StoryView } from '../../types/story';
+import { API_BASE_URL } from '../../services/apiService';
 
 interface ViewStoryModalProps {
   isOpen: boolean;
@@ -48,7 +49,7 @@ export default function ViewStoryModal({ isOpen, stories, initialIndex, onClose 
   const markAsViewed = async (storyId: number) => {
     try {
       const token = localStorage.getItem('token');
-      await fetch(`/api/stories/${storyId}/view`, {
+      await fetch(`${API_BASE_URL}/stories/${storyId}/view`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -63,7 +64,7 @@ export default function ViewStoryModal({ isOpen, stories, initialIndex, onClose 
     setIsLoadingViews(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/stories/${storyId}/views`, {
+      const response = await fetch(`${API_BASE_URL}/stories/${storyId}/views`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

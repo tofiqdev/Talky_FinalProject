@@ -23,9 +23,24 @@ namespace Core.Concret
 
         public void Add(T entity)
         {
-            var entityAdded = _context.Entry(entity);
-            entityAdded.State = EntityState.Added;
-            _context.SaveChanges();
+            try
+            {
+                var entityAdded = _context.Entry(entity);
+                entityAdded.State = EntityState.Added;
+                _context.SaveChanges();
+            }
+            catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
+            {
+                // Reset the entity state to avoid tracking issues
+                _context.Entry(entity).State = EntityState.Detached;
+                throw; // Re-throw to let upper layers handle it
+            }
+            catch (Exception ex)
+            {
+                // Reset the entity state to avoid tracking issues
+                _context.Entry(entity).State = EntityState.Detached;
+                throw; // Re-throw to let upper layers handle it
+            }
         }
 
         public void Delete(T entity)

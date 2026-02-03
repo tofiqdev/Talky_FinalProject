@@ -83,8 +83,9 @@ namespace DAL.Configuration
                 .OnDelete(DeleteBehavior.Restrict); // Kullanıcı silinirse mesajlar kalsın
 
             // Check constraint'ler (opsiyonel)
-            builder.HasCheckConstraint("CK_GroupMessage_SentAt",
-                "[SentAt] <= GETUTCDATE()");
+            // Removed SentAt constraint - causing issues with DateTime.UtcNow timing
+            // builder.HasCheckConstraint("CK_GroupMessage_SentAt",
+            //     "[SentAt] <= GETUTCDATE()");
 
             builder.HasCheckConstraint("CK_GroupMessage_Content",
                 "LEN([Content]) > 0");

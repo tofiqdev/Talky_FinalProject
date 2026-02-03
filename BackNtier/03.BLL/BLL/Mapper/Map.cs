@@ -50,7 +50,10 @@ namespace BLL.Mapper
                 .ForMember(dest => dest.Receiver, opt => opt.Ignore())
                 .ReverseMap();
 
-            CreateMap<Message, MessageListDTO>().ReverseMap();
+            CreateMap<Message, MessageListDTO>()
+                .ForMember(dest => dest.SenderName, opt => opt.MapFrom(src => src.Sender.Username))
+                .ForMember(dest => dest.ReceiverName, opt => opt.MapFrom(src => src.Receiver.Username))
+                .ReverseMap();
             CreateMap<MessageAddDTO, Message>()
                 .ForMember(dest => dest.Sender, opt => opt.Ignore())
                 .ForMember(dest => dest.Receiver, opt => opt.Ignore())

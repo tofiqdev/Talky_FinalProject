@@ -16,8 +16,10 @@ class SignalRService {
 
     // Use environment variable for production, localhost for development
     const hubUrl = import.meta.env.VITE_API_URL 
-      ? `${import.meta.env.VITE_API_URL}/chatHub`
+      ? `${import.meta.env.VITE_API_URL.replace('/api', '')}/chatHub`
       : 'http://localhost:5282/chatHub';
+
+    console.log('SignalR: Connecting to:', hubUrl);
 
     this.connection = new signalR.HubConnectionBuilder()
       .withUrl(hubUrl, {
@@ -78,7 +80,26 @@ class SignalRService {
 
   // Event listeners
   onReceiveMessage(callback: (message: Message) => void) {
-    this.connection?.on('ReceiveMessage', callback);
+    this.connection?.on('ReceiveMessage', (messageData: any) => {
+      console.log('SignalR: Raw message received:', messageData);
+      
+      // Convert the received data to Message format
+      const message: Message = {
+        id: messageData.id,
+        senderId: messageData.senderId,
+        receiverId: messageData.receiverId,
+        senderUsername: messageData.senderUsername || '',
+        receiverUsername: messageData.receiverUsername || '',
+        content: messageData.content,
+        sentAt: messageData.sentAt,
+        isRead: messageData.isRead || false,
+        readAt: messageData.readAt || null,
+        isSystemMessage: messageData.isSystemMessage || false
+      };
+      
+      console.log('SignalR: Converted message:', message);
+      callback(message);
+    });
   }
 
   onUserOnline(callback: (userId: number) => void) {

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { Group } from '../../types/group';
 import { useAuthStore } from '../../store/authStore';
 import { useChatStore } from '../../store/chatStore';
+import { API_BASE_URL } from '../../services/apiService';
 
 interface GroupDetailsModalProps {
   group: Group;
@@ -52,7 +53,7 @@ export default function GroupDetailsModal({ group, isOpen, onClose, onUpdate, on
 
       // Upload to backend
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/Groups/${group.id}/avatar`, {
+      const response = await fetch(`${API_BASE_URL}/Groups/${group.id}/avatar`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -127,7 +128,7 @@ export default function GroupDetailsModal({ group, isOpen, onClose, onUpdate, on
     setIsLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/groups/${group.id}/members/${memberId}/promote`, {
+      const response = await fetch(`${API_BASE_URL}/groups/${group.id}/members/${memberId}/promote`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -151,7 +152,7 @@ export default function GroupDetailsModal({ group, isOpen, onClose, onUpdate, on
     setIsLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/groups/${group.id}/members/${memberId}/demote`, {
+      const response = await fetch(`${API_BASE_URL}/groups/${group.id}/members/${memberId}/demote`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -177,7 +178,7 @@ export default function GroupDetailsModal({ group, isOpen, onClose, onUpdate, on
     setIsLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/groups/${group.id}/members/${memberId}`, {
+      const response = await fetch(`${API_BASE_URL}/groups/${group.id}/members/${memberId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -201,7 +202,7 @@ export default function GroupDetailsModal({ group, isOpen, onClose, onUpdate, on
     setIsLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/groups/${group.id}/members/${memberId}/mute`, {
+      const response = await fetch(`${API_BASE_URL}/groups/${group.id}/members/${memberId}/mute`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -225,7 +226,7 @@ export default function GroupDetailsModal({ group, isOpen, onClose, onUpdate, on
     setIsLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/groups/${group.id}/members/${memberId}/unmute`, {
+      const response = await fetch(`${API_BASE_URL}/groups/${group.id}/members/${memberId}/unmute`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -249,7 +250,7 @@ export default function GroupDetailsModal({ group, isOpen, onClose, onUpdate, on
     setIsLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/groups/${group.id}/members`, {
+      const response = await fetch(`${API_BASE_URL}/groups/${group.id}/members`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -279,7 +280,7 @@ export default function GroupDetailsModal({ group, isOpen, onClose, onUpdate, on
     setIsLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/groups/${group.id}`, {
+      const response = await fetch(`${API_BASE_URL}/groups/${group.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -314,7 +315,7 @@ export default function GroupDetailsModal({ group, isOpen, onClose, onUpdate, on
     setIsLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/groups/${group.id}/leave`, {
+      const response = await fetch(`${API_BASE_URL}/groups/${group.id}/leave`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -342,7 +343,7 @@ export default function GroupDetailsModal({ group, isOpen, onClose, onUpdate, on
     setIsLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/groups/${group.id}/mute-all`, {
+      const response = await fetch(`${API_BASE_URL}/groups/${group.id}/mute-all`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -368,7 +369,7 @@ export default function GroupDetailsModal({ group, isOpen, onClose, onUpdate, on
     setIsLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/groups/${group.id}/unmute-all`, {
+      const response = await fetch(`${API_BASE_URL}/groups/${group.id}/unmute-all`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

@@ -5,6 +5,7 @@ import MessageList from './MessageList';
 import GroupDetailsModal from '../group/GroupDetailsModal';
 import messageSendSound from '../../assets/message_send_sound.mp3';
 import EmojiPicker, { type EmojiClickData } from 'emoji-picker-react';
+import { API_BASE_URL, messagesApi } from '../../services/apiService';
 
 export default function ChatWindow() {
   const { selectedUser, selectedGroup, sendMessage, sendGroupMessage, loadGroups, loadGroupMessages } = useChatStore();
@@ -42,7 +43,7 @@ export default function ChatWindow() {
   const checkIsContact = async (userId: number) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/contacts/check/${userId}`, {
+      const response = await fetch(`${API_BASE_URL}/contacts/check/${userId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -63,7 +64,7 @@ export default function ChatWindow() {
     setAddingContact(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/contacts/${selectedUser.id}`, {
+      const response = await fetch(`${API_BASE_URL}/contacts/${selectedUser.id}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -461,8 +462,7 @@ export default function ChatWindow() {
       const voiceMessage = `[VOICE:${recordingTime}s]${base64Audio}`;
       console.log('Sending voice message via REST API...');
       
-      // Import messagesApi
-      const { messagesApi } = await import('../../services/apiService');
+      // Use imported messagesApi
       const message = await messagesApi.sendMessage(selectedUser.id, voiceMessage);
       
       // Add to local state

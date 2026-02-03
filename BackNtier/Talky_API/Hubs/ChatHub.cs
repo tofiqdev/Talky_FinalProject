@@ -1,11 +1,21 @@
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
+using BLL.Abstrack;
+using Entity.DataTransferObject.MessageDTO;
 
 namespace Talky_API.Hubs
 {
     public class ChatHub : Hub
     {
         private static readonly Dictionary<int, string> _userConnections = new();
+        private readonly IMessageService _messageService;
+        private readonly IUserService _userService;
+
+        public ChatHub(IMessageService messageService, IUserService userService)
+        {
+            _messageService = messageService;
+            _userService = userService;
+        }
 
         public override async Task OnConnectedAsync()
         {
@@ -43,15 +53,50 @@ namespace Talky_API.Hubs
                 throw new HubException("Unauthorized");
             }
 
+            // Save message to database
+            var messageAddDto = new MessageAddDTO
+            {
+                SenderId = senderId.Value,
+                ReceiverId = receiverId,
+                Content = content
+            };
+
+            var result = _messageService.Add(messageAddDto);
+            if (!result.IsSuccess)
+            {
+                throw new HubException($"Failed to save message: {result.Message}");
+            }
+
+            // Get the saved message with ID and user details
+            var messages = _messageService.GetAll();
+            var savedMessage = messages.Data?
+                .Where(m => m.SenderId == senderId.Value && m.ReceiverId == receiverId)
+                .OrderByDescending(m => m.SentAt)
+                .FirstOrDefault();
+
+            if (savedMessage == null)
+            {
+                throw new HubException("Failed to retrieve saved message");
+            }
+
+            // Get user details for sender and receiver names
+            var senderResult = _userService.Get(senderId.Value);
+            var receiverResult = _userService.Get(receiverId);
+            
+            var senderName = senderResult.IsSuccess ? senderResult.Data.Username : "Unknown";
+            var receiverName = receiverResult.IsSuccess ? receiverResult.Data.Username : "Unknown";
+
             var message = new
             {
-                id = 0, // Will be set by database
-                senderId = senderId.Value,
-                receiverId = receiverId,
-                content = content,
-                isRead = false,
-                sentAt = DateTime.UtcNow,
-                readAt = (DateTime?)null
+                id = savedMessage.Id,
+                senderId = savedMessage.SenderId,
+                receiverId = savedMessage.ReceiverId,
+                senderUsername = senderName,
+                receiverUsername = receiverName,
+                content = savedMessage.Content,
+                isRead = savedMessage.IsRead,
+                sentAt = savedMessage.SentAt,
+                readAt = savedMessage.ReadAt
             };
 
             // Send to receiver if online
@@ -111,6 +156,25 @@ namespace Talky_API.Hubs
         {
             var userId = GetUserId();
             if (!userId.HasValue) return;
+
+            // Update message in database
+            var messageResult = _messageService.Get(messageId);
+            if (messageResult.IsSuccess)
+            {
+                var message = messageResult.Data;
+                var updateDto = new MessageUpdateDTO
+                {
+                    Id = message.Id,
+                    SenderId = message.SenderId,
+                    ReceiverId = message.ReceiverId,
+                    Content = message.Content,
+                    IsRead = true,
+                    SentAt = message.SentAt,
+                    ReadAt = DateTime.UtcNow
+                };
+                
+                _messageService.Update(updateDto);
+            }
 
             await Clients.All.SendAsync("MessageRead", messageId);
         }

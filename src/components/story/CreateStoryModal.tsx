@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { API_BASE_URL } from '../../services/apiService';
 
 interface CreateStoryModalProps {
   isOpen: boolean;
@@ -53,11 +54,12 @@ export default function CreateStoryModal({ isOpen, onClose, onSuccess }: CreateS
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/stories', {
+      const response = await fetch(`${API_BASE_URL}/stories`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
         },
         body: JSON.stringify({
           imageUrl: imagePreview,

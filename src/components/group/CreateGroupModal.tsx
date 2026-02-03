@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useChatStore } from '../../store/chatStore';
+import { API_BASE_URL } from '../../services/apiService';
 
 interface CreateGroupModalProps {
   isOpen: boolean;
@@ -39,11 +40,12 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateG
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/groups', {
+      const response = await fetch(`${API_BASE_URL}/groups`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
         },
         body: JSON.stringify({
           name: groupName,

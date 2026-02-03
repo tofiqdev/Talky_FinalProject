@@ -62,10 +62,12 @@ export const useChatStore = create<ChatState>()(
   loadGroups: async () => {
     set({ isLoading: true, error: null });
     try {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/groups', {
+      const response = await fetch(`${API_BASE_URL}/Groups`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
         }
       });
       
@@ -85,10 +87,12 @@ export const useChatStore = create<ChatState>()(
   loadCalls: async () => {
     set({ isLoading: true, error: null });
     try {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/calls', {
+      const response = await fetch(`${API_BASE_URL}/Call`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
         }
       });
       
@@ -122,10 +126,12 @@ export const useChatStore = create<ChatState>()(
   loadGroupMessages: async (groupId: number) => {
     set({ isLoading: true, error: null });
     try {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/groups/${groupId}/messages`, {
+      const response = await fetch(`${API_BASE_URL}/Groups/${groupId}/messages`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
         }
       });
       
@@ -158,38 +164,75 @@ export const useChatStore = create<ChatState>()(
   },
 
   sendMessage: async (receiverId: number, content: string) => {
-    try {
-      console.log('Sending message to:', receiverId, 'content:', content);
-      
-      // Send via SignalR for real-time delivery
-      if (signalrService.isConnected()) {
-        console.log('SignalR connected, sending via SignalR');
-        await signalrService.sendMessage(receiverId, content);
-        // Note: Backend will send ReceiveMessage event back to both sender and receiver
-      } else {
-        console.log('SignalR not connected, using REST API fallback');
-        // Fallback to REST API if SignalR not connected
+    const maxRetries = 3;
+    let lastError: Error | null = null;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`ChatStore: Sending message attempt ${attempt}/${maxRetries} to:`, receiverId, 'content:', content);
+        
+        // Add a small delay between retries to avoid rapid duplicate requests
+        if (attempt > 1) {
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        }
+
+        // First, save message to database via API
+        console.log('ChatStore: Calling messagesApi.sendMessage...');
         const message = await messagesApi.sendMessage(receiverId, content);
+        console.log('ChatStore: Message saved to database:', message);
+        
+        // Then send via SignalR for real-time delivery
+        if (signalrService.isConnected()) {
+          console.log('ChatStore: Sending via SignalR...');
+          await signalrService.sendMessage(receiverId, content);
+          console.log('ChatStore: Message sent via SignalR');
+        } else {
+          console.warn('ChatStore: SignalR not connected, message only saved to database');
+        }
+        
+        // Add to local state
+        console.log('ChatStore: Adding message to local state');
         get().addMessage(message);
+        console.log('ChatStore: Message added to state successfully');
+        
+        // Success - break out of retry loop
+        return;
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error('Unknown error');
+        console.error(`ChatStore: Attempt ${attempt} failed:`, lastError.message);
+        
+        // If it's a duplicate key error and not the last attempt, try again
+        if (lastError.message.includes('duplicate key') && attempt < maxRetries) {
+          console.log(`ChatStore: Retrying due to duplicate key error (attempt ${attempt + 1}/${maxRetries})`);
+          continue;
+        }
+        
+        // If it's not a duplicate key error or it's the last attempt, throw the error
+        if (attempt === maxRetries) {
+          break;
+        }
       }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to send message';
-      set({ error: errorMessage });
-      console.error('Failed to send message:', error);
-      throw error;
     }
+
+    // If we get here, all retries failed
+    const errorMessage = lastError?.message || 'Failed to send message';
+    console.error('ChatStore: All retry attempts failed. Final error:', lastError);
+    set({ error: errorMessage });
+    throw lastError || new Error(errorMessage);
   },
 
   sendGroupMessage: async (groupId: number, content: string) => {
     try {
       console.log('Sending group message to:', groupId, 'content:', content);
       
+      const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/groups/${groupId}/messages`, {
+      const response = await fetch(`${API_BASE_URL}/Groups/${groupId}/messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
         },
         body: JSON.stringify(content)
       });

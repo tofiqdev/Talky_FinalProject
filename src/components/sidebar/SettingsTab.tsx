@@ -1,6 +1,7 @@
 ﻿import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../../services/apiService';
 
 export default function SettingsTab() {
   const { user, logout } = useAuthStore();
@@ -183,10 +184,10 @@ function EditProfileModal({ onClose }: { onClose: () => void }) {
       // Upload to backend
       const token = localStorage.getItem('token');
       console.log('Token:', token ? 'exists' : 'missing');
-      console.log('Request URL:', '/api/User/profile-picture');
+      console.log('Request URL:', `${API_BASE_URL}/User/profile-picture`);
       console.log('Request body:', JSON.stringify({ avatar: base64String.substring(0, 50) + '...' }));
       
-      const response = await fetch('/api/User/profile-picture', {
+      const response = await fetch(`${API_BASE_URL}/User/profile-picture`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -281,7 +282,7 @@ function EditProfileModal({ onClose }: { onClose: () => void }) {
       const token = localStorage.getItem('token');
       
       // Get current user data first
-      const currentUserResponse = await fetch('/api/auth/me', {
+      const currentUserResponse = await fetch(`${API_BASE_URL}/auth/me`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'ngrok-skip-browser-warning': 'true'
@@ -295,7 +296,7 @@ function EditProfileModal({ onClose }: { onClose: () => void }) {
       const currentUser = await currentUserResponse.json();
       
       // Update with all required fields
-      const response = await fetch('/api/User/profile', {
+      const response = await fetch(`${API_BASE_URL}/User/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

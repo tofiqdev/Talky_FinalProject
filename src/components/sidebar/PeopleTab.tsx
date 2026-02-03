@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useChatStore } from '../../store/chatStore';
-import { usersApi } from '../../services/apiService';
+import { usersApi, API_BASE_URL } from '../../services/apiService';
 
 interface BlockedUser {
   id: number;
@@ -30,9 +30,10 @@ export default function PeopleTab() {
     setIsLoadingBlocked(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/blockedusers', {
+      const response = await fetch(`${API_BASE_URL}/BlockedUser`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
         }
       });
       
@@ -52,11 +53,14 @@ export default function PeopleTab() {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/blockedusers/${userId}`, {
+      const response = await fetch(`${API_BASE_URL}/BlockedUser`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
+        },
+        body: JSON.stringify({ blockedUserId: userId })
       });
       
       if (response.ok) {
@@ -75,10 +79,11 @@ export default function PeopleTab() {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/blockedusers/${userId}`, {
+      const response = await fetch(`${API_BASE_URL}/BlockedUser/${userId}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
         }
       });
       

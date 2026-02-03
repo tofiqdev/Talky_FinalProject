@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useChatStore } from '../../store/chatStore';
 import { useAuthStore } from '../../store/authStore';
-import { usersApi } from '../../services/apiService';
+import { usersApi, API_BASE_URL } from '../../services/apiService';
 import CreateGroupModal from '../group/CreateGroupModal';
 import CreateStoryModal from '../story/CreateStoryModal';
 import ViewStoryModal from '../story/ViewStoryModal';
@@ -30,9 +30,10 @@ export default function ChatsTab() {
     setIsLoadingStories(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/stories', {
+      const response = await fetch(`${API_BASE_URL}/stories`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
         }
       });
       

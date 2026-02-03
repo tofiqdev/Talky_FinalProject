@@ -28,18 +28,41 @@ namespace BLL.Concret
         }
         public IResult Add(MessageAddDTO messageAddDTO)
         {
-            var message = _mapper.Map<Message>(messageAddDTO);
+            try
+            {
+                var message = _mapper.Map<Message>(messageAddDTO);
 
-            var validateValidator = new MessageValidator();
-            var validationResult = validateValidator.Validate(message);
+                var validateValidator = new MessageValidator();
+                var validationResult = validateValidator.Validate(message);
 
-            if (!validationResult.IsValid)
-                return new ErrorResult(validationResult.Errors.FluentErrorString());
+                if (!validationResult.IsValid)
+                    return new ErrorResult(validationResult.Errors.FluentErrorString());
 
-            // Duplicate Check Removed
+                // Set default values to avoid database conflicts
+                message.Deleted = 0;
+                message.SentAt = DateTime.UtcNow;
+                message.IsRead = false;
 
-            _messageDal.Add(message);
-            return new SuccesResult("Added Successfuly");
+                _messageDal.Add(message);
+                return new SuccesResult("Added Successfully");
+            }
+            catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
+            {
+                // Log the detailed error for debugging
+                var innerException = ex.InnerException?.Message ?? ex.Message;
+                
+                // Return a user-friendly error message
+                if (innerException.Contains("duplicate key") || innerException.Contains("unique index"))
+                {
+                    return new ErrorResult("Message could not be saved due to a database constraint. Please try again.");
+                }
+                
+                return new ErrorResult($"Database error occurred: {innerException}");
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResult($"An error occurred while saving the message: {ex.Message}");
+            }
         }
 
         public IResult Delete(int id)
